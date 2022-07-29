@@ -23,9 +23,11 @@ type
     FActive: Boolean;
     FLabelMargin: Boolean;
     FRemoveExplicitProperty: Boolean;
+    FRemoveTextHeightProperty: Boolean;
     procedure SetActive(const Value: Boolean);
     procedure SetLabelMargin(const Value: Boolean);
     procedure SetRemoveExplicitProperty(const Value: Boolean);
+    procedure SetRemoveTextHeightProperty(const Value: Boolean);
   protected
     function GetOptionPages: TTreePage; override;
     procedure Init; override;
@@ -37,12 +39,14 @@ type
     property Active: Boolean read FActive write SetActive;
     property LabelMargin: Boolean read FLabelMargin write SetLabelMargin;
     property RemoveExplicitProperty: Boolean read FRemoveExplicitProperty write SetRemoveExplicitProperty;
+    property RemoveTextHeightProperty: Boolean read FRemoveTextHeightProperty write SetRemoveTextHeightProperty;
   end;
 
   TFrameOptionPageFormDesigner = class(TFrameBase, ITreePageComponent)
     cbxActive: TCheckBox;
     cbxLabelMargin: TCheckBox;
     chkRemoveExplicitProperties: TCheckBox;
+    chkRemoveTextHeightProperty: TCheckBox;
     procedure cbxActiveClick(Sender: TObject);
   private
     { Private-Deklarationen }
@@ -65,7 +69,7 @@ procedure InitPlugin(Unload: Boolean);
 implementation
 
 uses
-  Main, LabelMarginHelper, RemoveExplicitProperty;
+  Main, LabelMarginHelper, RemoveExplicitProperty, RemoveTextHeightProperty;
 
 {$R *.dfm}
 
@@ -102,6 +106,7 @@ begin
   cbxActive.Checked := FFormDesigner.Active;
   cbxLabelMargin.Checked := FFormDesigner.LabelMargin;
   chkRemoveExplicitProperties.Checked := FFormDesigner.RemoveExplicitProperty;
+  chkRemoveTextHeightProperty.Checked := FFormDesigner.RemoveTextHeightProperty;
 
   cbxActiveClick(cbxActive);
 end;
@@ -110,6 +115,7 @@ procedure TFrameOptionPageFormDesigner.SaveData;
 begin
   FFormDesigner.LabelMargin := cbxLabelMargin.Checked;
   FFormDesigner.RemoveExplicitProperty := chkRemoveExplicitProperties.Checked;
+  FFormDesigner.RemoveTextHeightProperty := chkRemoveTextHeightProperty.Checked;
 
   FFormDesigner.Active := cbxActive.Checked;
   FFormDesigner.Save;
@@ -141,6 +147,7 @@ begin
   inherited Init;
   LabelMargin := True;
   RemoveExplicitProperty := False;
+  RemoveTextHeightProperty := False;
   Active := True;
 end;
 
@@ -173,11 +180,22 @@ begin
   end;
 end;
 
+procedure TFormDesigner.SetRemoveTextHeightProperty(const Value: Boolean);
+begin
+  if Value <> FRemoveTextHeightProperty then
+  begin
+    FRemoveTextHeightProperty := Value;
+    if Active then
+      UpdateHooks;
+  end;
+end;
+
 procedure TFormDesigner.UpdateHooks;
 begin
   {$IFDEF INCLUDE_FORMDESIGNER}
   SetLabelMarginActive(Active and LabelMargin);
   SetRemoveExplicitPropertyActive(Active and RemoveExplicitProperty);
+  SetRemoveTextHeightPropertyActive(Active and RemoveTextHeightProperty);
   {$ENDIF INCLUDE_FORMDESIGNER}
 end;
 
