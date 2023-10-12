@@ -7,6 +7,8 @@ program DDevExtensionsReg;
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
 {$IFEND}
 
+{$R 'manifest.res' 'manifest.rc'}
+
 uses
   Forms,
   Main in 'Main.pas' {FormMain},

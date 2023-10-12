@@ -20,7 +20,8 @@ type
               ekDelphi9, ekBDS2006, ekDelphi2007,} ekDelphi2009, ekDelphi2010,
               ekDelphiXE, ekDelphiXE2, ekDelphiXE3, ekDelphiXE4, ekDelphiXE5,
               ekDelphiXE6, ekDelphiXE7, ekDelphiXE8, ekDelphi10Seattle,
-              ekDelphi101Berlin, ekDelphi102, ekDelphi103, ekDelphi104, ekDelphi110);
+              ekDelphi101Berlin, ekDelphi102, ekDelphi103, ekDelphi104,
+              ekDelphi110, ekDelphi120);
 
   TEnvKinds = set of TEnvKind;
 
@@ -61,7 +62,9 @@ const
     (Version: 'D102'; IDEName: 'RAD Studio 10.2'; Key: 'Embarcadero\BDS\19.0'),
     (Version: 'D103'; IDEName: 'RAD Studio 10.3'; Key: 'Embarcadero\BDS\20.0'),
     (Version: 'D104'; IDEName: 'RAD Studio 10.4'; Key: 'Embarcadero\BDS\21.0'),
-    (Version: 'D110'; IDEName: 'RAD Studio 11.0'; Key: 'Embarcadero\BDS\22.0')
+    (Version: 'D110'; IDEName: 'RAD Studio 11.0'; Key: 'Embarcadero\BDS\22.0'),
+    (Version: 'D120'; IDEName: 'RAD Studio 12.0'; Key: 'Embarcadero\BDS\23.0')
+
   );
 
 type
@@ -225,6 +228,7 @@ var
   i: Integer;
   Found: Boolean;
 begin
+  DesktopFont := True; // use Windows' fonts
   Caption := Caption + ' ' + sPluginName;
   { Windows 95 compatible way, Win98 supports SHGetSpecialFolderPath() }
   SHGetMalloc(Malloc);
