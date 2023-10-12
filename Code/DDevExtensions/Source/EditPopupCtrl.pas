@@ -83,7 +83,7 @@ type
     FImages: TCustomImageList;
     FImageIndex: Integer;
     procedure SetImages(const Value: TCustomImageList);
-    function UpdateEditMargins: Boolean;
+    function PrivUpdateEditMargins: Boolean;
   protected
     procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -357,7 +357,7 @@ end;
 procedure TDropDownEditSearchBase.CreateWnd;
 begin
   inherited CreateWnd;
-  UpdateEditMargins;
+  PrivUpdateEditMargins;
 end;
 
 destructor TDropDownEditSearchBase.Destroy;
@@ -385,7 +385,7 @@ begin
   end;
 end;
 
-function TDropDownEditSearchBase.UpdateEditMargins: Boolean;
+function TDropDownEditSearchBase.PrivUpdateEditMargins: Boolean;
 var
   Margins: Integer;
   LeftMargin: Integer;
@@ -417,7 +417,7 @@ var
 begin
   if Images <> nil then
   begin
-    if UpdateEditMargins then
+    if PrivUpdateEditMargins then
       Exit; // Invalidate() was triggered
 
     MyDC := Msg.DC = 0;
@@ -482,7 +482,7 @@ begin
     WM_SIZE, WM_SETFONT, WM_FONTCHANGE, WM_WINDOWPOSCHANGED,
     CM_FONTCHANGED, CM_BORDERCHANGED, CM_CTL3DCHANGED:
       if not (csLoading in ComponentState) then
-        UpdateEditMargins;
+        PrivUpdateEditMargins;
   end;
 end;
 

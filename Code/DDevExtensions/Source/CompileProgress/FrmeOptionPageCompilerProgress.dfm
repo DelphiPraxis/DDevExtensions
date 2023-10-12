@@ -69,9 +69,9 @@ inherited FrameOptionPageCompilerProgress: TFrameOptionPageCompilerProgress
       Width = 403
     end
     inherited lblDescription: TLabel
-      Width = 191
+      Width = 211
       Caption = 'Configures the IDE'#39's compile behaviour.'
-      ExplicitWidth = 191
+      ExplicitWidth = 211
     end
   end
 end

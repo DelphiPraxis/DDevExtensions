@@ -488,17 +488,21 @@ begin
 //    for I := 0 to Form.ComponentCount - 1 do
 //      WriteLn(Form.Components[I].Name + ': ' + Form.Components[I].ClassName);
 
-    pnErrors := Form.FindComponent('pnErrors') as TControl;
-    // In Delphi 11.1 the ProgressBar must be placed below the "Hints" panel:
-    {$IF declared(RTLVersion111)}{$IF RTLVersion111}
+    {$IF (CompilerVersion >= 36.0)
+      or ((CompilerVersion >= 35.0) and declared(RTLVersion111))  // detect Delphi 11.1
+    }
     pnErrors := Form.FindComponent('pnHints') as TControl;
-    {$IFEND}{$IFEND}
+    {$ELSE}
+    pnErrors := Form.FindComponent('pnErrors') as TControl;
+    {$ENDIF}
     TotalLines := GetLabel('TotalLines');
     if (pnErrors is TPanel) and (TotalLines <> nil) then
     begin
       X := Form.ScreenToClient(pnErrors.ClientToScreen(Point(0, 0))).X;
       Y := Form.ScreenToClient(TotalLines.ClientToScreen(Point(TotalLines.Top, 0))).Y;
-      FProgressBar.ScaleForPPI(Form.CurrentPPI);
+      {$IF CompilerVersion >= 35}
+      FProgressBar.ScaleForPPI(Form.CurrentPPI); // adjust for scaled dialog
+      {$IFEND}
       FProgressBar.SetBounds(X, Y + 2, pnErrors.Width, TotalLines.Height div 2);
     end
     else // Fallback

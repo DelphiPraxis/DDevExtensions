@@ -7,7 +7,7 @@
    {$DEFINE VER180}
    {$DEFINE COMPILER10}
   {$ENDIF VER185}
-  
+
   {$IF CompilerVersion >= 18.5}
    {$DEFINE COMPILER105_UP}
    {$DEFINE DELPHI2007_UP}

@@ -5,10 +5,11 @@ inherited FormTreePages: TFormTreePages
   Caption = 'TreePages'
   ClientHeight = 440
   ClientWidth = 701
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
+  ExplicitWidth = 719
+  ExplicitHeight = 487
   PixelsPerInch = 96
   TextHeight = 13
   object PanelButtons: TPanel

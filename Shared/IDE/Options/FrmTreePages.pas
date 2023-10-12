@@ -116,6 +116,7 @@ uses
   {$ELSE}
   RTLConsts,
   {$ENDIF COMPILER5}
+  CommCtrl,
   IDEUtils;
 
 {$R *.dfm}
@@ -271,9 +272,16 @@ procedure TFormTreePages.PopulateTreeNodes;
 
 var
   i: Integer;
+  LHeight : Integer;
 begin
   TreeView.Items.BeginUpdate;
   try
+    if TreeView.HandleAllocated then
+    begin
+      LHeight := MulDiv(22, Self.CurrentPPI, USER_DEFAULT_SCREEN_DPI);
+      TreeView.Perform(TVM_SETITEMHEIGHT, LHeight, 0);
+    end;
+
     TreeView.Items.Clear;
     CreateTreeNode(FRootPage, nil);
     for i := 0 to TreeView.Items.Count - 1 do

@@ -92,9 +92,16 @@ end;
 
 procedure TFrameOptionPageCompilerProgress.LoadData;
 begin
+  {$IF CompilerVersion >= 36.0}
+  chkReleaseCompilerUnitCache.Checked := False;
+  chkReleaseCompilerUnitCache.Enabled := False;
+  chkReleaseCompilerUnitCacheHigh.Checked := False;
+  chkReleaseCompilerUnitCacheHigh.Enabled := False;
+  {$ELSE}
   chkReleaseCompilerUnitCache.Checked := FCompileProgress.ReleaseCompilerUnitCache;
   chkReleaseCompilerUnitCacheHigh.Checked := FCompileProgress.ReleaseCompilerUnitCacheHigh;
   chkReleaseCompilerUnitCacheHigh.Enabled := chkReleaseCompilerUnitCache.Checked;
+  {$ENDIF}
 
   {$IF CompilerVersion < 22.0} // XE has its own option
   cbxDisableRebuildDlg.Checked := FCompileProgress.DisableRebuildDlg;
@@ -111,8 +118,10 @@ end;
 
 procedure TFrameOptionPageCompilerProgress.SaveData;
 begin
+  {$IF CompilerVersion < 36}
   FCompileProgress.ReleaseCompilerUnitCache := chkReleaseCompilerUnitCache.Checked;
   FCompileProgress.ReleaseCompilerUnitCacheHigh := chkReleaseCompilerUnitCacheHigh.Checked;
+  {$ENDIF}
   {$IF CompilerVersion < 22.0} // XE has its own option
   FCompileProgress.DisableRebuildDlg := cbxDisableRebuildDlg.Checked;
   {$IFEND}

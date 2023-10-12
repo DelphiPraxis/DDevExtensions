@@ -4,7 +4,7 @@ SETLOCAL
 :: *************************
 :: * rebuild with Delphi 2009 (much smaller file). XE2 is required for the .res file
 REM Set BuildInstallerWith="C:\CodeGear\RAD Studio\6.0\bin\rsvars.bat"
-Set BuildInstallerWith="C:\Program Files (x86)\Embarcadero\Studio\21.0\bin\rsvars.bat"
+Set BuildInstallerWith="C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\rsvars.bat"
 
 SET curdir=%CD%
 cd /d "%~dp0"
@@ -53,6 +53,7 @@ del /Q D_D102\lib\*.dcu >NUL
 del /Q D_D103\lib\*.dcu >NUL
 del /Q D_D104\lib\*.dcu >NUL
 del /Q D_D110\lib\*.dcu >NUL
+del /Q D_D120\lib\*.dcu >NUL
 
 echo.
 echo === Installer ==============================
@@ -70,6 +71,18 @@ if ERRORLEVEL 1 goto Error1
 
 cd ..
 del bin\DDevExtensionsReg.map bin\DDevExtensionsReg.drc
+echo.
+
+echo.
+echo === Delphi 12.0 ==============================
+call "C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\rsvars.bat"
+
+cd D_D120
+msbuild /nologo /t:Build /p:Config=Release DDevExtensions.dproj
+if ERRORLEVEL 1 goto Error1
+cd ..
+if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD120.dll
+del bin\DDevExtensionsD120.map bin\DDevExtensions.drc
 echo.
 
 echo.
