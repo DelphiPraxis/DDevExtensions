@@ -96,7 +96,7 @@ begin
     Filer.DefineProperty('PixelsPerInch', ReadPixelsPerInch, WritePixelsPerInch, (csReading in ComponentState));
   end;
 
-{$IF CompilerVersion > 35}
+{$IF CompilerVersion > 36}
   Check if anything changed in System.Classes.TDataModule.DefineProperties
 {$IFEND}
 end;

@@ -275,6 +275,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCCReference Include="..\Source\Editor\DocModuleHandler.pas"/>
         <DCCReference Include="..\Source\Editor\CodeInsightHandling.pas"/>
         <DCCReference Include="..\Source\DSUFeatures\DisableAlphaSortClassCompletion.pas"/>
+        <DCCReference Include="..\Source\FormDesignerHelpers\RemovePixelsPerInchProperty.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

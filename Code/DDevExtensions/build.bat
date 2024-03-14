@@ -53,6 +53,7 @@ del /Q /S D_D102\lib\*.dcu >NUL
 del /Q /S D_D103\lib\*.dcu >NUL
 del /Q /S D_D104\lib\*.dcu >NUL
 del /Q /S D_D110\lib\*.dcu >NUL
+del /Q /S D_D120\lib\*.dcu >NUL
 
 if "%1-" == "clean-" goto :EOF
 
@@ -72,6 +73,18 @@ if ERRORLEVEL 1 goto Error1
 
 cd ..
 del bin\DDevExtensionsReg.map bin\DDevExtensionsReg.drc
+echo.
+
+echo.
+echo === Delphi 12.0 ==============================
+call "C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\rsvars.bat"
+
+cd D_D120
+msbuild /nologo /t:Build /p:Config=Release DDevExtensions.dproj
+if ERRORLEVEL 1 goto Error1
+cd ..
+if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD120.dll
+del bin\DDevExtensionsD120.map bin\DDevExtensions.drc
 echo.
 
 echo.
