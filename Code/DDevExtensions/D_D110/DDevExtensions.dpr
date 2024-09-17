@@ -48,6 +48,7 @@ uses
   FrmeBase in '..\Source\FrmeBase.pas' {FrameBase: TFrame},
   FrmFileSelector in '..\Source\FileSelector\FrmFileSelector.pas' {FormFileSelector},
   RemoveExplicitProperty in '..\Source\FormDesignerHelpers\RemoveExplicitProperty.pas',
+  RemoveTextHeightProperty in '..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas',
   DSUFeatures in '..\Source\DSUFeatures\DSUFeatures.pas',
   FrmeOptionPageDSUFeatures in '..\Source\DSUFeatures\FrmeOptionPageDSUFeatures.pas' {FrameOptionPageDSUFeatures: TFrame},
   ComponentSelector in '..\Source\ComponentSelector\ComponentSelector.pas',

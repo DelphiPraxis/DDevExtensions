@@ -30,6 +30,14 @@ inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
       Caption = 'Do not store the Explicit* properties into the DFM'
       TabOrder = 2
     end
+    object chkRemoveTextHeightProperty: TCheckBox
+      Left = 24
+      Top = 78
+      Width = 330
+      Height = 17
+      Caption = 'Do not store the TForm.TextHeight property into the DFM'
+      TabOrder = 3
+    end
   end
   inherited pnlDescription: TPanel
     Width = 372

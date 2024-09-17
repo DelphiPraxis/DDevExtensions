@@ -5,7 +5,7 @@
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
         <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD104.dll</DCC_DependencyCheckOutputName>
-        <ProjectVersion>19.1</ProjectVersion>
+        <ProjectVersion>19.2</ProjectVersion>
         <Config Condition="'$(Config)'==''">Release</Config>
         <Basis>True</Basis>
         <AppType>Library</AppType>
@@ -294,6 +294,16 @@ $(PreBuildEvent)]]></PreBuildEvent>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\drawable-xxhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon192">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xxxhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Android64">
+                        <RemoteDir>res\drawable-xxxhdpi</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -993,6 +1003,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>FormFileSelector</Form>
         </DCCReference>
         <DCCReference Include="..\Source\FormDesignerHelpers\RemoveExplicitProperty.pas"/>
+        <DCCReference Include="..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas"/>
         <DCCReference Include="..\Source\DSUFeatures\DSUFeatures.pas"/>
         <DCCReference Include="..\Source\DSUFeatures\FrmeOptionPageDSUFeatures.pas">
             <Form>FrameOptionPageDSUFeatures</Form>

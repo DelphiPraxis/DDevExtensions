@@ -625,6 +625,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>FormFileSelector</Form>
         </DCCReference>
         <DCCReference Include="..\Source\FormDesignerHelpers\RemoveExplicitProperty.pas"/>
+        <DCCReference Include="..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas"/>
         <DCCReference Include="..\Source\DSUFeatures\DSUFeatures.pas"/>
         <DCCReference Include="..\Source\DSUFeatures\FrmeOptionPageDSUFeatures.pas">
             <Form>FrameOptionPageDSUFeatures</Form>
