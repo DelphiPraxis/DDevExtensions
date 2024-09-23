@@ -1,7 +1,6 @@
 inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
   Width = 372
   Height = 175
-  ParentFont = False
   PixelsPerInch = 96
   inherited pnlClient: TPanel
     Width = 372
