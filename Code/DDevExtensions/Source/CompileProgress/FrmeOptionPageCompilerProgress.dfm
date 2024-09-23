@@ -8,7 +8,7 @@ inherited FrameOptionPageCompilerProgress: TFrameOptionPageCompilerProgress
     object cbxDisableRebuildDlg: TCheckBox
       Left = 8
       Top = 52
-      Width = 241
+      Width = 260
       Height = 19
       Caption = '&Disable "Source modified. Rebuild?" dialog'
       TabOrder = 2
@@ -16,7 +16,7 @@ inherited FrameOptionPageCompilerProgress: TFrameOptionPageCompilerProgress
     object chkAutoSaveAfterSuccessfulCompile: TCheckBox
       Left = 8
       Top = 75
-      Width = 241
+      Width = 270
       Height = 19
       Caption = 'AutoSave &editor files after successful compile'
       TabOrder = 3
@@ -34,7 +34,7 @@ inherited FrameOptionPageCompilerProgress: TFrameOptionPageCompilerProgress
       Left = 32
       Top = 141
       Width = 217
-      Height = 21
+      Height = 23
       TabOrder = 6
     end
     object chkAskBeforeCompilingFileFromDiffernetProject: TCheckBox
@@ -69,9 +69,8 @@ inherited FrameOptionPageCompilerProgress: TFrameOptionPageCompilerProgress
       Width = 403
     end
     inherited lblDescription: TLabel
-      Width = 191
+      Width = 211
       Caption = 'Configures the IDE'#39's compile behaviour.'
-      ExplicitWidth = 191
     end
   end
 end
