@@ -17,7 +17,7 @@ inherited FrameOptionPageFileCleaner: TFrameOptionPageFileCleaner
     object cbxDeleteDdp: TCheckBox
       Left = 24
       Top = 31
-      Width = 177
+      Width = 190
       Height = 17
       Caption = 'Automatically delete .ddp files'
       TabOrder = 1
@@ -25,7 +25,7 @@ inherited FrameOptionPageFileCleaner: TFrameOptionPageFileCleaner
     object cbxRemoveEmptyHistory: TCheckBox
       Left = 24
       Top = 77
-      Width = 257
+      Width = 285
       Height = 17
       Caption = 'Automatically delete empty "__history" directories'
       TabOrder = 2
@@ -34,7 +34,7 @@ inherited FrameOptionPageFileCleaner: TFrameOptionPageFileCleaner
     object cbxRemoveEmptyModel: TCheckBox
       Left = 24
       Top = 54
-      Width = 257
+      Width = 280
       Height = 17
       Caption = 'Automatically delete empty "Model" directories'
       TabOrder = 3
@@ -47,7 +47,7 @@ inherited FrameOptionPageFileCleaner: TFrameOptionPageFileCleaner
       Width = 385
     end
     inherited lblDescription: TLabel
-      Width = 174
+      Width = 191
       Caption = 'Configure the automatic file deleter.'
     end
   end

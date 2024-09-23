@@ -1,7 +1,6 @@
 inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
   Width = 372
   Height = 175
-  PixelsPerInch = 96
   inherited pnlClient: TPanel
     Width = 372
     Height = 126
@@ -25,17 +24,17 @@ inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
     object chkRemoveExplicitProperties: TCheckBox
       Left = 24
       Top = 54
-      Width = 313
+      Width = 241
       Height = 17
-      Caption = 'Don'#39't store the Explicit* properties into the DFM'
+      Caption = 'Don'#39't store "Explicit" properties in DFM'
       TabOrder = 2
     end
     object chkRemovePixelsPerInchProperties: TCheckBox
       Left = 24
       Top = 77
-      Width = 321
+      Width = 330
       Height = 17
-      Caption = 'Don'#39't store "TDataModule.PixelsPerInch* property in DFM'
+      Caption = 'Don'#39't store "TDataModule.PixelsPerInch" property in DFM'
       TabOrder = 3
     end
   end
