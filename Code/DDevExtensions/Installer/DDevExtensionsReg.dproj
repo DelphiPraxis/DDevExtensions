@@ -4,7 +4,7 @@
         <MainSource>DDevExtensionsReg.dpr</MainSource>
         <Config Condition="'$(Config)'==''">Release</Config>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <ProjectVersion>20.1</ProjectVersion>
+        <ProjectVersion>20.3</ProjectVersion>
         <Basis>True</Basis>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -12,6 +12,7 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <Platform>Win32</Platform>
+        <ProjectName Condition="'$(ProjectName)'==''">DDevExtensionsReg</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
