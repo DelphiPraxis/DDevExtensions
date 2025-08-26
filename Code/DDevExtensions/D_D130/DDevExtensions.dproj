@@ -49,7 +49,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
         <Manifest_File>None</Manifest_File>
-        <DllSuffix>D120</DllSuffix>
+        <DllSuffix>D130</DllSuffix>
         <DCC_StringChecks>off</DCC_StringChecks>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_ExeOutput>..\bin</DCC_ExeOutput>
@@ -57,7 +57,7 @@
         <DCC_DcuOutput>lib</DCC_DcuOutput>
         <UsePackages>true</UsePackages>
         <DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
-        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD120.dll</DCC_DependencyCheckOutputName>
+        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
         <GenDll>true</GenDll>
         <DCC_UsePackage>vcl;rtl;designide;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
