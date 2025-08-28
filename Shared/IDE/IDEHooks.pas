@@ -257,7 +257,7 @@ const
   DelphiVersion = '29';
   BplVersion = '290';
 {$IFEND}
-{$IF CompilerVersion = 37.0} // Delphi 13.0
+{$IF CompilerVersion = 37.0} // Delphi 13.0 Florence
   DelphiVersion = '37';
   BplVersion = '370';
 {$IFEND}
