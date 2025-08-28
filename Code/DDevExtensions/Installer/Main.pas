@@ -21,7 +21,7 @@ type
               ekDelphiXE, ekDelphiXE2, ekDelphiXE3, ekDelphiXE4, ekDelphiXE5,
               ekDelphiXE6, ekDelphiXE7, ekDelphiXE8, ekDelphi10Seattle,
               ekDelphi101Berlin, ekDelphi102, ekDelphi103, ekDelphi104,
-              ekDelphi110, ekDelphi120);
+              ekDelphi110, ekDelphi120, ekDelphi130);
 
   TEnvKinds = set of TEnvKind;
 
@@ -63,7 +63,8 @@ const
     (Version: 'D103'; IDEName: 'RAD Studio 10.3'; Key: 'Embarcadero\BDS\20.0'),
     (Version: 'D104'; IDEName: 'RAD Studio 10.4'; Key: 'Embarcadero\BDS\21.0'),
     (Version: 'D110'; IDEName: 'RAD Studio 11.0'; Key: 'Embarcadero\BDS\22.0'),
-    (Version: 'D120'; IDEName: 'RAD Studio 12.0'; Key: 'Embarcadero\BDS\23.0')
+    (Version: 'D120'; IDEName: 'RAD Studio 12.0'; Key: 'Embarcadero\BDS\23.0'),
+    (Version: 'D130'; IDEName: 'RAD Studio 13.0'; Key: 'Embarcadero\BDS\37.0')
   );
 
 type
