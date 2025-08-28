@@ -14,7 +14,7 @@ uses
   Windows, SysUtils;
 
 const
-  LastSupportedIDEVersion = 350; // adjust ToolsAPIIntf.pas if necessary
+  LastSupportedIDEVersion = 370; // adjust ToolsAPIIntf.pas if necessary
 
 var
   bcbide_bpl: PChar;

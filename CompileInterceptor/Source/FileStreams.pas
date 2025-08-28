@@ -171,6 +171,9 @@ var
 
 implementation
 
+uses
+  System.Types;
+
 resourcestring
   RsNotSupported = 'Operation "%s" not supported';
 
