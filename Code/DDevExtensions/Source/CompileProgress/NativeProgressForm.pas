@@ -483,19 +483,19 @@ begin
     FProgressBar.Position := NewPercentage;
     {$IF CompilerVersion >= 33.0}
     // New Progress-Dialog
-
-//    AllocConsole;
-//    for I := 0 to Form.ComponentCount - 1 do
-//      WriteLn(Form.Components[I].Name + ': ' + Form.Components[I].ClassName);
-
+    // AllocConsole;
+    // for I := 0 to Form.ComponentCount - 1 do
+    //   WriteLn(Form.Components[I].Name + ': ' + Form.Components[I].ClassName);
     // Since Delphi 11.1 the ProgressBar must be placed below the "Hints" panel:
     {$IF RTLVersion >= 36} // Delphi 12 RTL
     pnErrors := Form.FindComponent('pnHints') as TControl;
     {$ELSE}
     pnErrors := Form.FindComponent('pnErrors') as TControl;
-    {$IF declared(RTLVersion111)}{$IF RTLVersion111} // Delphi 11.1 RTL
+    {$IF declared(RTLVersion111)}
+    {$IF RTLVersion111} // Delphi 11.1 RTL
     pnErrors := Form.FindComponent('pnHints') as TControl;
-    {$IFEND}{$IFEND}
+    {$IFEND}
+    {$IFEND}
     {$IFEND}
     TotalLines := GetLabel('TotalLines');
     if (pnErrors is TPanel) and (TotalLines <> nil) then
