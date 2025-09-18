@@ -1,9 +1,9 @@
 inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
   Width = 372
-  Height = 175
+  Height = 188
   inherited pnlClient: TPanel
     Width = 372
-    Height = 126
+    Height = 139
     object cbxActive: TCheckBox
       Left = 8
       Top = 8
@@ -35,6 +35,14 @@ inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
       Width = 330
       Height = 17
       Caption = 'Don'#39't store "TDataModule.PixelsPerInch" property in DFM'
+      TabOrder = 4
+    end
+    object chkRemoveTextHeightProperty: TCheckBox
+      Left = 24
+      Top = 100
+      Width = 330
+      Height = 17
+      Caption = 'Do not store the TForm.TextHeight property into the DFM'
       TabOrder = 3
     end
   end

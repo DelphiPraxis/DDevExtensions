@@ -24,10 +24,12 @@ type
     FLabelMargin: Boolean;
     FRemoveExplicitProperty: Boolean;
     FRemovePixelsPerInchProperty: Boolean;
+    FRemoveTextHeightProperty: Boolean;
     procedure SetActive(const Value: Boolean);
     procedure SetLabelMargin(const Value: Boolean);
     procedure SetRemoveExplicitProperty(const Value: Boolean);
     procedure SetRemovePixelsPerInchProperty(const Value: Boolean);
+    procedure SetRemoveTextHeightProperty(const Value: Boolean);
   protected
     function GetOptionPages: TTreePage; override;
     procedure Init; override;
@@ -40,6 +42,7 @@ type
     property LabelMargin: Boolean read FLabelMargin write SetLabelMargin;
     property RemoveExplicitProperty: Boolean read FRemoveExplicitProperty write SetRemoveExplicitProperty;
     property RemovePixelsPerInchProperty : Boolean read FRemovePixelsPerInchProperty write SetRemovePixelsPerInchProperty;
+    property RemoveTextHeightProperty: Boolean read FRemoveTextHeightProperty write SetRemoveTextHeightProperty;
   end;
 
   TFrameOptionPageFormDesigner = class(TFrameBase, ITreePageComponent)
@@ -47,6 +50,7 @@ type
     cbxLabelMargin: TCheckBox;
     chkRemoveExplicitProperties: TCheckBox;
     chkRemovePixelsPerInchProperties: TCheckBox;
+    chkRemoveTextHeightProperty: TCheckBox;
     procedure cbxActiveClick(Sender: TObject);
   private
     { Private-Deklarationen }
@@ -74,7 +78,8 @@ uses
 {$IFDEF COMPILER110_UP}
   RemovePixelsPerInchProperty,
 {$ENDIF COMPILER110_UP}
-  RemoveExplicitProperty;
+  RemoveExplicitProperty,
+  RemoveTextHeightProperty;
 
 {$R *.dfm}
 
@@ -99,7 +104,7 @@ constructor TFrameOptionPageFormDesigner.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   {$IFNDEF DELPHI28_UP}
-  chkRemoveTextHeightProperty.Visible := False;
+  chkRemoveTextHeightProperty.Enabled := False;
   {$ENDIF}
 end;
 
@@ -138,6 +143,7 @@ begin
   FFormDesigner.LabelMargin := cbxLabelMargin.Checked;
   FFormDesigner.RemoveExplicitProperty := chkRemoveExplicitProperties.Checked;
   FFormDesigner.RemovePixelsPerInchProperty := chkRemovePixelsPerInchProperties.Checked;
+  FFormDesigner.RemoveTextHeightProperty := chkRemoveTextHeightProperty.Checked;
 
   FFormDesigner.Active := cbxActive.Checked;
   FFormDesigner.Save;
@@ -170,6 +176,7 @@ begin
   LabelMargin := True;
   RemoveExplicitProperty := False;
   RemovePixelsPerInchProperty := False;
+  RemoveTextHeightProperty := False;
   Active := True;
 end;
 
@@ -212,14 +219,28 @@ begin
   end;;
 end;
 
+procedure TFormDesigner.SetRemoveTextHeightProperty(const Value: Boolean);
+begin
+  if Value <> FRemoveTextHeightProperty then
+  begin
+    FRemoveTextHeightProperty := Value;
+    if Active then
+      UpdateHooks;
+  end;
+end;
+
 procedure TFormDesigner.UpdateHooks;
 begin
   {$IFDEF INCLUDE_FORMDESIGNER}
   SetLabelMarginActive(Active and LabelMargin);
   SetRemoveExplicitPropertyActive(Active and RemoveExplicitProperty);
-{$IFDEF COMPILER110_UP}
+  {$IFDEF COMPILER110_UP}
   SetRemovePixelsPerInchPropertyActive(Active and RemovePixelsPerInchProperty);
-{$ENDIF COMPILER110_UP}
+  {$ENDIF COMPILER110_UP}
+  {$IFDEF DELPHI28_UP}
+  SetRemoveTextHeightPropertyActive(Active and RemoveTextHeightProperty);
+  {$ENDIF}
+
   {$ENDIF INCLUDE_FORMDESIGNER}
 end;
 

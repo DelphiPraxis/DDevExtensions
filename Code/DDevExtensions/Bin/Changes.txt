@@ -1,3 +1,7 @@
+Version: 2.91
+=============
+- Added: Support for Delphi 13.0
+
 Version: 2.90
 =============
 - Added: Support for Delphi 12.0
