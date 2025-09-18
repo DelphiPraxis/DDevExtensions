@@ -1,17 +1,17 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{13bb5c7c-bee9-44e9-863a-a43268dc0228}</ProjectGuid>
-        <MainSource>DDevExtensions.dpr</MainSource>
+        <Base>True</Base>
+        <AppType>Library</AppType>
+        <Basis>True</Basis>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD120.dll</DCC_DependencyCheckOutputName>
-        <ProjectVersion>20.1</ProjectVersion>
-        <Config Condition="'$(Config)'==''">Release</Config>
-        <Basis>True</Basis>
-        <AppType>Library</AppType>
+        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD110.dll</DCC_DependencyCheckOutputName>
         <FrameworkType>VCL</FrameworkType>
-        <Base>True</Base>
+        <MainSource>DDevExtensions.dpr</MainSource>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <ProjectGuid>{13bb5c7c-bee9-44e9-863a-a43268dc0228}</ProjectGuid>
+        <ProjectVersion>20.0</ProjectVersion>
         <TargetedPlatforms>1</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -46,82 +46,84 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <SanitizedProjectName>DDevExtensions</SanitizedProjectName>
-        <VerInfo_Build>575</VerInfo_Build>
-        <VerInfo_DLL>true</VerInfo_DLL>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Keys>CompanyName=Andreas Hausladen;FileVersion=2.7.0.575;InternalName=;LegalCopyright=(C) 2006-2013 Andreas Hausladen;LegalTrademarks=;OriginalFilename=DDevExtensions.dll;ProductName=DDevExtensions;ProductVersion=2.7;Comments=;Last Compile=2012-08-05 18:22</VerInfo_Keys>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <Manifest_File>None</Manifest_File>
-        <DllSuffix>D120</DllSuffix>
-        <DCC_StringChecks>off</DCC_StringChecks>
-        <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
+        <DCC_DcuOutput>lib</DCC_DcuOutput>
+        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD110.dll</DCC_DependencyCheckOutputName>
         <DCC_ExeOutput>..\bin</DCC_ExeOutput>
         <DCC_ImageBase>53900000</DCC_ImageBase>
-        <DCC_DcuOutput>lib</DCC_DcuOutput>
-        <UsePackages>true</UsePackages>
-        <DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
-        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD120.dll</DCC_DependencyCheckOutputName>
-        <GenDll>true</GenDll>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
+        <DCC_StringChecks>off</DCC_StringChecks>
         <DCC_UsePackage>vcl;rtl;designide;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
+        <DllSuffix>D120</DllSuffix>
+        <GenDll>true</GenDll>
+        <Manifest_File>None</Manifest_File>
+        <UsePackages>true</UsePackages>
+        <VerInfo_Build>575</VerInfo_Build>
+        <VerInfo_DLL>true</VerInfo_DLL>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=Andreas Hausladen;FileVersion=2.7.0.575;InternalName=;LegalCopyright=(C) 2006-2013 Andreas Hausladen;LegalTrademarks=;OriginalFilename=DDevExtensions.dll;ProductName=DDevExtensions;ProductVersion=2.7;Comments=;Last Compile=2012-08-05 18:22</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <VerInfo_MinorVer>7</VerInfo_MinorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <Debugger_RunParams>-rBDSPlain -pDelphi</Debugger_RunParams>
-        <Debugger_LoadUnspecifiedSymbols>true</Debugger_LoadUnspecifiedSymbols>
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <PreBuildEvent><![CDATA[copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll" "$(OUTPUTDIR)"
-$(PreBuildEvent)]]></PreBuildEvent>
-        <Debugger_LoadAllSymbols>false</Debugger_LoadAllSymbols>
         <Debugger_HostApplication>$(BDS)\Bin\bds.exe</Debugger_HostApplication>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <Debugger_LoadAllSymbols>false</Debugger_LoadAllSymbols>
+        <Debugger_LoadUnspecifiedSymbols>true</Debugger_LoadUnspecifiedSymbols>
+        <Debugger_RunParams>-rBDSPlain -pDelphi</Debugger_RunParams>
+        <PreBuildEvent><![CDATA[movedll.cmd "$(OUTPUTPATH)"
+if not exist "$(OUTPUTPATH)" copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll" "$(OUTPUTDIR)"
+$(PreBuildEvent)]]></PreBuildEvent>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <Version>7.0</Version>
         <DCC_DebugInformation>0</DCC_DebugInformation>
-        <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
-        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_ObjOutput>lib</DCC_ObjOutput>
-        <DCC_HppOutput>lib</DCC_HppOutput>
-        <DCC_ResourcePath>OldPalette;$(DCC_ResourcePath)</DCC_ResourcePath>
-        <DCC_ObjPath>OldPalette;$(DCC_ObjPath)</DCC_ObjPath>
-        <DCC_IncludePath>OldPalette;$(DCC_IncludePath)</DCC_IncludePath>
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_HppOutput>lib</DCC_HppOutput>
+        <DCC_IncludePath>OldPalette;$(DCC_IncludePath)</DCC_IncludePath>
+        <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
+        <DCC_MapFile>3</DCC_MapFile>
+        <DCC_ObjOutput>lib</DCC_ObjOutput>
+        <DCC_ObjPath>OldPalette;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_ResourcePath>OldPalette;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <Version>7.0</Version>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <DCC_UnitSearchPath>D:\Projekte\Delphi\Compo\JEDI\Trunk\JCL\source\include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_DcuOutput>lib\debug</DCC_DcuOutput>
-        <MapFile>3</MapFile>
-        <ILINK_MapFileType>DetailedSegments</ILINK_MapFileType>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <Version>7.0</Version>
-        <DCC_MapFile>3</DCC_MapFile>
-        <DCC_ObjOutput>lib</DCC_ObjOutput>
-        <DCC_HppOutput>lib</DCC_HppOutput>
-        <DCC_ResourcePath>OldPalette;$(DCC_ResourcePath)</DCC_ResourcePath>
-        <DCC_ObjPath>OldPalette;$(DCC_ObjPath)</DCC_ObjPath>
-        <DCC_IncludePath>OldPalette;$(DCC_IncludePath)</DCC_IncludePath>
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_GenerateStackFrames>True</DCC_GenerateStackFrames>
+        <DCC_HppOutput>lib</DCC_HppOutput>
+        <DCC_IncludePath>OldPalette;$(DCC_IncludePath)</DCC_IncludePath>
+        <DCC_MapFile>3</DCC_MapFile>
+        <DCC_ObjOutput>lib</DCC_ObjOutput>
+        <DCC_ObjPath>OldPalette;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_ResourcePath>OldPalette;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <ILINK_MapFileType>DetailedSegments</ILINK_MapFileType>
+        <MapFile>3</MapFile>
+        <Version>7.0</Version>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_Keys>CompanyName=Andreas Hausladen;FileVersion=2.7.0.575;InternalName=;LegalCopyright=(C) 2006-2014 Andreas Hausladen;LegalTrademarks=;OriginalFilename=DDevExtensions.dll;ProductName=DDevExtensions;ProductVersion=2.7;Comments=;Last Compile=2012-08-05 18:22;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
+        <Debugger_RunParams>-rBDSPlain -pDelphi -ns  /highdpi:permonitorv2</Debugger_RunParams>
     </PropertyGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>
         <Borland.ProjectType>VCLApplication</Borland.ProjectType>
         <BorlandProject>
             <Delphi.Personality>
-                <Parameters>
-                    <Parameters Name="HostApplication">$(BDS)\Bin\bds.exe</Parameters>
-                    <Parameters Name="LoadAllSymbols">False</Parameters>
-                    <Parameters Name="LoadUnspecifiedSymbols">True</Parameters>
-                    <Parameters Name="RunParams">-rBDSPlain</Parameters>
-                </Parameters>
+                <Source>
+                    <Source Name="MainSource">DDevExtensions.dpr</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
                     <VersionInfo Name="AutoIncBuild">True</VersionInfo>
@@ -149,13 +151,12 @@ $(PreBuildEvent)]]></PreBuildEvent>
                     <VersionInfoKeys Name="ProductVersion">2.5</VersionInfoKeys>
                     <VersionInfoKeys Name="Comments"/>
                 </VersionInfoKeys>
-                <Source>
-                    <Source Name="MainSource">DDevExtensions.dpr</Source>
-                </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
-                </Excluded_Packages>
+                <Parameters>
+                    <Parameters Name="HostApplication">$(BDS)\Bin\bds.exe</Parameters>
+                    <Parameters Name="LoadAllSymbols">False</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">True</Parameters>
+                    <Parameters Name="RunParams">-rBDSPlain</Parameters>
+                </Parameters>
             </Delphi.Personality>
             <ModelSupport>False</ModelSupport>
             <Platforms>
@@ -301,7 +302,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
     <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
-        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
+        <PreBuildEvent>movedll.cmd &quot;$(OUTPUTPATH)&quot;&amp;&amp;if not exist &quot;$(OUTPUTPATH)&quot; copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
@@ -309,7 +310,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
-        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
+        <PreBuildEvent>movedll.cmd &quot;$(OUTPUTPATH)&quot;&amp;&amp;if not exist &quot;$(OUTPUTPATH)&quot; copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>

@@ -64,6 +64,7 @@ const
     (Version: 'D104'; IDEName: 'RAD Studio 10.4'; Key: 'Embarcadero\BDS\21.0'),
     (Version: 'D110'; IDEName: 'RAD Studio 11.0'; Key: 'Embarcadero\BDS\22.0'),
     (Version: 'D120'; IDEName: 'RAD Studio 12.0'; Key: 'Embarcadero\BDS\23.0')
+
   );
 
 type
@@ -227,6 +228,7 @@ var
   i: Integer;
   Found: Boolean;
 begin
+  DesktopFont := True; // use Windows' fonts
   Caption := Caption + ' ' + sPluginName;
   { Windows 95 compatible way, Win98 supports SHGetSpecialFolderPath() }
   SHGetMalloc(Malloc);

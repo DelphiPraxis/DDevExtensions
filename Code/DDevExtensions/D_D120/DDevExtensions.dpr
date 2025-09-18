@@ -5,16 +5,12 @@
 {* (C) 2006-2011 Andreas Hausladen                                            *}
 {*                                                                            *}
 {******************************************************************************}
-
 library DDevExtensions;
-
 {$WEAKLINKRTTI ON}
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}
-
 {$LIBSUFFIX 'D120'}
 
 {$I ..\Source\DelphiExtension.inc}
-
 uses
   Windows,
   SysUtils,
@@ -93,11 +89,9 @@ uses
   DocModuleHandler in '..\Source\Editor\DocModuleHandler.pas',
   CodeInsightHandling in '..\Source\Editor\CodeInsightHandling.pas',
   DisableAlphaSortClassCompletion in '..\Source\DSUFeatures\DisableAlphaSortClassCompletion.pas';
-
 var
   AboutBoxServices: IOTAAboutBoxServices = nil;
   AboutBoxIndex: Integer = 0;
-
 procedure DoneWizard;
 begin
   try
@@ -115,7 +109,6 @@ begin
       MessageBox(0, PChar(E.Message), PChar('DDevExtensions - ' + string(E.ClassName)), MB_OK or MB_ICONERROR);
   end;
 end;
-
 function InitWizard(const BorlandIDEServices: IBorlandIDEServices;
   RegisterProc: TWizardRegisterProc; var Terminate: TWizardTerminateProc): Boolean; stdcall;
 begin
@@ -132,15 +125,11 @@ begin
       0
     );
   end;
-
   InstallHooks;
 end;
-
 exports
   InitWizard name WizardEntryPoint;
-
 begin
   {$R ..\Version.res}
   ShowOnSplashScreen;
 end.
-

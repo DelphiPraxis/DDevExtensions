@@ -26,8 +26,10 @@ type
     FCompileInterceptorId: Integer;
     FIDENotifier: TIDENotifier;
     FPasFiles: TStrings;
+    {$IF CompilerVersion < 36.0}
     FReleaseCompilerUnitCache: Boolean;
     FReleaseCompilerUnitCacheHigh: Boolean;
+    {$ENDIF}
     FAutoSaveAfterSuccessfulCompile: Boolean;
     {$IF CompilerVersion < 23.0} // XE2+ changed how version info works
     FLastCompileVersionInfo: Boolean;
@@ -40,8 +42,10 @@ type
     {$IFEND}
     procedure SetAskCompileFromDiffProject(const Value: Boolean);
     procedure UpdateInMainThread;
+    {$IF CompilerVersion < 36.0}
     procedure SetReleaseCompilerUnitCache(const Value: Boolean);
     procedure SetReleaseCompilerUnitCacheHigh(const Value: Boolean);
+    {$ENDIF}
   {$IF CompilerVersion < 22.0} // XE has its own option
   private
     FDisableRebuildDlg: Boolean;
@@ -71,8 +75,10 @@ type
     constructor Create;
     destructor Destroy; override;
   published
+    {$IF CompilerVersion < 36.0} // no longer supported as of Delphi 12
     property ReleaseCompilerUnitCache: Boolean read FReleaseCompilerUnitCache write SetReleaseCompilerUnitCache;
     property ReleaseCompilerUnitCacheHigh: Boolean read FReleaseCompilerUnitCacheHigh write SetReleaseCompilerUnitCacheHigh;
+    {$ENDIF}
     {$IF CompilerVersion < 22.0} // XE has its own option
     property DisableRebuildDlg: Boolean read FDisableRebuildDlg write SetDisableRebuildDlg;
     {$IFEND}
@@ -508,8 +514,10 @@ end;
 
 procedure TCompileProgress.Init;
 begin
+  {$IF CompilerVersion < 36.0} // Delphi 12
   ReleaseCompilerUnitCache := False;
   ReleaseCompilerUnitCacheHigh := True;
+  {$ENDIF}
   {$IF CompilerVersion < 22.0} // XE has its own option
   DisableRebuildDlg := True;
   {$IFEND}
@@ -520,7 +528,9 @@ begin
   LastCompileVersionInfoFormat := 'yyyy-mm-dd hh:nn';
   {$IFEND}
 
+  {$IF CompilerVersion < 36.0}
   SetClearCompilerUnitCacheOtherStates(FReleaseCompilerUnitCache, FReleaseCompilerUnitCacheHigh);
+  {$ENDIF}
 end;
 
 procedure TCompileProgress.AfterCompile(const Project: IOTAProject; Succeeded, IsCodeInsight: Boolean);
@@ -580,6 +590,7 @@ begin
   end;
 end;
 
+{$IF CompilerVersion < 36.0}
 procedure TCompileProgress.SetReleaseCompilerUnitCache(const Value: Boolean);
 begin
   FReleaseCompilerUnitCache := Value;
@@ -591,6 +602,7 @@ begin
   FReleaseCompilerUnitCacheHigh := Value;
   SetClearCompilerUnitCacheOtherStates(FReleaseCompilerUnitCache, FReleaseCompilerUnitCacheHigh);
 end;
+{$ENDIF}
 
 {$IF CompilerVersion < 22.0} // XE has its own option
 procedure TCompileProgress.SetDisableRebuildDlg(const Value: Boolean);
