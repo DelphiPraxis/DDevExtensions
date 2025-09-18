@@ -24,17 +24,17 @@ inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
     object chkRemoveExplicitProperties: TCheckBox
       Left = 24
       Top = 54
-      Width = 313
+      Width = 241
       Height = 17
-      Caption = 'Do not store the Explicit* properties into the DFM'
+      Caption = 'Don'#39't store "Explicit" properties in DFM'
       TabOrder = 2
     end
-    object chkRemoveTextHeightProperty: TCheckBox
+    object chkRemovePixelsPerInchProperties: TCheckBox
       Left = 24
-      Top = 78
+      Top = 77
       Width = 330
       Height = 17
-      Caption = 'Do not store the TForm.TextHeight property into the DFM'
+      Caption = 'Don'#39't store "TDataModule.PixelsPerInch" property in DFM'
       TabOrder = 3
     end
   end
@@ -44,7 +44,7 @@ inherited FrameOptionPageFormDesigner: TFrameOptionPageFormDesigner
       Width = 372
     end
     inherited lblDescription: TLabel
-      Width = 212
+      Width = 234
       Caption = 'Configure the form designer enhancements.'
     end
   end

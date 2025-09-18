@@ -257,6 +257,10 @@ const
   DelphiVersion = '29';
   BplVersion = '290';
 {$IFEND}
+{$IF CompilerVersion = 37.0} // Delphi 13.0 Florence
+  DelphiVersion = '37';
+  BplVersion = '370';
+{$IFEND}
 
 {$IF CompilerVersion >= 24.0} // Delphi XE3+
   bcbide_bpl = 'bcbide' + BplVersion + '.bpl';

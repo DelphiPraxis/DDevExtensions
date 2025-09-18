@@ -83,7 +83,7 @@ type
     FImages: TCustomImageList;
     FImageIndex: Integer;
     procedure SetImages(const Value: TCustomImageList);
-    function PrivUpdateEditMargins: Boolean;
+    function UpdateEditMargins: Boolean; reintroduce;
   protected
     procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;

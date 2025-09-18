@@ -37,23 +37,24 @@ del version.h
 SET LINKMAPFILE=..\..\Tools\LinkMapFile\linkmapfile.exe
 
 :: Delete intermediate files
-del /Q D_2009\lib\*.dcu >NUL
-del /Q D_2010\lib\*.dcu >NUL
-del /Q D_XE\lib\*.dcu >NUL
-del /Q D_XE2\lib\*.dcu >NUL
-del /Q D_XE3\lib\*.dcu >NUL
-del /Q D_XE4\lib\*.dcu >NUL
-del /Q D_XE5\lib\*.dcu >NUL
-del /Q D_XE6\lib\*.dcu >NUL
-del /Q D_XE7\lib\*.dcu >NUL
-del /Q D_XE8\lib\*.dcu >NUL
-del /Q D_D10\lib\*.dcu >NUL
-del /Q D_D101\lib\*.dcu >NUL
-del /Q D_D102\lib\*.dcu >NUL
-del /Q D_D103\lib\*.dcu >NUL
-del /Q D_D104\lib\*.dcu >NUL
-del /Q D_D110\lib\*.dcu >NUL
-del /Q D_D120\lib\*.dcu >NUL
+del /Q /S D_2009\lib\*.dcu >NUL
+del /Q /S D_2010\lib\*.dcu >NUL
+del /Q /S D_XE\lib\*.dcu >NUL
+del /Q /S D_XE2\lib\*.dcu >NUL
+del /Q /S D_XE3\lib\*.dcu >NUL
+del /Q /S D_XE4\lib\*.dcu >NUL
+del /Q /S D_XE5\lib\*.dcu >NUL
+del /Q /S D_XE6\lib\*.dcu >NUL
+del /Q /S D_XE7\lib\*.dcu >NUL
+del /Q /S D_XE8\lib\*.dcu >NUL
+del /Q /S D_D10\lib\*.dcu >NUL
+del /Q /S D_D101\lib\*.dcu >NUL
+del /Q /S D_D102\lib\*.dcu >NUL
+del /Q /S D_D103\lib\*.dcu >NUL
+del /Q /S D_D104\lib\*.dcu >NUL
+del /Q /S D_D110\lib\*.dcu >NUL
+del /Q /S D_D120\lib\*.dcu >NUL
+del /Q /S D_D130\lib\*.dcu >NUL
 
 if "%1-" == "clean-" goto :EOF
 
@@ -76,6 +77,17 @@ del bin\DDevExtensionsReg.map bin\DDevExtensionsReg.drc
 echo.
 
 echo.
+echo === Delphi 13.0 ==============================
+call "C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"
+
+cd D_D130
+msbuild /nologo /t:Build /p:Config=Release DDevExtensions.dproj
+if ERRORLEVEL 1 goto Error1
+cd ..
+if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD130.dll
+del bin\DDevExtensionsD130.map bin\DDevExtensions.drc
+echo.
+
 echo === Delphi 12.0 ==============================
 call "C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\rsvars.bat"
 

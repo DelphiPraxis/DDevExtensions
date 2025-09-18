@@ -82,7 +82,7 @@ type
     property Values[const ValueName: string]: Variant read GetOptionValue write SetOptionValue;
   end;
 
-  IOTAEnvironmentOptions = interface(IOTAOptions)                 
+  IOTAEnvironmentOptions = interface(IOTAOptions)
     ['{9C0E91FB-FA5A-11D1-AB28-00C04FB16FB3}']
   end;
   
