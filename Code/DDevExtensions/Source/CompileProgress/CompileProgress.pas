@@ -359,6 +359,7 @@ begin
 end;
 
 {$IF CompilerVersion >= 21.0} // Delphi 2010+
+{$IFDEF CPUX86}
 procedure HookedProjectGroupCompileActive;
 asm
   // Only show the dialog if we are called by TAppBuilder.Compile()
@@ -384,13 +385,38 @@ asm
   jb CompileActiveProject
   jmp CallOrgProjectGroupCompileActive
 end;
+{$ENDIF CPUX86}
+{$IFDEF CPUX64}
+procedure HookedProjectGroupCompileActive;
+asm
+  // Only show the dialog if we are called by TAppBuilder.Compile()
+  // Win64 calling convention: RCX=Self, RDX=CompileMode, R8=Wait
+  // Return address is at [RSP], RAX and R9 are volatile scratch registers
+  mov rax, [rsp] // ret-addr
+  sub rax, 5 // call instruction size
+  mov r9, OrgAppBuilderCompile
+  sub rax, r9 // rax = difference between TAppBuilder.Compile and the return address
+  jns @@Compare
+  neg rax
+@@Compare:
+  cmp rax, 30                   // We can be called from TAppBuilder.Compile() within 30 bytes
+  jb CompileActiveProject
+  jmp CallOrgProjectGroupCompileActive
+end;
+{$ENDIF CPUX64}
 
 procedure InitPlugin(Unload: Boolean);
 // We can't hook into bds.exe because the copy protection will catch us. So we need to go a different
 // way than what we used to do in Delphi 2009.
 const
+  {$IFDEF CPUX86}
   StartCompileSymbol = '@Comprgrs@TProgressForm@StartCompile$qqrv';
   ProjectGroupCompileActiveSymbol = '@Projectgroup@TProjectGroup@CompileActive$qqr21Compintf@TCompileModeo';
+  {$ENDIF}
+  {$IFDEF CPUX64}
+  StartCompileSymbol = '_ZN8Comprgrs13TProgressForm12StartCompileEv';
+  ProjectGroupCompileActiveSymbol = '_ZN12Projectgroup13TProjectGroup13CompileActiveEN8Compintf12TCompileModeEb';
+  {$ENDIF}
 var
   Ctx: TRttiContext;
   MainType: TRttiType;

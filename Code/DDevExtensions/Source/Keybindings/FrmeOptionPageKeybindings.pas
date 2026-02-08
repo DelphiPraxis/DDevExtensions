@@ -121,8 +121,14 @@ procedure EnvironmentOptionsAddr;
   external coreide_bpl name '@Envoptions@EnvironmentOptions';
 {$IFEND}
 
+{$IFDEF CPUX86}
 procedure EditorActionListsPtr;
   external coreide_bpl name '@Editoractions@EditorActionLists';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure EditorActionListsPtr;
+  external coreide_bpl name '_ZN13Editoractions17EditorActionListsE';
+{$ENDIF}
 
 procedure InitPlugin(Unload: Boolean);
 begin

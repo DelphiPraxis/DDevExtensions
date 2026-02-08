@@ -24,17 +24,29 @@ type
   SIZE_T = DWORD;
   {$IFEND}
 
+  {$IFDEF CPUX64}
+  TXRedirCode = packed record
+    Jmp: Word;           // $FF25 (jmp [rip+0])
+    Rel: Integer;        // 0
+    Target: UInt64;      // absolute target address
+  end; // 14 bytes
+  {$ELSE}
   TXRedirCode = packed record
     Jump: Byte;
     Offset: Integer;
-  end;
+  end; // 5 bytes
+  {$ENDIF}
 
   TRedirectCode = packed record
     RealProc: Pointer;
     Count: Integer;
     case Byte of
       0: (Code: TXRedirCode);
+      {$IFDEF CPUX64}
+      1: (Backup: array[0..15] of Byte);
+      {$ELSE}
       1: (Code2: Int64);
+      {$ENDIF}
   end;
 
 procedure CodeRedirect(Proc: Pointer; NewProc: Pointer; out Data: TRedirectCode); overload;
@@ -168,7 +180,7 @@ begin
   if (PImageDosHeader(BaseAddress)^.e_magic <> IMAGE_DOS_SIGNATURE) or
     (PImageDosHeader(BaseAddress)^._lfanew = 0) then
     Exit;
-  Result := PImageNtHeaders(DWORD(BaseAddress) + DWORD(PImageDosHeader(BaseAddress)^._lfanew));
+  Result := PImageNtHeaders(PByte(BaseAddress) + PImageDosHeader(BaseAddress)^._lfanew);
   if IsBadReadPtr(Result, SizeOf(TImageNtHeaders)) or
     (Result^.Signature <> IMAGE_NT_SIGNATURE) then
       Result := nil
@@ -205,7 +217,11 @@ var
   ImportDir: TImageDataDirectory;
   ImportDesc: PImageImportDescriptor;
   CurrName, RefName: PAnsiChar;
+  {$IFDEF CPUX64}
+  ImportEntry: PUInt64; // On x64, IMAGE_THUNK_DATA uses 64-bit entries
+  {$ELSE}
   ImportEntry: PImageThunkData32;
+  {$ENDIF}
   LastProtect, Dummy: Cardinal;
   CurProcess: DWORD;
 begin
@@ -217,7 +233,7 @@ begin
   if ImportDir.VirtualAddress = 0 then
     Exit;
   CurProcess := GetCurrentProcess;
-  ImportDesc := PImageImportDescriptor(DWORD(Base) + ImportDir.VirtualAddress);
+  ImportDesc := PImageImportDescriptor(PByte(Base) + ImportDir.VirtualAddress);
   RefName := PAnsiChar({$IFDEF UNICODE}UTF8Encode{$ENDIF}(ModuleName));
   while ImportDesc^.Name <> 0 do
   begin
@@ -228,6 +244,22 @@ begin
     if StrIComp(CurrName, RefName) = 0 then
     {$WARNINGS ON}
     begin
+      {$IFDEF CPUX64}
+      ImportEntry := PUInt64(PAnsiChar(Base) + ImportDesc^.FirstThunk);
+      while ImportEntry^ <> 0 do
+      begin
+        if Pointer(ImportEntry^) = FromProc then
+        begin
+          if VirtualProtectEx(CurProcess, ImportEntry, SizeOf(UInt64), PAGE_READWRITE, @LastProtect) then
+          begin
+            ImportEntry^ := UInt64(ToProc);
+            VirtualProtectEx(CurProcess, ImportEntry, SizeOf(UInt64), LastProtect, Dummy);
+            Result := True;
+          end;
+        end;
+        Inc(ImportEntry);
+      end;
+      {$ELSE}
       ImportEntry := PImageThunkData32(PAnsiChar(Base) + ImportDesc^.FirstThunk);
       while ImportEntry^.Function_ <> 0 do
       begin
@@ -245,6 +277,7 @@ begin
         end;
         Inc(ImportEntry);
       end;
+      {$ENDIF}
     end;
     Inc(ImportDesc);
   end;
@@ -265,9 +298,16 @@ begin
     if VirtualProtectEx(GetCurrentProcess, Proc, SizeOf(Data.Code) + 1, PAGE_EXECUTE_READWRITE, OldProtect) then
     begin
       Data.RealProc := Proc;
+      {$IFDEF CPUX64}
+      Move(Proc^, Data.Backup[0], SizeOf(Data.Code));
+      TXRedirCode(Proc^).Jmp := $25FF;
+      TXRedirCode(Proc^).Rel := 0;
+      TXRedirCode(Proc^).Target := UInt64(NewProc);
+      {$ELSE}
       Data.Code2 := Int64(Proc^);
       TXRedirCode(Proc^).Jump := $E9;
       TXRedirCode(Proc^).Offset := PAnsiChar(NewProc) - PAnsiChar(Proc) - (SizeOf(Data.Code));
+      {$ENDIF}
       VirtualProtectEx(GetCurrentProcess, Proc, SizeOf(Data.Code) + 1, OldProtect, @OldProtect);
       FlushInstructionCache(GetCurrentProcess, Proc, SizeOf(Data.Code) + 1);
     end;
@@ -694,6 +734,7 @@ begin
   end;
 end;
 
+{$IFDEF CPUX86}
 function GetStartCodeSize(CodePtr: Pointer; RequiredSize: Integer; OffsetTable: POffsetTable): Integer;
 // TODO: "Jcc rel": convert to Jcc dword-rel and adjust offsets
 var
@@ -1083,6 +1124,235 @@ begin
     {$IFEND}
   end;
 end;
+{$ENDIF CPUX86}
+
+{$IFDEF CPUX64}
+function GetStartCodeSize(CodePtr: Pointer; RequiredSize: Integer; OffsetTable: POffsetTable = nil): Integer;
+{ x64 instruction length decoder. Decodes enough complete instructions to reach
+  RequiredSize bytes. Tracks RIP-relative and call/jmp rel32 offsets in OffsetTable
+  for relocation. }
+var
+  Code, P: PByte;
+  HasREX: Boolean;
+  REXByte, OpCode, ModRM, SIBByte: Byte;
+  Mod_, RM, Reg: Byte;
+  ImmSize, DispSize, InstrSize: Integer;
+  Is2Byte, HasModRMByte: Boolean;
+begin
+  Code := PByte(CodePtr);
+  Result := 0;
+
+  while Result < RequiredSize do
+  begin
+    P := Code;
+    HasREX := False;
+    REXByte := 0;
+    Is2Byte := False;
+    HasModRMByte := False;
+    ImmSize := 0;
+
+    { Skip legacy prefixes }
+    while P^ in [$26, $2E, $36, $3E, $64, $65, $66, $67, $F0, $F2, $F3] do
+      Inc(P);
+
+    { REX prefix (40-4F) }
+    if (P^ >= $40) and (P^ <= $4F) then
+    begin
+      HasREX := True;
+      REXByte := P^;
+      Inc(P);
+    end;
+
+    OpCode := P^;
+    Inc(P);
+
+    { Two-byte opcode escape }
+    if OpCode = $0F then
+    begin
+      Is2Byte := True;
+      OpCode := P^;
+      Inc(P);
+    end;
+
+    if Is2Byte then
+    begin
+      case OpCode of
+        { Conditional jumps rel32 }
+        $80..$8F: ImmSize := 4;
+        { BT/BTS/BTR/BTC r/m, imm8 }
+        $BA: begin HasModRMByte := True; ImmSize := 1; end;
+        { NOP /r (multi-byte NOP) }
+        $1F: HasModRMByte := True;
+        { push/pop fs/gs }
+        $A0, $A1, $A8, $A9: ;
+        { Common 2-byte opcodes with ModR/M }
+        $10..$17, $28..$2F, $40..$4F, $51..$6F, $70..$77,
+        $7E, $7F, $90..$9F, $A3..$A5, $AB..$AF,
+        $B0..$B8, $BC..$BF, $C0..$C2, $C4..$C6, $D0..$FE:
+          HasModRMByte := True;
+      else
+        raise Exception.CreateFmt('GetStartCodeSize: Unknown 2-byte x64 opcode 0F %02X at %p', [OpCode, CodePtr]);
+      end;
+    end
+    else
+    begin
+      case OpCode of
+        { ALU r/m, r  and  ALU r, r/m }
+        $00..$03, $08..$0B, $10..$13, $18..$1B,
+        $20..$23, $28..$2B, $30..$33, $38..$3B:
+          HasModRMByte := True;
+        { ALU al, imm8 }
+        $04, $0C, $14, $1C, $24, $2C, $34, $3C:
+          ImmSize := 1;
+        { ALU eax/rax, imm32 }
+        $05, $0D, $15, $1D, $25, $2D, $35, $3D:
+          ImmSize := 4;
+        { push/pop register }
+        $50..$5F: ;
+        { movsxd }
+        $63: HasModRMByte := True;
+        { push imm32 }
+        $68: ImmSize := 4;
+        { imul r, r/m, imm32 }
+        $69: begin HasModRMByte := True; ImmSize := 4; end;
+        { push imm8 }
+        $6A: ImmSize := 1;
+        { imul r, r/m, imm8 }
+        $6B: begin HasModRMByte := True; ImmSize := 1; end;
+        { Jcc rel8 }
+        $70..$7F: ImmSize := 1;
+        { group1 r/m8, imm8 }
+        $80: begin HasModRMByte := True; ImmSize := 1; end;
+        { group1 r/m, imm32 }
+        $81: begin HasModRMByte := True; ImmSize := 4; end;
+        { group1 r/m, imm8 }
+        $83: begin HasModRMByte := True; ImmSize := 1; end;
+        { test, xchg r/m }
+        $84..$87: HasModRMByte := True;
+        { mov r/m,r  mov r,r/m }
+        $88..$8B: HasModRMByte := True;
+        { mov sreg }
+        $8C, $8E: HasModRMByte := True;
+        { lea }
+        $8D: HasModRMByte := True;
+        { pop r/m }
+        $8F: HasModRMByte := True;
+        { nop, xchg eax,r }
+        $90..$97: ;
+        { cwde/cdq }
+        $98, $99: ;
+        { pushf/popf }
+        $9C, $9D: ;
+        { test al, imm8 }
+        $A8: ImmSize := 1;
+        { test eax, imm32 }
+        $A9: ImmSize := 4;
+        { mov r8, imm8 }
+        $B0..$B7: ImmSize := 1;
+        { mov r, imm32/imm64 }
+        $B8..$BF:
+          if HasREX and ((REXByte and $08) <> 0) then
+            ImmSize := 8
+          else
+            ImmSize := 4;
+        { shift r/m, imm8 }
+        $C0, $C1: begin HasModRMByte := True; ImmSize := 1; end;
+        { ret imm16 }
+        $C2: ImmSize := 2;
+        { ret }
+        $C3: ;
+        { mov r/m8, imm8 }
+        $C6: begin HasModRMByte := True; ImmSize := 1; end;
+        { mov r/m, imm32 }
+        $C7: begin HasModRMByte := True; ImmSize := 4; end;
+        { leave }
+        $C9: ;
+        { int3 }
+        $CC: raise Exception.Create('Breakpoint found. Remove the breakpoint before hooking the function');
+        { int imm8 }
+        $CD: ImmSize := 1;
+        { shift group }
+        $D0..$D3: HasModRMByte := True;
+        { loop/jcxz rel8 }
+        $E0..$E3: ImmSize := 1;
+        { call/jmp rel32 }
+        $E8, $E9:
+          begin
+            ImmSize := 4;
+            if OffsetTable <> nil then
+              OffsetTable.Add(PInteger(P));
+          end;
+        { jmp rel8 }
+        $EB: ImmSize := 1;
+        { cmc/clc/stc/cli/sti/cld/std }
+        $F5, $F8..$FD: ;
+        { group3 - TEST may have immediate }
+        $F6: HasModRMByte := True;
+        $F7: HasModRMByte := True;
+        { inc/dec/call/jmp/push r/m }
+        $FE, $FF: HasModRMByte := True;
+      else
+        raise Exception.CreateFmt('GetStartCodeSize: Unknown x64 opcode %02X at %p', [OpCode, CodePtr]);
+      end;
+    end;
+
+    { Parse ModR/M byte }
+    if HasModRMByte then
+    begin
+      ModRM := P^;
+      Inc(P);
+      Mod_ := (ModRM shr 6) and 3;
+      Reg := (ModRM shr 3) and 7;
+      RM := ModRM and 7;
+
+      { group3 TEST with immediate }
+      if not Is2Byte then
+      begin
+        if (OpCode = $F6) and (Reg in [0, 1]) then ImmSize := 1;
+        if (OpCode = $F7) and (Reg in [0, 1]) then ImmSize := 4;
+      end;
+
+      DispSize := 0;
+      SIBByte := 0;
+
+      if Mod_ <> 3 then { memory operand }
+      begin
+        if RM = 4 then { SIB byte follows }
+        begin
+          SIBByte := P^;
+          Inc(P);
+        end;
+
+        case Mod_ of
+          0: begin
+            if RM = 5 then { RIP-relative addressing }
+            begin
+              DispSize := 4;
+              if OffsetTable <> nil then
+                OffsetTable.Add(PInteger(P));
+            end
+            else if (RM = 4) and ((SIBByte and 7) = 5) then { SIB base=5 with mod=0 }
+              DispSize := 4;
+          end;
+          1: DispSize := 1;
+          2: DispSize := 4;
+        end;
+
+        Inc(P, DispSize);
+      end;
+    end;
+
+    Inc(P, ImmSize);
+    InstrSize := P - Code;
+    if InstrSize = 0 then
+      raise Exception.CreateFmt('GetStartCodeSize: Failed to decode x64 instruction at %p: %02X %02X %02X %02X',
+        [Code, Code[0], Code[1], Code[2], Code[3]]);
+
+    Inc(Result, InstrSize);
+    Inc(Code, InstrSize);
+  end;
+end;
+{$ENDIF CPUX64}
 
 var
   OrgCallBlock: PByte;
@@ -1092,25 +1362,32 @@ var
 function CreateOrgCallMethodPtr(Proc: Pointer): Pointer;
 const
   BlockSize = 4096;
+  {$IFDEF CPUX64}
+  JmpBackSize = 14; // FF 25 00 00 00 00 + QWord target
+  MinPrologSize = JmpBackSize;
+  {$ELSE}
+  JmpBackSize = 5; // E9 + DWord relative offset
+  MinPrologSize = JmpBackSize;
+  {$ENDIF}
 var
   P: PByte;
   StartCodeSize, CodeSize, FullCodeSize: Integer;
   I: Integer;
-  JmpRelOffset: Integer;
   OffsetTable: TOffsetTable;
   RelPos: Integer;
+  {$IFDEF CPUX64}
+  NewOffset: Int64;
+  {$ENDIF}
 begin
   if Proc = nil then
     raise Exception.Create('CreateOrgCallMethodPtr called with nil');
 
-  StartCodeSize := GetStartCodeSize(Proc, 5, @OffsetTable);
+  StartCodeSize := GetStartCodeSize(Proc, MinPrologSize, @OffsetTable);
   if StartCodeSize = 0 then
     raise Exception.Create('Cannot create OrgCallMethod for the specified function');
 
-  // space for "jmp rel"
-  CodeSize := StartCodeSize;
-  JmpRelOffset := StartCodeSize;
-  Inc(CodeSize, 5);
+  // space for jump back to original
+  CodeSize := StartCodeSize + JmpBackSize;
 
   // alignment for the next OrgCallMethodPtr (filled with "INT 3")
   FullCodeSize := ((CodeSize + 1) + 3) and not $3;
@@ -1141,19 +1418,42 @@ begin
   Inc(OrgCallBlockOffset, FullCodeSize);
   //LeaveCriticalSection(OrgCallBlockCritSect);
 
-  // Adjust the relative address to the new code position
+  // Copy original instructions to trampoline
   Move(Proc^, P^, StartCodeSize);
-  if OffsetTable.Offsets <> nil then // in 5 bytes only 1 call/jmp can be in it
+
+  // Adjust relative offsets (call/jmp rel32 and RIP-relative on x64)
+  if OffsetTable.Offsets <> nil then
   begin
-    RelPos := PByte(OffsetTable.Offsets[0]) - PByte(Proc);
-    PInteger(P + RelPos)^ := (PByte(Proc) - P) + OffsetTable.Offsets[0]^;
+    for I := 0 to Length(OffsetTable.Offsets) - 1 do
+    begin
+      RelPos := PByte(OffsetTable.Offsets[I]) - PByte(Proc);
+      {$IFDEF CPUX64}
+      NewOffset := Int64(OffsetTable.Offsets[I]^) + (Int64(NativeUInt(Proc)) - Int64(NativeUInt(P)));
+      if (NewOffset < Low(Integer)) or (NewOffset > High(Integer)) then
+        raise Exception.CreateFmt('CreateOrgCallMethodPtr: Relative offset fixup overflow for instruction at %p (distance too large)',
+          [PByte(Proc) + RelPos]);
+      PInteger(P + RelPos)^ := Integer(NewOffset);
+      {$ELSE}
+      PInteger(P + RelPos)^ := (PByte(Proc) - P) + OffsetTable.Offsets[I]^;
+      {$ENDIF}
+    end;
   end;
 
-  P[JmpRelOffset] := $E9;
-  PInteger(@P[JmpRelOffset + 1])^ := (PByte(Proc) + StartCodeSize) - (P + JmpRelOffset + 5);
-  // Fill gab
+  {$IFDEF CPUX64}
+  // Absolute JMP back: FF 25 00 00 00 00 + QWord target
+  P[StartCodeSize]     := $FF;
+  P[StartCodeSize + 1] := $25;
+  PInteger(@P[StartCodeSize + 2])^ := 0;
+  PUInt64(@P[StartCodeSize + 6])^ := UInt64(PByte(Proc) + StartCodeSize);
+  {$ELSE}
+  // Relative JMP back: E9 + DWord offset
+  P[StartCodeSize] := $E9;
+  PInteger(@P[StartCodeSize + 1])^ := (PByte(Proc) + StartCodeSize) - (P + StartCodeSize + 5);
+  {$ENDIF}
+
+  // Fill gap with INT 3
   for I := CodeSize to FullCodeSize - 1 do
-    Byte(PAnsiChar(P)[I]) := $CC; // int 3
+    P[I] := $CC;
 
   Result := P;
 end;
@@ -1170,14 +1470,20 @@ var
   I: Integer;
   n: SIZE_T;
 begin
-  {$IFDEF CPUX64}
-  raise Exception.Create('RedirectOrgCall is not supported in x64 mode, yet');
-  {$ENDIF CPUX64}
-
   OrgProc := GetActualAddr(OrgProc);
   NewProc := GetActualAddr(NewProc);
   Result := CreateOrgCallMethodPtr(OrgProc);
 
+  {$IFDEF CPUX64}
+  StartCodeSize := GetStartCodeSize(OrgProc, 14); // need 14 bytes for absolute JMP
+  // Absolute JMP: FF 25 00 00 00 00 + QWord target = 14 bytes
+  Buffer[0] := $FF;
+  Buffer[1] := $25;
+  PInteger(@Buffer[2])^ := 0;
+  PUInt64(@Buffer[6])^ := UInt64(NewProc);
+  for I := 14 to StartCodeSize - 1 do
+    Buffer[I] := $90; // NOP padding
+  {$ELSE}
   StartCodeSize := GetStartCodeSize(OrgProc, 5);
   Buffer[0] := $E9;
   {$IF CompilerVersion >= 20.0}
@@ -1187,6 +1493,7 @@ begin
   {$IFEND}
   for I := 5 to StartCodeSize - 1 do
     Buffer[I] := $90;
+  {$ENDIF}
   if not WriteProcessMemory(GetCurrentProcess, OrgProc, @Buffer[0], StartCodeSize, n) then
     RaiseLastOSError;
 end;
@@ -1195,22 +1502,44 @@ procedure RestoreOrgCall(OrgProc, OrgCall: Pointer);
 var
   StartCodeSize: Integer;
   n: SIZE_T;
+  {$IFDEF CPUX64}
+  Buffer: array[0..63] of Byte;
+  {$ELSE}
   Buffer: array[0..4 + 4] of Byte; // if Buffer[4] = $E8/$E9 we need another 4 bytes
+  {$ENDIF}
   RelPos: Integer;
   OffsetTable: TOffsetTable;
+  {$IFDEF CPUX64}
+  I: Integer;
+  NewOffset: Int64;
+  {$ENDIF}
 begin
   if OrgCall = nil then
     Exit;
 
   OrgProc := GetActualAddr(OrgProc);
 
+  {$IFDEF CPUX64}
+  StartCodeSize := GetStartCodeSize(OrgCall, 14, @OffsetTable);
+  {$ELSE}
   StartCodeSize := GetStartCodeSize(OrgCall, 5, @OffsetTable);
-  if OffsetTable.Offsets <> nil then // in 5 bytes only 1 call/jmp can be in it
+  {$ENDIF}
+
+  if OffsetTable.Offsets <> nil then
   begin
-    // Adjust the relative address to the original code position
+    // Adjust relative addresses back to the original code position
     Move(OrgCall^, Buffer[0], StartCodeSize);
+    {$IFDEF CPUX64}
+    for I := 0 to Length(OffsetTable.Offsets) - 1 do
+    begin
+      RelPos := PByte(OffsetTable.Offsets[I]) - PByte(OrgCall);
+      NewOffset := Int64(OffsetTable.Offsets[I]^) + (Int64(NativeUInt(OrgCall)) - Int64(NativeUInt(OrgProc)));
+      PInteger(@Buffer[RelPos])^ := Integer(NewOffset);
+    end;
+    {$ELSE}
     RelPos := PByte(OffsetTable.Offsets[0]) - PByte(OrgCall);
     PInteger(@Buffer[RelPos])^ := OffsetTable.Offsets[0]^ - (PByte(OrgProc) - PByte(OrgCall));
+    {$ENDIF}
     WriteProcessMemory(GetCurrentProcess, OrgProc, @Buffer, StartCodeSize, n);
   end
   else
@@ -1227,6 +1556,16 @@ begin
   OrgProc := GetActualAddr(OrgProc);
   NewProc := GetActualAddr(NewProc);
 
+  {$IFDEF CPUX64}
+  StartCodeSize := GetStartCodeSize(OrgProc, 14);
+  // Absolute JMP: FF 25 00 00 00 00 + QWord target = 14 bytes
+  Buffer[0] := $FF;
+  Buffer[1] := $25;
+  PInteger(@Buffer[2])^ := 0;
+  PUInt64(@Buffer[6])^ := UInt64(NewProc);
+  for I := 14 to StartCodeSize - 1 do
+    Buffer[I] := $90;
+  {$ELSE}
   StartCodeSize := GetStartCodeSize(OrgProc, 5);
   Buffer[0] := $E9;
   {$IF CompilerVersion >= 20.0}
@@ -1236,6 +1575,7 @@ begin
   {$IFEND}
   for I := 5 to StartCodeSize - 1 do
     Buffer[I] := $90;
+  {$ENDIF}
   if not WriteProcessMemory(GetCurrentProcess, OrgProc, @Buffer[0], StartCodeSize, n) then
     RaiseLastOSError;
 end;

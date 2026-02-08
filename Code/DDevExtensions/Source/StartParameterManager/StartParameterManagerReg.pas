@@ -43,9 +43,16 @@ type
   TDebugger = class(TObject);
   TDebugProjectOption = class(TObject);
 
+{$IFDEF CPUX86}
 procedure TDebugger_Run(Self: TDebugger; Mode: TOTARunMode);
   external dbkdebugide_bpl name '@Debug@TDebugger@Run$qqr20Toolsapi@TOTARunMode';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TDebugger_Run(Self: TDebugger; Mode: TOTARunMode);
+  external dbkdebugide_bpl name '_ZN5Debug9TDebugger3RunEN8Toolsapi11TOTARunModeE';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 {$IF CompilerVersion <> 22.0} // not XE
 function _TDebugProjectOption_GetRunParams(Self: TDebugProjectOption): string;
   {$IF CompilerVersion >= 23.0} // Delphi XE2+
@@ -57,6 +64,11 @@ function _TDebugProjectOption_GetRunParams(Self: TDebugProjectOption): string;
 function TDebuggerProjectOptions_GetOptionClassInfo(Instance: TObject): Pointer; // ClassInfo
   external coreide_bpl name '@Debuggerprojectoptions@TDebuggerProjectOptions@GetOptionClassInfo$qqrv';
 {$IFEND}
+{$ENDIF CPUX86}
+{$IFDEF CPUX64}
+function _TDebugProjectOption_GetRunParams(Self: TDebugProjectOption): string;
+  external coreide_bpl name '_ZN22Debuggerprojectoptions19TDebugProjectOption12GetRunParamsEv';
+{$ENDIF CPUX64}
 
 var
   OrgTDebugger_Run: procedure(Self: TDebugger; Mode: TOTARunMode);

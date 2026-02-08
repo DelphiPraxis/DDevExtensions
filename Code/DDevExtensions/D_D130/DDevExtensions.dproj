@@ -1,17 +1,17 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{13bb5c7c-bee9-44e9-863a-a43268dc0228}</ProjectGuid>
         <MainSource>DDevExtensions.dpr</MainSource>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
+        <DCC_DependencyCheckOutputName>..\bin\$(Platform)\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
         <ProjectVersion>20.3</ProjectVersion>
         <Config Condition="'$(Config)'==''">Release</Config>
         <Basis>True</Basis>
         <AppType>Library</AppType>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <ProjectName Condition="'$(ProjectName)'==''">DDevExtensions</ProjectName>
     </PropertyGroup>
@@ -64,12 +64,12 @@
         <DllSuffix>D130</DllSuffix>
         <DCC_StringChecks>off</DCC_StringChecks>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
-        <DCC_ExeOutput>..\bin</DCC_ExeOutput>
+        <DCC_ExeOutput>..\bin\$(Platform)</DCC_ExeOutput>
         <DCC_ImageBase>53900000</DCC_ImageBase>
-        <DCC_DcuOutput>lib</DCC_DcuOutput>
+        <DCC_DcuOutput>lib\$(Platform)</DCC_DcuOutput>
         <UsePackages>true</UsePackages>
         <DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
-        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
+        <DCC_DependencyCheckOutputName>..\bin\$(Platform)\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
         <GenDll>true</GenDll>
         <DCC_UsePackage>vcl;rtl;designide;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
@@ -77,7 +77,7 @@
         <Debugger_RunParams>-rBDSPlain -pDelphi</Debugger_RunParams>
         <Debugger_LoadUnspecifiedSymbols>true</Debugger_LoadUnspecifiedSymbols>
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <PreBuildEvent><![CDATA[copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll" "$(OUTPUTDIR)"
+        <PreBuildEvent><![CDATA[copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win32\CompileInterceptorW.dll" "$(OUTPUTDIR)"
 $(PreBuildEvent)]]></PreBuildEvent>
         <Debugger_LoadAllSymbols>false</Debugger_LoadAllSymbols>
         <Debugger_HostApplication>$(BDS)\Bin\bds.exe</Debugger_HostApplication>
@@ -87,6 +87,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
+        <PreBuildEvent><![CDATA[copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win64\CompileInterceptorW.dll" "$(OUTPUTDIR)"
+$(PreBuildEvent)]]></PreBuildEvent>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Build>0</VerInfo_Build>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -96,8 +98,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_ObjOutput>lib</DCC_ObjOutput>
-        <DCC_HppOutput>lib</DCC_HppOutput>
+        <DCC_ObjOutput>lib\$(Platform)</DCC_ObjOutput>
+        <DCC_HppOutput>lib\$(Platform)</DCC_HppOutput>
         <DCC_ResourcePath>OldPalette;$(DCC_ResourcePath)</DCC_ResourcePath>
         <DCC_ObjPath>OldPalette;$(DCC_ObjPath)</DCC_ObjPath>
         <DCC_IncludePath>OldPalette;$(DCC_IncludePath)</DCC_IncludePath>
@@ -110,14 +112,14 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <DCC_DcuOutput>lib\debug</DCC_DcuOutput>
+        <DCC_DcuOutput>lib\$(Platform)\debug</DCC_DcuOutput>
         <MapFile>3</MapFile>
         <ILINK_MapFileType>DetailedSegments</ILINK_MapFileType>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <Version>7.0</Version>
         <DCC_MapFile>3</DCC_MapFile>
-        <DCC_ObjOutput>lib</DCC_ObjOutput>
-        <DCC_HppOutput>lib</DCC_HppOutput>
+        <DCC_ObjOutput>lib\$(Platform)</DCC_ObjOutput>
+        <DCC_HppOutput>lib\$(Platform)</DCC_HppOutput>
         <DCC_ResourcePath>OldPalette;$(DCC_ResourcePath)</DCC_ResourcePath>
         <DCC_ObjPath>OldPalette;$(DCC_ObjPath)</DCC_ObjPath>
         <DCC_IncludePath>OldPalette;$(DCC_IncludePath)</DCC_IncludePath>
@@ -1176,7 +1178,17 @@ $(PreBuildEvent)]]></PreBuildEvent>
     <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
-        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
+        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win32\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;
+</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent/>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
+        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win64\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;
+</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
@@ -1184,7 +1196,17 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
-        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
+        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win32\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;
+</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent/>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win64\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;
+</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>

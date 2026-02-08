@@ -62,7 +62,9 @@ end;
 procedure InitPlugin(Unload: Boolean);
 begin
   if not Unload then
-    HookFunction(coreide_bpl, '@Desktop@TDesktopStates@LoadDesktop$qqrp21Desktop@TDesktopState',
+    HookFunction(coreide_bpl,
+      {$IFDEF CPUX86}'@Desktop@TDesktopStates@LoadDesktop$qqrp21Desktop@TDesktopState'{$ENDIF}
+      {$IFDEF CPUX64}'_ZN7Desktop14TDesktopStates11LoadDesktopEPNS_13TDesktopStateE'{$ENDIF},
       @Hook_LoadDesktop, LoadDesktopHook)
   else
     UnhookFunction(LoadDesktopHook);

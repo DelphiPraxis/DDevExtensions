@@ -84,6 +84,7 @@ var
   HookTDelphiCommands_FileUseUnitCommandExecute: TRedirectCode;
   TDelphiCommands_FileUseUnitCommandExecute: procedure(Self: TObject; Sender: TObject) = nil;
 
+{$IFDEF CPUX86}
 {$IF CompilerVersion < 21.0} // Delphi 2009
 var
   HookTViewDialog_Execute: TRedirectCode;
@@ -163,7 +164,7 @@ begin
 end;
 
 {$IFEND}
-
+{$ENDIF CPUX86}
 procedure Hooked_TDelphiCommands_FileUseUnitCommandExecute(Self: TObject; Sender: TObject);
 var
   Project: IOTAProject;
@@ -265,7 +266,12 @@ begin
   if Value <> FReplaceUseUnit then
   begin
     if not Assigned(TDelphiCommands_FileUseUnitCommandExecute) then
+    begin
+      {$IFDEF CPUX86}
       @TDelphiCommands_FileUseUnitCommandExecute := DbgStrictGetProcAddress(GetModuleHandle(PChar(DelphicmdsDll)), '@Delphicmds@TDelphiCommands@FileUseUnitCommandExecute$qqrp14System@TObject');
+      {$ENDIF}
+      // x64: export name not known; feature disabled - TDelphiCommands_FileUseUnitCommandExecute stays nil
+    end;
     if Assigned(TDelphiCommands_FileUseUnitCommandExecute) then
     begin
       if FReplaceUseUnit then

@@ -95,11 +95,23 @@ var
   CallAddrTSortedThingList_SetSortedP: PByte;
   CompleteMethodSymbolTableIteratorP: PByte;
 
+{$IFDEF CPUX86}
 function TClassSymbol_MethodAddPos(Instance: TClassSymbol; const Name: string): Integer;
   external delphicoreide_bpl name '@Pasmgr@TClassSymbol@MethodAddPos$qqrx20System@UnicodeString';
+{$ENDIF}
+{$IFDEF CPUX64}
+function TClassSymbol_MethodAddPos(Instance: TClassSymbol; const Name: string): Integer;
+  external delphicoreide_bpl name '_ZN6Pasmgr12TClassSymbol12MethodAddPosEN6System13UnicodeStringE';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TPascalClassCompleter_Complete;
   external delphicoreide_bpl name '@Completers@TPascalClassCompleter@Complete$qqrx20System@UnicodeString';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TPascalClassCompleter_Complete;
+  external delphicoreide_bpl name '_ZN10Completers21TPascalClassCompleter8CompleteEN6System13UnicodeStringE';
+{$ENDIF}
 
 function TClassSymbol_MethodAddPos_AlphSort(Instance: TClassSymbol; const Name: string): Integer;
 begin
@@ -266,6 +278,7 @@ begin
   Result := TTableIterator.Create(ASymbolTable);
 end;
 
+{$IFDEF CPUX86}
 function MethodSymbolTableIteratorFactory(AClass: TClass; DL: Integer; ASymbolTable: TSymbolTable): TTableIterator;
 asm
   push ecx
@@ -284,6 +297,13 @@ asm
   pop eax
   call TTableIterator_Create
 end;
+{$ELSE}
+function MethodSymbolTableIteratorFactory(AClass: TClass; DL: Integer; ASymbolTable: TSymbolTable): TTableIterator;
+begin
+  // Win64: simplified fallback - just create the iterator without sorting hack
+  Result := TTableIterator_Create(ASymbolTable);
+end;
+{$ENDIF CPUX86}
 {begin
   // Sort all items that are already collected
   OrgTSortedThingList_SetSorted(ThingList, True);
@@ -296,6 +316,7 @@ end;}
 {-------------------------------------------------------------------------------------------------}
 
 procedure InstallDisableAlphaSortClassCompletion(Value: Boolean);
+{$IFDEF CPUX86}
 const
   CompleteSetSortedBytes: array[0..18] of SmallInt = (
     $B2, $01,             // mov dl,$01                                    //  0
@@ -403,5 +424,10 @@ begin
       ReplaceRelCallOffset(@CallAddrTSortedThingList_SetSortedP[CallOffsetSetSorted], OrgTSortedThingList_SetSorted);
   end;
 end;
+{$ELSE}
+begin
+  // Win64: x86 byte-pattern matching is not applicable, feature not available
+end;
+{$ENDIF CPUX86}
 
 end.
