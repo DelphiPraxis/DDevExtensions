@@ -71,11 +71,23 @@ uses
 
 { TPropField }
 
+{$IFDEF CPUX86}
 function TPropField.GetValue: Variant;
   external vclide_bpl name '@Idepropset@TPropField@GetValue$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+function TPropField.GetValue: Variant;
+  external vclide_bpl name '_ZN10Idepropset10TPropField8GetValueEv';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TPropField.SetValue(const Value: Variant);
   external vclide_bpl name '@Idepropset@TPropField@SetValue$qqrrx14System@Variant';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TPropField.SetValue(const Value: Variant);
+  external vclide_bpl name '_ZN10Idepropset10TPropField8SetValueERKN6System7VariantE';
+{$ENDIF}
 
 {------------------------------------------------------------------------------------------------------------}
 
@@ -569,10 +581,18 @@ type
     function GetEnvOptions(const APlatform, APersonality: string): PObject;
   end;
 
+{$IFDEF CPUX86}
 function PlatformManager: TPlatformManager;
   external coreide_bpl name '@Platforms@PlatformManager$qqrv';
 function TPlatformManager.GetEnvOptions(const APlatform: string; const APersonality: string): PObject;
   external coreide_bpl name '@Platforms@TPlatformManager@GetEnvOptions$qqrx20System@UnicodeStringt1';
+{$ENDIF}
+{$IFDEF CPUX64}
+function PlatformManager: TPlatformManager;
+  external coreide_bpl name '_ZN9Platforms15PlatformManagerEv';
+function TPlatformManager.GetEnvOptions(const APlatform: string; const APersonality: string): PObject;
+  external coreide_bpl name '_ZN9Platforms16TPlatformManager13GetEnvOptionsEN6System13UnicodeStringES2_';
+{$ENDIF}
 {$IFEND}
 
 function GetProjectEnvOptionPaths(const AProject: IOTAProject; const AOptionName: string): string;

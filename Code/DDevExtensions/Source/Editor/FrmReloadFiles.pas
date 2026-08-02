@@ -121,6 +121,7 @@ var
   //ReloadingModules: Boolean;
   ReloadFileForm: TFormReloadFiles;
 
+{$IFDEF CPUX86}
 {$IF CompilerVersion >= 22.0} // XE+
 procedure Docmodul_CheckFileDates(NoPrompt: Boolean);
   external coreide_bpl name '@Docmodul@CheckFileDates$qqro';
@@ -128,6 +129,11 @@ procedure Docmodul_CheckFileDates(NoPrompt: Boolean);
 procedure Docmodul_CheckFileDates;
   external coreide_bpl name '@Docmodul@CheckFileDates$qqrv';
 {$IFEND}
+{$ENDIF CPUX86}
+{$IFDEF CPUX64}
+procedure Docmodul_CheckFileDates(NoPrompt: Boolean);
+  external coreide_bpl name '_ZN8Docmodul14CheckFileDatesEb';
+{$ENDIF CPUX64}
 
 {$IF CompilerVersion >= 23.0} // XE2+
 {var

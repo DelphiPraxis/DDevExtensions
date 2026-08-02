@@ -237,8 +237,19 @@ uses
 var
   DocModuleIsDormantOffset: Integer;
 
+{$IFDEF CPUX86}
 procedure Docmodul_ModuleListAddr;
   external coreide_bpl name '@Docmodul@ModuleList';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure Docmodul_ModuleListAddr;
+  external coreide_bpl name '_ZN8Docmodul10ModuleListE';
+{$ENDIF}
+
+{$IFDEF CPUX64}
+procedure EnvironmentOptionsAddr;
+  external coreide_bpl name '_ZN10Envoptions18EnvironmentOptionsE';
+{$ENDIF}
 
 {$IF CompilerVersion >= 25.0} // XE4+
 function IsEmbeddedDesigner: Boolean;
@@ -299,6 +310,7 @@ type
 
 {$J+}
 const
+  {$IFDEF CPUX86}
   DocModuleVirtMethods: array[TDocModuleVirtMethodType] of TDocModuleVirtMethodRec = (
     (Import: '@Docmodul@TDocModule@CheckFileDate$qqrv'),
     (Import: '@Docmodul@TDocModule@CanReloadFile$qqrv'),
@@ -318,37 +330,105 @@ const
     (Import: '@Docmodul@TDocModule@Activate$qqro'),
     (Import: '@Docmodul@TDocModule@Modified$qqrv')
   );
+  {$ENDIF CPUX86}
+  {$IFDEF CPUX64}
+  DocModuleVirtMethods: array[TDocModuleVirtMethodType] of TDocModuleVirtMethodRec = (
+    (Import: '_ZN8Docmodul10TDocModule13CheckFileDateEv'),
+    (Import: '_ZN8Docmodul10TDocModule13CanReloadFileEv'),
+    (Import: '_ZN8Docmodul10TDocModule11GetModifiedEv'),
+    (Import: '_ZN8Docmodul10TDocModule10ReloadFileEv'),
+    (Import: '_ZN8Docmodul10TDocModule11GetFileNameEv'),
+    (Import: '_ZN8Docmodul10TDocModule13GetModuleNameEv'),
+    (Import: '_ZN8Docmodul10TDocModule7HasFormEv'),
+    (Import: '_ZN8Docmodul10TDocModule11GetFormNameEv'),
+    (Import: '_ZN8Docmodul10TDocModule18SwapSourceFormViewEv'),
+    (Import: '_ZN8Docmodul10TDocModule19GetDependentModulesEPN6System7Classes5TListE'),
+    (Import: '_ZN8Docmodul10TDocModule21GetModuleDependenciesEPN6System7Classes5TListE'),
+    (Import: '_ZN8Docmodul10TDocModule9GoDormantEv'),
+    (Import: '_ZN8Docmodul10TDocModule10ShowEditorEb'),
+    (Import: '_ZN8Docmodul10TDocModule14ShowEditorNameEN6System13UnicodeStringEb'),
+    (Import: '_ZN8Docmodul10TDocModule13GetFileSystemEv'),
+    (Import: '_ZN8Docmodul10TDocModule8ActivateEb'),
+    (Import: '_ZN8Docmodul10TDocModule8ModifiedEv')
+  );
+  {$ENDIF CPUX64}
 {$J-}
 
 { TPascalCodeMgrModHandler }
 
+{$IFDEF CPUX86}
 procedure ClassTPascalCodeMgrModHandler;
   external delphicoreide_bpl name '@Delphimodule@TPascalCodeMgrModHandler@';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure ClassTPascalCodeMgrModHandler;
+  external delphicoreide_bpl name '_ZTVN12Delphimodule24TPascalCodeMgrModHandlerE';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TPascalCodeMgrModHandler.ResurrectForm;
   external delphicoreide_bpl name '@Delphimodule@TPascalCodeMgrModHandler@ResurrectForm$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TPascalCodeMgrModHandler.ResurrectForm;
+  external delphicoreide_bpl name '_ZN12Delphimodule24TPascalCodeMgrModHandler13ResurrectFormEv';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TPascalCodeMgrModHandler.ReloadFile;
   external delphicoreide_bpl name '@Delphimodule@TPascalCodeMgrModHandler@ReloadFile$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TPascalCodeMgrModHandler.ReloadFile;
+  external delphicoreide_bpl name '_ZN12Delphimodule24TPascalCodeMgrModHandler10ReloadFileEv';
+{$ENDIF}
 
 { TDocModule }
 
+{$IFDEF CPUX86}
 procedure ClassTDocModule;
   external coreide_bpl name '@Docmodul@TDocModule@';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure ClassTDocModule;
+  external coreide_bpl name '_ZTVN8Docmodul10TDocModuleE';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TDocModule_GoDormant;
   external coreide_bpl name '@Docmodul@TDocModule@GoDormant$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TDocModule_GoDormant;
+  external coreide_bpl name '_ZN8Docmodul10TDocModule9GoDormantEv';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 function TDocModule.GetCanFree: Boolean;
   external coreide_bpl name '@Docmodul@TDocModule@GetCanFree$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+function TDocModule.GetCanFree: Boolean;
+  external coreide_bpl name '_ZN8Docmodul10TDocModule10GetCanFreeEv';
+{$ENDIF}
 
-{$IF CompilerVersion >= 22.0} // XE+
+{$IF (CompilerVersion >= 22.0) and Defined(CPUX86)} // XE+
 function TDocModule.CanFreeOrGoDormant(const DormantOk: Boolean): Boolean;
   external coreide_bpl name '@Docmodul@TDocModule@CanFreeOrGoDormant$qqrxo';
 {$IFEND}
+{$IFDEF CPUX64}
+function TDocModule.CanFreeOrGoDormant(const DormantOk: Boolean): Boolean;
+  external coreide_bpl name '_ZN8Docmodul10TDocModule18CanFreeOrGoDormantEb';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 function TDocModule.GetCodeIDocModule: TInterfacedObject;
   external coreide_bpl name '@Docmodul@TDocModule@GetCodeIDocModule$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+function TDocModule.GetCodeIDocModule: TInterfacedObject;
+  external coreide_bpl name '_ZN8Docmodul10TDocModule17GetCodeIDocModuleEv';
+{$ENDIF}
 
 function TDocModule.IsDormant: Boolean;
 begin
@@ -442,6 +522,7 @@ end;
 
 { TDocModuleVirtMethodRec }
 
+{$IFDEF CPUX86}
 function TDocModuleVirtMethodRec.CallBoolean(Instance: TDocModule): Boolean;
 asm
   jmp TDocModuleVirtMethodRec.Call
@@ -491,9 +572,58 @@ asm
 
   pop ebx
 end;
+{$ENDIF CPUX86}
+
+{$IFDEF CPUX64}
+function TDocModuleVirtMethodRec.CallBoolean(Instance: TDocModule): Boolean;
+asm
+  jmp TDocModuleVirtMethodRec.Call
+end;
+
+function TDocModuleVirtMethodRec.CallString(Instance: TDocModule): string;
+asm
+  jmp TDocModuleVirtMethodRec.Call1 // String result is passed as hidden last parameter
+end;
+
+function TDocModuleVirtMethodRec.CallObject(Instance: TDocModule): TObject;
+asm
+  jmp TDocModuleVirtMethodRec.Call
+end;
+
+procedure TDocModuleVirtMethodRec.Call(Instance: TDocModule);
+asm
+  // RCX = Self (rec), RDX = Instance
+  mov eax, [rcx].TDocModuleVirtMethodRec.&VmtOffset  // RAX = VmtOffset (zero-extended)
+  mov rcx, rdx         // RCX = Instance (Self for target method)
+  mov r9, [rcx]        // R9 = VMT pointer
+  jmp [r9+rax]         // jump to VMT[VmtOffset]
+end;
+
+procedure TDocModuleVirtMethodRec.Call1(Instance: TDocModule; P1: Pointer);
+asm
+  // RCX = Self (rec), RDX = Instance, R8 = P1
+  mov eax, [rcx].TDocModuleVirtMethodRec.&VmtOffset  // RAX = VmtOffset (zero-extended)
+  mov rcx, rdx         // RCX = Instance (Self for target method)
+  mov rdx, r8          // RDX = P1 (second param for target method)
+  mov r9, [rcx]        // R9 = VMT pointer
+  jmp [r9+rax]         // jump to VMT[VmtOffset]
+end;
+
+procedure TDocModuleVirtMethodRec.Call2(Instance: TDocModule; P1, P2: Pointer);
+asm
+  // RCX = Self (rec), RDX = Instance, R8 = P1, R9 = P2
+  mov eax, [rcx].TDocModuleVirtMethodRec.&VmtOffset  // RAX = VmtOffset (zero-extended)
+  mov rcx, rdx         // RCX = Instance (Self for target method)
+  mov rdx, r8          // RDX = P1 (second param for target method)
+  mov r8, r9           // R8 = P2 (third param for target method)
+  mov r9, [rcx]        // R9 = VMT pointer
+  jmp [r9+rax]         // jump to VMT[VmtOffset]
+end;
+{$ENDIF CPUX64}
 
 
 function InitDocModuleHandler: Boolean;
+{$IFDEF CPUX86}
 const
   GoDormantBytes: array[0..12] of SmallInt = (
     $B3, $01,            // mov bl,$01                  //  0
@@ -502,6 +632,7 @@ const
     $8D, $55, $FC,       // lea edx,[ebp-$04]           //  8
     $8B, $C6             // mov eax,esi                 // 11
   );
+{$ENDIF CPUX86}
 var
   DocModuleClass: TClass;
   CoreIdeLib: THandle;
@@ -573,6 +704,7 @@ begin
     end;
   end;
 
+  {$IFDEF CPUX86}
   P := FindMethodPtr(THandle(GetActualAddr(@TDocModule_GoDormant)), GoDormantBytes, $40);
   if P = nil then
   begin
@@ -580,6 +712,60 @@ begin
     Exit;
   end;
   DocModuleIsDormantOffset := P[4];
+  {$ELSE}
+  // Win64: Scan GoDormant machine code for "cmp byte ptr [reg+disp8], 0" to find IsDormant offset.
+  // On x64, Delphi saves Self (RCX) to a register and then does: cmp byte ptr [reg+offset], 0
+  // Encoding: $80 ModR/M(01_111_rrr) disp8 $00  or with REX prefix
+  begin
+    var GoDormantAddr: PByte := PByte(GetActualAddr(@TDocModule_GoDormant));
+    var FoundOffset: Boolean := False;
+    var I: Integer;
+    var ScanByte: Byte;
+    for I := 0 to 127 do
+    begin
+      // Look for: $80 $7x offset $00 (cmp byte ptr [reg+disp8], 0)
+      // ModR/M = 01_111_rrr where rrr = register (rcx=1, rbx=3, rsi=6, etc.)
+      // So ModR/M range: $79..$7F (excluding $7C which needs SIB)
+      ScanByte := GoDormantAddr[I];
+      if (ScanByte = $80) and (I + 3 <= 127) then
+      begin
+        var ModRM: Byte := GoDormantAddr[I + 1];
+        // mod=01, reg=111(/7=cmp), rm != 100(SIB)
+        if ((ModRM and $F8) = $78) and ((ModRM and $07) <> $04) then
+        begin
+          if GoDormantAddr[I + 3] = $00 then // imm8 = 0
+          begin
+            DocModuleIsDormantOffset := GoDormantAddr[I + 2]; // disp8
+            FoundOffset := True;
+            Break;
+          end;
+        end;
+      end;
+      // Also check with REX prefix (40-4F): REX $80 $7x offset $00
+      if (ScanByte >= $40) and (ScanByte <= $4F) and (I + 4 <= 127) then
+      begin
+        if GoDormantAddr[I + 1] = $80 then
+        begin
+          var ModRM: Byte := GoDormantAddr[I + 2];
+          if ((ModRM and $F8) = $78) and ((ModRM and $07) <> $04) then
+          begin
+            if GoDormantAddr[I + 4] = $00 then
+            begin
+              DocModuleIsDormantOffset := GoDormantAddr[I + 3];
+              FoundOffset := True;
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
+    if not FoundOffset then
+    begin
+      MessageDlg('DDevExtensions: Error finding TDocModule.IsDormant offset in GoDormant x64 code', mtError, [mbOk], 0);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
 
 
   Result := True;

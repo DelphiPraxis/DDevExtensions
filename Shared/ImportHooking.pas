@@ -55,7 +55,7 @@ uses
   SysUtils;
 
 const
-  CurProcess = Cardinal(-1);
+  CurProcess = {$IFDEF CPUX64}NativeUInt{$ELSE}Cardinal{$ENDIF}(-1);
 
 // API hooking classes
 type
@@ -187,12 +187,33 @@ type
   TImageThunkData32 = IMAGE_THUNK_DATA32;
   PImageThunkData32 = PIMAGE_THUNK_DATA32;
 
+{$IFDEF CPUX64}
+  PIMAGE_THUNK_DATA64 = ^IMAGE_THUNK_DATA64;
+  _IMAGE_THUNK_DATA64 = record
+    case Integer of
+      0: (ForwarderString: UInt64);
+      1: (Function_: UInt64);
+      2: (Ordinal: UInt64);
+      3: (AddressOfData: UInt64);
+  end;
+  IMAGE_THUNK_DATA64 = _IMAGE_THUNK_DATA64;
+  TImageThunkData64 = IMAGE_THUNK_DATA64;
+  PImageThunkData64 = PIMAGE_THUNK_DATA64;
+
+  IMAGE_THUNK_DATA = IMAGE_THUNK_DATA64;
+  {$EXTERNALSYM IMAGE_THUNK_DATA}
+  PIMAGE_THUNK_DATA = PIMAGE_THUNK_DATA64;
+  {$EXTERNALSYM PIMAGE_THUNK_DATA}
+  TImageThunkData = TImageThunkData64;
+  PImageThunkData = PImageThunkData64;
+{$ELSE}
   IMAGE_THUNK_DATA = IMAGE_THUNK_DATA32;
   {$EXTERNALSYM IMAGE_THUNK_DATA}
   PIMAGE_THUNK_DATA = PIMAGE_THUNK_DATA32;
   {$EXTERNALSYM PIMAGE_THUNK_DATA}
   TImageThunkData = TImageThunkData32;
   PImageThunkData = PImageThunkData32;
+{$ENDIF}
 
 function IsWinNT: Boolean;
 var
@@ -449,7 +470,7 @@ begin
           if VirtualProtectEx(CurProcess, @ImportEntry^.Function_, SizeOf(ToProc),
             PAGE_READWRITE, @LastProtect) then
           begin
-            ImportEntry^.Function_ := Cardinal(ToProc);
+            ImportEntry^.Function_ := {$IFDEF CPUX64}UInt64{$ELSE}Cardinal{$ENDIF}(ToProc);
 
             // According to Platform SDK documentation, the last parameter
             // has to be (point to) a valid variable
@@ -511,7 +532,7 @@ begin
           if VirtualProtectEx(CurProcess, @ImportEntry^.Function_, SizeOf(ToProc),
             PAGE_READWRITE, @LastProtect) then
           begin
-            ImportEntry^.Function_ := Cardinal(ToProc);
+            ImportEntry^.Function_ := {$IFDEF CPUX64}UInt64{$ELSE}Cardinal{$ENDIF}(ToProc);
             // According to Platform SDK documentation, the last parameter
             // has to be (point to) a valid variable
             VirtualProtectEx(CurProcess, @ImportEntry^.Function_, SizeOf(ToProc),

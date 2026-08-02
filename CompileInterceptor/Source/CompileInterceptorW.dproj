@@ -12,7 +12,7 @@
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <TargetedPlatforms>3</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -81,10 +81,10 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>vclimg;vcl;vclx;dbrtl;Rave90VCL;bdertl;rtl;xmlrtl;vclactnband;VclSmp;svnui;svn;TeeUI;Tee;TeeDB;vcldb;vcldbx;vcltouch;dsnap;dsnapcon;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_110_150;Intraweb_110_150;vclie;webdsnap;inetdb;websnap;inetdbbde;inetdbxpress;soaprtl;vclribbon;DbxCommonDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;CodeSiteExpressVcl;EmbeddedWebBrowser_XE;VirtualTreesD15;ZComponent;ZParseSql;ZCore;ZDbc;ZPlain;AHComps;DbxClientDriver;AzureCloud;Jcl;JclDeveloperTools;JclVcl;JclContainers;JvCore;JvSystem;JvStdCtrls;JvAppFrm;JvBands;JvDB;JvDlgs;JvBDE;JvControls;JvCmp;JvCrypt;JvCustom;JvDocking;JvDotNetCtrls;JvGlobus;JvHMI;JvJans;JvManagedThreads;JvMM;JvNet;JvPageComps;JvPascalInterpreter;JvPluginSystem;JvPrintPreview;JvRuntimeDesign;JvTimeFramework;JvWizards;JvXPCtrls;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_ImageBase>B740000</DCC_ImageBase>
-        <DCC_ExeOutput>..\bin</DCC_ExeOutput>
-        <DCC_DcuOutput>..\lib</DCC_DcuOutput>
-        <DCC_DcpOutput>..\lib</DCC_DcpOutput>
-        <DCC_DependencyCheckOutputName>..\bin\CompileInterceptorW.dll</DCC_DependencyCheckOutputName>
+        <DCC_ExeOutput>..\bin\$(Platform)</DCC_ExeOutput>
+        <DCC_DcuOutput>..\lib\$(Platform)</DCC_DcuOutput>
+        <DCC_DcpOutput>..\lib\$(Platform)</DCC_DcpOutput>
+        <DCC_DependencyCheckOutputName>..\bin\$(Platform)\CompileInterceptorW.dll</DCC_DependencyCheckOutputName>
         <GenDll>true</GenDll>
         <SanitizedProjectName>CompileInterceptorW</SanitizedProjectName>
     </PropertyGroup>
@@ -114,8 +114,8 @@
         <DCC_LocalDebugSymbols>False</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_ImageBase>23400000</DCC_ImageBase>
-        <DCC_ObjOutput>..\lib</DCC_ObjOutput>
-        <DCC_HppOutput>..\lib</DCC_HppOutput>
+        <DCC_ObjOutput>..\lib\$(Platform)</DCC_ObjOutput>
+        <DCC_HppOutput>..\lib\$(Platform)</DCC_HppOutput>
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
@@ -125,8 +125,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <Version>7.0</Version>
-        <DCC_ObjOutput>..\lib</DCC_ObjOutput>
-        <DCC_HppOutput>..\lib</DCC_HppOutput>
+        <DCC_ObjOutput>..\lib\$(Platform)</DCC_ObjOutput>
+        <DCC_HppOutput>..\lib\$(Platform)</DCC_HppOutput>
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_UnitSearchPath>Z:\Jedi\jcl\lib\d11\debug;..\..\..\lib\Dcc32le;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ResourcePath>Z:\Jedi\jcl\lib\d11\debug;..\..\..\lib\Dcc32le;$(DCC_ResourcePath)</DCC_ResourcePath>
@@ -263,7 +263,7 @@
                 <Platform value="OSX64">False</Platform>
                 <Platform value="OSXARM64">False</Platform>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

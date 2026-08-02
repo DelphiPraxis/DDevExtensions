@@ -363,26 +363,68 @@ type
     ResFile: TOTAHandle;
   end;
 
+{$IFDEF CPUX86}
 procedure TProjectVersionInfo.LoadFromExistingProject(ResFile: TResFile);
   external coreide_bpl name '@Verinf@TVersionInfo@LoadFromExistingProject$qqrp17Resutils@TResFile';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TProjectVersionInfo.LoadFromExistingProject(ResFile: TResFile);
+  external coreide_bpl name '_ZN6Verinf12TVersionInfo23LoadFromExistingProjectEPN8Resutils8TResFileE';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TResFile.SaveToStream(Stream: TStream);
   external coreide_bpl name '@Resutils@TResFile@SaveToStream$qqrp' + System_Classes_TStream;
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TResFile.SaveToStream(Stream: TStream);
+  external coreide_bpl name '_ZN8Resutils8TResFile12SaveToStreamEPN6System7Classes7TStreamE';
+{$ENDIF}
+{$IFDEF CPUX86}
 procedure TResFile.LoadFromStream(Stream: TStream);
   external coreide_bpl name '@Resutils@TResFile@LoadFromStream$qqrp' + System_Classes_TStream;
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TResFile.LoadFromStream(Stream: TStream);
+  external coreide_bpl name '_ZN8Resutils8TResFile14LoadFromStreamEPN6System7Classes7TStreamE';
+{$ENDIF}
 
+{$IFDEF CPUX86}
 procedure TResFile.GetIco(Name: PChar; Stream: TStream);
   external coreide_bpl name
   {$IFDEF UNICODE}'@Resutils@TResFile@GetIco$qqrpbp' + System_Classes_TStream;{$ELSE}'@Resutils@TResFile@GetIco$qqrpcp15Classes@TStream';{$ENDIF}
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TResFile.GetIco(Name: PChar; Stream: TStream);
+  external coreide_bpl name '_ZN8Resutils8TResFile6GetIcoEPwPN6System7Classes7TStreamE';
+{$ENDIF}
+{$IFDEF CPUX86}
 procedure TResFile.AddIco(Name: PChar; Stream: TStream);
   external coreide_bpl name
   {$IFDEF UNICODE}'@Resutils@TResFile@AddIco$qqrpbp' + System_Classes_TStream;{$ELSE}'@Resutils@TResFile@AddIco$qqrpcp15Classes@TStream';{$ENDIF}
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TResFile.AddIco(Name: PChar; Stream: TStream);
+  external coreide_bpl name '_ZN8Resutils8TResFile6AddIcoEPwPN6System7Classes7TStreamE';
+{$ENDIF}
+{$IFDEF CPUX86}
 procedure TResFile.RemoveIco(Name: PChar);
   external coreide_bpl name
   {$IFDEF UNICODE}'@Resutils@TResFile@RemoveIco$qqrpb';{$ELSE}'@Resutils@TResFile@RemoveIco$qqrpc';{$ENDIF}
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure TResFile.RemoveIco(Name: PChar);
+  external coreide_bpl name '_ZN8Resutils8TResFile9RemoveIcoEPw';
+{$ENDIF}
+{$IFDEF CPUX86}
 function TResFile.Find(ResType, Name: PChar): Pointer;
   external coreide_bpl name
   {$IFDEF UNICODE}'@Resutils@TResFile@Find$qqrpbt1';{$ELSE}'@Resutils@TResFile@Find$qqrpct1';{$ENDIF}
+{$ENDIF}
+{$IFDEF CPUX64}
+function TResFile.Find(ResType, Name: PChar): Pointer;
+  external coreide_bpl name '_ZN8Resutils8TResFile4FindEPwS1_';
+{$ENDIF}
 
 function GetResFileFromResEntry(ResEntry: TOTAHandle): TResFile;
 begin
@@ -428,8 +470,14 @@ type
     function GetResourceFile: TResFile;
   end;
 
+{$IFDEF CPUX86}
 function TDelphiProjectModuleHandler.GetResourceFile: TResFile;
   external delphicoreide_bpl name '@Basedelphiproject@TDelphiProjectModuleHandler@GetResourceFile$qqrv';
+{$ENDIF}
+{$IFDEF CPUX64}
+function TDelphiProjectModuleHandler.GetResourceFile: TResFile;
+  external delphicoreide_bpl name '_ZN17Basedelphiproject27TDelphiProjectModuleHandler15GetResourceFileEv';
+{$ENDIF}
 {$ENDIF COMPILER14_UP}
 
 const
@@ -439,8 +487,14 @@ const
   _IProject_ = '44System@%DelphiInterface$t16Codemgr@IProject%';
   {$IFEND}
 
+{$IFDEF CPUX86}
 function TOTAProjectResource_Create(ResFile: TResFile; Project: IProject): TInterfacedObject;
   external coreide_bpl name '@Ideservices@TOTAProjectResource@$bctr$qqrp17Resutils@TResFile' + _IProject_;
+{$ENDIF}
+{$IFDEF CPUX64}
+function TOTAProjectResource_Create(ResFile: TResFile; Project: IProject): TInterfacedObject;
+  external coreide_bpl name '_ZN11Ideservices19TOTAProjectResourceC3EPN8Resutils8TResFileEN6System15DelphiInterfaceIN7Codemgr8IProjectEEE';
+{$ENDIF}
 
 {$ENDIF COMPILER9_UP}
 
@@ -490,7 +544,9 @@ begin
     if ResFile <> nil then
     begin
       // create a coreide.TOTAProjectResource object
-      VT := GetProcAddress(GetModuleHandle(coreide_bpl), '@Ideservices@TOTAProjectResource@');
+      VT := GetProcAddress(GetModuleHandle(coreide_bpl),
+        {$IFDEF CPUX86}'@Ideservices@TOTAProjectResource@'{$ENDIF}
+        {$IFDEF CPUX64}'_ZTVN11Ideservices19TOTAProjectResourceE'{$ENDIF});
       if VT <> nil then
       begin
         asm
@@ -963,10 +1019,18 @@ begin
   end;
 end;}
 
+{$IFDEF CPUX86}
 {$IF CompilerVersion >= 23.0} // Delphi XE2+
-
 function ExpandRootMacro(const InString: string; const AdditionalVars: TObject = nil): string;
   external coreide_bpl name '@Uiutils@ExpandRootMacro$qqrx20System@UnicodeString' + _xp_ + '22Codemgr@TNameValueHash';
+{$IFEND}
+{$ENDIF CPUX86}
+{$IFDEF CPUX64}
+function ExpandRootMacro(const InString: string; const AdditionalVars: TObject = nil): string;
+  external coreide_bpl name '_ZN7Uiutils15ExpandRootMacroEN6System13UnicodeStringEPN7Codemgr14TNameValueHashE';
+{$ENDIF CPUX64}
+
+{$IF CompilerVersion >= 23.0} // Delphi XE2+
 
 procedure TIconResource.LoadFromProjectResource(AProject: IOTAProject);
 var

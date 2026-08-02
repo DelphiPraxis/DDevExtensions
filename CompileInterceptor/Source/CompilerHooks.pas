@@ -806,7 +806,12 @@ const
 
   // >= 15
 //  sGetCppCallbacks = '@Pascppcominout@GetCppCallbacks$qqrv';
+  {$IFDEF CPUX86}
   sGetDccCallbacks = '@Pascppcominout@GetDccCallbacks$qqrv';
+  {$ENDIF}
+  {$IFDEF CPUX64}
+  sGetDccCallbacks = '_ZN14Pascppcominout15GetDccCallbacksEv';
+  {$ENDIF}
 
   // in [5, 6, 7]
 //  CPPCompilerInitSymbol5 = '@Cominout@CPPCompilerInit$qqrpqqsr22Cominout@TCppCallbacks$v';
@@ -895,9 +900,9 @@ begin
     if PascalProc <> nil then
     begin
       if DelphiVer >= 10 then
-        PascalProc := Pointer(Cardinal(PascalProc) + 10)
+        PascalProc := Pointer(PByte(PascalProc) + 10)
       else
-        PascalProc := Pointer(Cardinal(PascalProc) + 1);
+        PascalProc := Pointer(PByte(PascalProc) + 1);
       PascalComInOut := PascalProc^;
       OrgPascalComInOut := PascalComInOut^;
 

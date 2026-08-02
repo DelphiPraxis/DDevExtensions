@@ -235,11 +235,20 @@ end;
 
 procedure PreInit;
 const
+  {$IFDEF CPUX86}
   sLoadPackageCache = '@Pascpppakmgr@TProfileData@LoadPackageCache$qqr' + _xp_ + System_Inifiles_TCustomIniFile;
   sSavePackageCache = '@Pascpppakmgr@TProfileData@SavePackageCache$qqr' + _xp_ + System_Inifiles_TCustomIniFile + 'o';
 
   sPaletteItemDelegateSaveData = '@Comppalmgr@TComponentPalettePageItemDelegate@SaveData$qqr' + _xp_ + System_Inifiles_TCustomIniFile;
   sPaletteItemDelegateLoadData = '@Comppalmgr@TComponentPalettePageItemDelegate@LoadData$qqr' + _xp_ + System_Inifiles_TCustomIniFile;
+  {$ENDIF CPUX86}
+  {$IFDEF CPUX64}
+  sLoadPackageCache = '_ZN12Pascpppakmgr12TProfileData16LoadPackageCacheEPN6System8Inifiles14TCustomIniFileE';
+  sSavePackageCache = '_ZN12Pascpppakmgr12TProfileData16SavePackageCacheEPN6System8Inifiles14TCustomIniFileEb';
+
+  sPaletteItemDelegateSaveData = '_ZN10Comppalmgr33TComponentPalettePageItemDelegate8SaveDataEPN6System8Inifiles14TCustomIniFileE';
+  sPaletteItemDelegateLoadData = '_ZN10Comppalmgr33TComponentPalettePageItemDelegate8LoadDataEv';
+  {$ENDIF CPUX64}
 
   RetCode: Byte = $C3;
 var
@@ -263,7 +272,12 @@ end;
 
 procedure InitPlugin(Unload: Boolean);
 const
+  {$IFDEF CPUX86}
   sLoadPackageEx = Unit_System_SysUtils + '@LoadPackage$qqrx20System@UnicodeStringpqqrui$o';
+  {$ENDIF CPUX86}
+  {$IFDEF CPUX64}
+  sLoadPackageEx = '_ZN6System8Sysutils11LoadPackageENS_13UnicodeStringEPFbyE';
+  {$ENDIF CPUX64}
 var
   LibCoreide, LibRtl: THandle;
 begin

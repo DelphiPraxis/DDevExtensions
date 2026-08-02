@@ -101,8 +101,14 @@ const
   sCurrFileLabelName = 'CurrFile';
   {$IFEND}
 
+{$IFDEF CPUX86}
 procedure ProgressFormPtr;
   external coreide_bpl name '@Comprgrs@ProgressForm';
+{$ENDIF}
+{$IFDEF CPUX64}
+procedure ProgressFormPtr;
+  external coreide_bpl name '_ZN8Comprgrs12ProgressFormE';
+{$ENDIF}
 
 var
   ProgressFormP: ^TForm;
