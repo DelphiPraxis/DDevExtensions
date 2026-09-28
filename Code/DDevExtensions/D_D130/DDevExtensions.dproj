@@ -4,7 +4,7 @@
         <MainSource>DDevExtensions.dpr</MainSource>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <DCC_DependencyCheckOutputName>..\bin\$(Platform)\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
+        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
         <ProjectVersion>20.1</ProjectVersion>
         <Config Condition="'$(Config)'==''">Release</Config>
         <Basis>True</Basis>
@@ -58,12 +58,12 @@
         <DllSuffix>D130</DllSuffix>
         <DCC_StringChecks>off</DCC_StringChecks>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
-        <DCC_ExeOutput>..\bin\$(Platform)</DCC_ExeOutput>
+        <DCC_ExeOutput>..\bin\</DCC_ExeOutput>
         <DCC_ImageBase>53900000</DCC_ImageBase>
         <DCC_DcuOutput>lib\$(Platform)</DCC_DcuOutput>
         <UsePackages>true</UsePackages>
         <DCC_WIDECHAR_REDUCED>false</DCC_WIDECHAR_REDUCED>
-        <DCC_DependencyCheckOutputName>..\bin\$(Platform)\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
+        <DCC_DependencyCheckOutputName>..\bin\DDevExtensionsD130.dll</DCC_DependencyCheckOutputName>
         <GenDll>true</GenDll>
         <DCC_UsePackage>vcl;rtl;designide;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>

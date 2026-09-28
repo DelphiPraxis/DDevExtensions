@@ -27,6 +27,7 @@ echo VersionInfo: %versioninfo%
 echo.
 
 echo VersionNumber = '%versioninfo%'; >Source\version.inc
+echo VersionBuildStamp = '%date% %time:~0,5%'; >>Source\version.inc
 echo #define VER_PRODUCTVERSION          %majorversion%,%minorversion%,0,0 >version.h
 echo #define VER_PRODUCTVERSION_STR      "%majorversion%.%minorversion%\0" >>version.h
 cgrc Version.rc -foVersion.res
@@ -90,6 +91,13 @@ if ERRORLEVEL 1 goto Error1
 cd ..
 if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD130.dll
 del bin\DDevExtensionsD130.map bin\DDevExtensions.drc
+
+cd D_D130
+msbuild /nologo /t:Build /p:Config=Release /p:Platform=Win64 DDevExtensions.dproj
+if ERRORLEVEL 1 goto Error1
+cd ..
+if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD130_64.dll
+del bin\DDevExtensionsD130_64.map bin\DDevExtensions.drc
 echo.
 
 :D120
@@ -104,6 +112,13 @@ if ERRORLEVEL 1 goto Error1
 cd ..
 if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD120.dll
 del bin\DDevExtensionsD120.map bin\DDevExtensions.drc
+
+cd D_D120
+msbuild /nologo /t:Build /p:Config=Release /p:Platform=Win64 DDevExtensions.dproj
+if ERRORLEVEL 1 goto Error1
+cd ..
+if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensionsD120_64.dll
+del bin\DDevExtensionsD120_64.map bin\DDevExtensions.drc
 echo.
 
 :D110
@@ -332,6 +347,13 @@ if exist "%LINKMAPFILE%" "%LINKMAPFILE%" bin\DDevExtensions2009.dll
 del bin\DDevExtensions2009.map bin\DDevExtensions2009.drc
 echo.
 
+
+echo === Delphi 7 ==============================
+:: No msbuild for D7 - build_d7.bat drives dcc32 directly (SUBST T: keeps paths short)
+call D_7\build_d7.bat
+if ERRORLEVEL 1 goto Error1
+copy /Y D_7\DDevExtensions7.dll bin\
+echo.
 
 echo === Packaging ==============================
 echo Press to continue

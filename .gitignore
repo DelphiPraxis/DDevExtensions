@@ -78,3 +78,6 @@ bugreport*.txt
 # Explorer backup copies
 *\ - Kopie/
 CompileInterceptor - Kopie/
+
+# build output
+Code/DDevExtensions/Release/

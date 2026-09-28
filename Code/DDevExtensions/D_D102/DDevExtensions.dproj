@@ -65,7 +65,7 @@
         <Debugger_RunParams>-rBDSPlain -pDelphi</Debugger_RunParams>
         <Debugger_LoadUnspecifiedSymbols>true</Debugger_LoadUnspecifiedSymbols>
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <PreBuildEvent><![CDATA[copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll" "$(OUTPUTDIR)"
+        <PreBuildEvent><![CDATA[copy /Y "$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win32\CompileInterceptorW.dll" "$(OUTPUTDIR)"
 $(PreBuildEvent)]]></PreBuildEvent>
         <Debugger_LoadAllSymbols>false</Debugger_LoadAllSymbols>
         <Debugger_HostApplication>$(BDS)\Bin\bds.exe</Debugger_HostApplication>
@@ -670,7 +670,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
     <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
-        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
+        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win32\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
@@ -678,7 +678,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
-        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
+        <PreBuildEvent>copy /Y &quot;$(PROJECTDIR)\..\..\..\CompileInterceptor\Bin\Win32\CompileInterceptorW.dll&quot; &quot;$(OUTPUTDIR)&quot;</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PreLinkEvent/>
         <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
