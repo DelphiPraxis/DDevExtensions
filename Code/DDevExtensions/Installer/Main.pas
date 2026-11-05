@@ -239,6 +239,7 @@ var
   i: Integer;
   Found: Boolean;
 begin
+  DesktopFont := True; // use Windows' fonts
   Caption := Caption + ' ' + sPluginName;
   { Windows 95 compatible way, Win98 supports SHGetSpecialFolderPath() }
   SHGetMalloc(Malloc);

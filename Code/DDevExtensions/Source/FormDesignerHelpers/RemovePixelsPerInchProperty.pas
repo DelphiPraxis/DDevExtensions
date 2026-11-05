@@ -1,6 +1,6 @@
 unit RemovePixelsPerInchProperty;
 
-// * Copyright: 2021 Fred Schetterer
+// * Copyright: ©2021 Fred Schetterer
 
 {$I ..\DelphiExtension.inc}
 

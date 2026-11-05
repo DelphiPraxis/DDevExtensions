@@ -3,15 +3,18 @@ Homepage: https://www.idefixpack.de/ddev
 
 DDevExtensions adds new features to RAD Studio.
 
-Supported Delphi Versions 7-13
+Supported Delphi Versions 7, 2009, 2010, 10.0 - 10.4, 11.x, 12.x, 13.x
+(12.x and 13.x: 32-bit and 64-bit IDE)
 
-## Releases Delphi 2009-13
+## Releases Delphi 2009-10.4
 
 Until there are new releases the releases are still available at
 https://www.idefixpack.de/ddev
 
-A precompiled version can be downloaded from releases (soon):
-https://github.com/TetzkatLipHoka/DDevExtensions/releases
+## Release Delphi 11.x, 12.x, 13.x
+
+A precompiled version can be downloaded from the DelphiPraxis fork:
+https://github.com/DelphiPraxis/DDevExtensions/releases
 
 
 ## Compile

@@ -1,10 +1,8 @@
-Version: 2.90
+Version: 2.92
 =============
 - Added: Support for Delphi 7
-- Added: Support for Delphi 12 x86/x64
-- Added: Support for Delphi 13 x86/x64
+- Added: Support for the 64-bit IDE (Delphi 12 and 13)
 - Fixed: "Disable alphabetical sorting of class completion" now works in the 64-bit IDE
-- Added: TDataModule.PixelsPerInch property remover (Delphi 11 and newer)
 - Added: IDE-Theme
 - Added: TPNGGraphic (acPNG) to TPngImage converter (all versions; pre-2009 also registers a bundled TPngImage)
 - Added: "Prefer proper PNG over AlphaControls" - arbitrates the VCL graphic-format registration order so the proper TPNGGraphic wins over acPNG's fake PNG
@@ -23,6 +21,15 @@ Version: 2.90
 - Fixed: Compile progress bar stayed at 0% when a (re)build had nothing to compile
 - Fixed: OnAfterCompile did not fire on pre-2010 IDEs (Delphi 7/2009), so "auto-save on successful compile" did nothing
 - Fixed: Duplicate "close on successful compile" checkbox next to the IDE's own one (Delphi 2009 and newer)
+
+Version: 2.91
+=============
+- Added: Support for Delphi 13.0
+
+Version: 2.90
+=============
+- Added: Support for Delphi 12.0
+- Added: TDataModule.PixelsPerInch property remover (Delphi 11 and newer)
 
 Version: 2.89
 =============
