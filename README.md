@@ -77,3 +77,4 @@ Start the InstallDDevExtensions.exe and press the <Uninstall> button.
 - Replace TPNGGraphic (Alpha Controls acPNG) with TPngImage
 - Auto-close compile progress dialog on successful compile [<2009]
 - Treat warnings as errors
+- Evaluate {$IF} expressions in the IDE's source parser (default: on) [2009+]

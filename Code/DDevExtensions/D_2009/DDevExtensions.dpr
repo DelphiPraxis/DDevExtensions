@@ -97,6 +97,8 @@ uses
   F12HotKeySupport in '..\Source\DSUFeatures\F12HotKeySupport.pas',
   DisableWelcomePageFeed in '..\Source\DSUFeatures\DisableWelcomePageFeed.pas',
   DisableDebugHeap in '..\Source\DSUFeatures\DisableDebugHeap.pas',
+  CondExprEval in '..\Source\DSUFeatures\CondExprEval.pas',
+  FixIfDirectiveParsing in '..\Source\DSUFeatures\FixIfDirectiveParsing.pas',
   RemoveTextHeightProperty in '..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas',
   RemovePixelsPerInchProperty in '..\Source\FormDesignerHelpers\RemovePixelsPerInchProperty.pas',
   FixAlphaControlsPNG in '..\Source\FormDesignerHelpers\FixAlphaControlsPNG.pas',

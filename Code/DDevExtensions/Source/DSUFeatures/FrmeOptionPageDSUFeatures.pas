@@ -56,6 +56,7 @@ type
     FNormalizeLineEndings: Boolean;
     FDisableWelcomePageFeed: Boolean;
     FDisableDebugHeap: Boolean;
+    FEvaluateIfDirectives: Boolean;
 
     procedure SetDisablePackageCache(Value: Boolean);
     procedure SetEditorDblClickAction(Value: TEditorDblClickAction);
@@ -81,6 +82,7 @@ type
     procedure SetNormalizeLineEndings(const Value: Boolean);
     procedure SetDisableWelcomePageFeed(const Value: Boolean);
     procedure SetDisableDebugHeap(const Value: Boolean);
+    procedure SetEvaluateIfDirectives(const Value: Boolean);
   protected
     FTimerStructureView: TTimer;
     FLastParsingDots: Integer;
@@ -132,6 +134,7 @@ type
     property NormalizeLineEndings: Boolean read FNormalizeLineEndings write SetNormalizeLineEndings;
     property DisableWelcomePageFeed: Boolean read FDisableWelcomePageFeed write SetDisableWelcomePageFeed;
     property DisableDebugHeap: Boolean read FDisableDebugHeap write SetDisableDebugHeap;
+    property EvaluateIfDirectives: Boolean read FEvaluateIfDirectives write SetEvaluateIfDirectives;
   end;
 
   TFrameOptionPageDSUFeatures = class(TFrameBase, ITreePageComponent)
@@ -155,6 +158,7 @@ type
     chkNormalizeLineEndings: TCheckBox;
     chkDisableWelcomePageFeed: TCheckBox;
     chkDisableDebugHeap: TCheckBox;
+    chkEvaluateIfDirectives: TCheckBox;
   private
     { Private-Deklarationen }
     FDSUFeatures: TDSUFeaturesConfig;
@@ -177,7 +181,7 @@ implementation
 uses
   Main, DSUFeatures, StrUtils, IDEHooks, Hooking, IDEUtils, StrucViewSearch, ToolsAPIHelpers,
   AppConsts, DisableAlphaSortClassCompletion, F12HotKeySupport, NormalizeLineEndings, CompileProgress,
-  DisableWelcomePageFeed, DisableDebugHeap;
+  DisableWelcomePageFeed, DisableDebugHeap, FixIfDirectiveParsing;
 
 {$R *.dfm}
 
@@ -252,6 +256,7 @@ begin
   chkNormalizeLineEndings.Checked := FDSUFeatures.NormalizeLineEndings;
   chkDisableWelcomePageFeed.Checked := FDSUFeatures.DisableWelcomePageFeed;
   chkDisableDebugHeap.Checked := FDSUFeatures.DisableDebugHeap;
+  chkEvaluateIfDirectives.Checked := FDSUFeatures.EvaluateIfDirectives;
   {$IF CompilerVersion < 35.0} // pre-Delphi 11: no separate feed package, the whole start page goes
   chkDisableWelcomePageFeed.Caption := 'Don''t load the Start Page package (needs IDE restart)';
   {$IFEND}
@@ -274,6 +279,7 @@ begin
   chkReplaceOpenFileAtCursor.Enabled := False;
   chkDisableCodeFolding.Enabled := False; // code folding itself is 2005+, the hook 2009-only
   chkDisableWelcomePageFeed.Enabled := False; // Delphi 7 registers no start page package at all
+  chkEvaluateIfDirectives.Enabled := False; // the scanner hook is 2009+
   {$IFEND}
   {$IF CompilerVersion < 21.0} // pre-2010: Rtti-based VirtTreeHandler/StructureViewAPI stubs
   chkShowFileProjectInPrjMgr.Enabled := False;
@@ -315,6 +321,7 @@ begin
   FDSUFeatures.NormalizeLineEndings := chkNormalizeLineEndings.Checked;
   FDSUFeatures.DisableWelcomePageFeed := chkDisableWelcomePageFeed.Checked;
   FDSUFeatures.DisableDebugHeap := chkDisableDebugHeap.Checked;
+  FDSUFeatures.EvaluateIfDirectives := chkEvaluateIfDirectives.Checked;
   FDSUFeatures.Save;
 
   {$IF CompilerVersion < 20.0}
@@ -749,6 +756,7 @@ begin
 
   FKillDExplore := True;
   ConfirmDlgOnDebugCtrlF1 := True;
+  EvaluateIfDirectives := True;
 
   LoadFromRegistry;
 end;
@@ -1609,6 +1617,15 @@ begin
   begin
     FDisableDebugHeap := Value;
     InstallDisableDebugHeap(FDisableDebugHeap);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetEvaluateIfDirectives(const Value: Boolean);
+begin
+  if Value <> FEvaluateIfDirectives then
+  begin
+    FEvaluateIfDirectives := Value;
+    InstallFixIfDirectiveParsing(FEvaluateIfDirectives);
   end;
 end;
 

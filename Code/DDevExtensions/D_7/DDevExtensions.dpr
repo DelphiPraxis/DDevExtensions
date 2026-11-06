@@ -104,6 +104,8 @@ uses
   F12HotKeySupport in '..\Source\DSUFeatures\F12HotKeySupport.pas',
   DisableWelcomePageFeed in '..\Source\DSUFeatures\DisableWelcomePageFeed.pas',
   DisableDebugHeap in '..\Source\DSUFeatures\DisableDebugHeap.pas',
+  CondExprEval in '..\Source\DSUFeatures\CondExprEval.pas',
+  FixIfDirectiveParsing in '..\Source\DSUFeatures\FixIfDirectiveParsing.pas',
   SkipForeignDsk in '..\Source\DSUFeatures\SkipForeignDsk.pas',
   RemoveTextHeightProperty in '..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas',
   RemovePixelsPerInchProperty in '..\Source\FormDesignerHelpers\RemovePixelsPerInchProperty.pas',

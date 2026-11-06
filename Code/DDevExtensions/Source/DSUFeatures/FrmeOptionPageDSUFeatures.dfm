@@ -1,10 +1,10 @@
 inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
   Width = 385
-  Height = 463
+  Height = 486
   TabStop = True
   inherited pnlClient: TPanel
     Width = 385
-    Height = 414
+    Height = 437
     object lblEditorTabDblClickAction: TLabel
       Left = 8
       Top = 216
@@ -212,6 +212,21 @@ inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
       ParentShowHint = False
       ShowHint = True
       TabOrder = 17
+    end
+    object chkEvaluateIfDirectives: TCheckBox
+      Left = 8
+      Top = 412
+      Width = 369
+      Height = 17
+      Hint = 
+        'The IDE cannot evaluate {$IF} expressions and skips such blocks.'#13#10 +
+        'Units in them get added to the uses clause again on every save'#13#10 +
+        '(E2004 Identifier redeclared). This makes the IDE'#39's parser'#13#10 +
+        'evaluate CompilerVersion, RTLVersion and Defined() expressions.'
+      Caption = 'Evaluate {$IF} expressions in the IDE'#39's source parser'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 18
     end
   end
   inherited pnlDescription: TPanel

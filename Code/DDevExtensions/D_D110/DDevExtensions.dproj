@@ -296,6 +296,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\Source\DSUFeatures\DisableDebugHeap.pas"/>
+        <DCCReference Include="..\Source\DSUFeatures\CondExprEval.pas"/>
+        <DCCReference Include="..\Source\DSUFeatures\FixIfDirectiveParsing.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
