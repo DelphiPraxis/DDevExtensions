@@ -764,6 +764,11 @@ end;
 procedure TDSUFeaturesConfig.Loaded;
 begin
   inherited Loaded;
+  // Installing an IDE update (or a new IDE build) writes the package list anew
+  // and brings the feed package back. The XML still says it was switched off,
+  // so take it out again - effective from the next IDE start.
+  if FDisableWelcomePageFeed and WelcomePageFeedRegistered then
+    SetWelcomePageFeedDisabled(True);
   LoadFromRegistry; // overwrite the XML settings
 end;
 

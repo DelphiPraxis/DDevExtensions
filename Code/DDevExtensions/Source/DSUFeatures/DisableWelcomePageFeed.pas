@@ -28,6 +28,9 @@ interface
   Taking the card out of the welcome page layout is NOT enough: the package is
   still loaded and the feed thread still runs. }
 
+{ True if the IDE will load the feed package on its next start }
+function WelcomePageFeedRegistered: Boolean;
+{ True if the feed package is parked and not registered }
 function WelcomePageFeedDisabled: Boolean;
 procedure SetWelcomePageFeedDisabled(Value: Boolean);
 
@@ -117,7 +120,8 @@ begin
   end;
 end;
 
-function WelcomePageFeedDisabled: Boolean;
+{ KeySuffix = '': the lists the IDE loads from; DisabledKeySuffix: the parked entries }
+function HasFeedPackage(const KeySuffix: string): Boolean;
 var
   Reg: TRegistry;
   Names: TStringList;
@@ -135,7 +139,7 @@ begin
     Reg.RootKey := HKEY_CURRENT_USER;
     for K := Low(PackageKeys) to High(PackageKeys) do
     begin
-      Key := Base + PackageKeys[K] + DisabledKeySuffix;
+      Key := Base + PackageKeys[K] + KeySuffix;
       if not Reg.KeyExists(Key) or not Reg.OpenKeyReadOnly(Key) then
         Continue;
       Names.Clear;
@@ -151,6 +155,17 @@ begin
     Reg.Free;
     Names.Free;
   end;
+end;
+
+function WelcomePageFeedRegistered: Boolean;
+begin
+  Result := HasFeedPackage('');
+end;
+
+function WelcomePageFeedDisabled: Boolean;
+begin
+  // an IDE update can put the package back while the parked entry is still there
+  Result := HasFeedPackage(DisabledKeySuffix) and not HasFeedPackage('');
 end;
 
 procedure SetWelcomePageFeedDisabled(Value: Boolean);
