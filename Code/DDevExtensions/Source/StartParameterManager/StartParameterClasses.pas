@@ -183,7 +183,7 @@ type
     property ResolvedValue: string read GetResolvedValue;
   end;
 
-  TStartParamListEnumerator = record
+  TStartParamListEnumerator = {$IF CompilerVersion >= 18.0}record{$ELSE}class{$IFEND} // D7 records cannot have methods
   private
     FList: TList;
     FIndex: Integer;
@@ -253,7 +253,7 @@ type
 implementation
 
 uses
-  StrUtils, RegularExpressions, Variants, DateUtils, DelphiLexer, DelphiExpr;
+  StrUtils, {$IF CompilerVersion >= 22.0}RegularExpressions,{$IFEND} Variants, DateUtils, DelphiLexer, DelphiExpr;
 
 resourcestring
   RsNotAValidParamFile = 'Not a valid Start Parameters file: %s';
@@ -268,8 +268,24 @@ resourcestring
   RsNoFileNameSet = 'No file name set for the Start Parameter List';
   RsMaxIncludeRecursionReached = 'Start Parameters: Maximum include file recursion reached.';
 
+{$IF CompilerVersion >= 20.0} // 2009+ (anonymous method type; currently unused)
 type
   TMacroResolveMethod = reference to function(const AMacroName: string): string;
+{$IFEND}
+
+{$IF CompilerVersion < 18.0} // pre-2006: SysUtils has no FileAge(Name, out TDateTime) overload
+function FileAge(const AFileName: string; out AFileDateTime: TDateTime): Boolean;
+var
+  Age: Integer;
+begin
+  Age := SysUtils.FileAge(AFileName);
+  Result := Age <> -1;
+  if Result then
+    AFileDateTime := FileDateToDateTime(Age)
+  else
+    AFileDateTime := 0;
+end;
+{$IFEND}
 
 function ResolveRelativePath(const BaseDir, RelFileName: string): string;
 begin
@@ -281,7 +297,7 @@ begin
   end;
 
   // absolute path
-  if StartsStr('\\', RelFileName) or ((Length(RelFileName) > 1) and (RelFileName[2] = ':')) then
+  if AnsiStartsStr('\\', RelFileName) or ((Length(RelFileName) > 1) and (RelFileName[2] = ':')) then
   begin
     Result := RelFileName;
     Exit;
@@ -302,9 +318,9 @@ type
   protected
     function IsBoolFunction(const Name: string): Boolean; override;
     function EvalBoolFunction(IdentToken: TToken; const Args: TDynTokenArray): Boolean; override;
-    class function FixCRelations(const S: string): string; static;
+    class function FixCRelations(const S: string): string; {$IF CompilerVersion >= 17.0}static;{$IFEND} // "static" is 2005+
   public
-    class function EvalBoolExpression(const Expression: string): Boolean; static;
+    class function EvalBoolExpression(const Expression: string): Boolean; {$IF CompilerVersion >= 17.0}static;{$IFEND}
   end;
 
 { TConditionParser }
@@ -530,7 +546,9 @@ function TStartParamMacro.GetResolvedValue: string;
 var
   LFileName: string;
   Lines: TStrings;
+  {$IF CompilerVersion >= 22.0}
   Match: TMatch;
+  {$IFEND}
   LLine: Integer;
 begin
   case Kind of
@@ -564,11 +582,15 @@ begin
 
           if RegEx <> '' then
           begin
+            {$IF CompilerVersion >= 22.0}
             Match := TRegEx.Match(Result, FOwner.ResolveValue(Self, RegEx));
             if Match.Success then
               Result := Match.Value
             else
               Result := '';
+            {$ELSE} // RegEx macros need the XE+ RegularExpressions unit
+            Result := '';
+            {$IFEND}
           end;
         end;
       end;

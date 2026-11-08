@@ -318,16 +318,24 @@ type
     { Modification }
     procedure DeleteToken(Token: TToken; DeleteEndSpaces: Boolean = False);
     procedure DeleteTokens(StartToken, EndToken: TToken; DeleteEndSpaces: Boolean = False);
-    procedure InsertTextAfter(Token: TToken; const Text: UTF8String); overload;
+    procedure InsertTextAfter(Token: TToken; const Text: UTF8String); {$IFDEF UNICODE}overload;{$ENDIF}
+    {$IFDEF UNICODE}
     procedure InsertTextAfter(Token: TToken; const Text: string); overload;
-    procedure ReplaceToken(Token: TToken; const Text: UTF8String); overload;
+    {$ENDIF UNICODE}
+    procedure ReplaceToken(Token: TToken; const Text: UTF8String); {$IFDEF UNICODE}overload;{$ENDIF}
+    {$IFDEF UNICODE}
     procedure ReplaceToken(Token: TToken; const Text: string); overload;
+    {$ENDIF UNICODE}
     { Index is 1-based }
     procedure DeleteText(StartIndex, Len: Integer);
-    procedure InsertText(StartIndex: Integer; const Text: UTF8String); overload;
+    procedure InsertText(StartIndex: Integer; const Text: UTF8String); {$IFDEF UNICODE}overload;{$ENDIF}
+    {$IFDEF UNICODE}
     procedure InsertText(StartIndex: Integer; const Text: string); overload;
-    procedure ReplaceText(StartIndex, Len: Integer; const Text: UTF8String); overload;
+    {$ENDIF UNICODE}
+    procedure ReplaceText(StartIndex, Len: Integer; const Text: UTF8String); {$IFDEF UNICODE}overload;{$ENDIF}
+    {$IFDEF UNICODE}
     procedure ReplaceText(StartIndex, Len: Integer; const Text: string); overload;
+    {$ENDIF UNICODE}
 
 
     property Index: Integer read FIndex;
@@ -393,9 +401,11 @@ type
 function TokenKindToString(Kind: TTokenKind): string;
 function LoadTextFileToString(const Filename: string; MaxReadBytes: Cardinal = 0): string;
 function LoadTextFileToUtf8String(const Filename: string; MaxReadBytes: Cardinal): UTF8String; overload;
-function LoadTextFileToUtf8String(const Filename: string; MaxReadBytes: Cardinal; out Encoding: TEncoding): UTF8String; overload;
 function LoadTextFileToUtf8String(const Filename: string): UTF8String; overload;
+{$IFDEF UNICODE}
+function LoadTextFileToUtf8String(const Filename: string; MaxReadBytes: Cardinal; out Encoding: TEncoding): UTF8String; overload;
 function LoadTextFileToUtf8String(const Filename: string; out Encoding: TEncoding): UTF8String; overload;
+{$ENDIF UNICODE}
 function Mangle(const Name: string): string;
 function IsEndIfToken(Token: TToken): Boolean; {$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}
 function AsciiStartsText(const SubStr, S: string): Boolean;
@@ -526,11 +536,24 @@ end;
 
 function LoadTextFileToUtf8String(const Filename: string; MaxReadBytes: Cardinal): UTF8String;
 var
-  Encoding: TEncoding;
+  Reader: TTextFileReader;
 begin
-  Result := LoadTextFileToUtf8String(FileName, MaxReadBytes, Encoding);
+  Reader := TTextFileReader.Create(Filename);
+  try
+    if MaxReadBytes > 0 then
+      Reader.MaxReadBytes := MaxReadBytes;
+    Result := Reader.Utf8ReadAll;
+  finally
+    Reader.Free;
+  end;
 end;
 
+function LoadTextFileToUtf8String(const Filename: string): UTF8String;
+begin
+  Result := LoadTextFileToUtf8String(Filename, 0);
+end;
+
+{$IFDEF UNICODE}
 function LoadTextFileToUtf8String(const Filename: string; MaxReadBytes: Cardinal; out Encoding: TEncoding): UTF8String; overload;
 var
   Reader: TTextFileReader;
@@ -555,17 +578,11 @@ begin
   end;
 end;
 
-function LoadTextFileToUtf8String(const Filename: string): UTF8String;
-var
-  Encoding: TEncoding;
-begin
-  Result := LoadTextFileToUtf8String(Filename, 0, Encoding);
-end;
-
 function LoadTextFileToUtf8String(const Filename: string; out Encoding: TEncoding): UTF8String; overload;
 begin
   Result := LoadTextFileToUtf8String(FileName, 0, Encoding);
 end;
+{$ENDIF UNICODE}
 
 function AsciiStartsText(const SubStr, S: string): Boolean;
 var
@@ -636,6 +653,17 @@ begin
   {$ELSE}
   Result := Character.IsLetterOrDigit(C[0]);
   {$IFEND}
+end;
+{$ELSE}
+function UTF8CharLength(Ch: AnsiChar): Integer;
+begin
+  case Byte(Ch) of
+    $C0..$DF: Result := 2;
+    $E0..$EF: Result := 3;
+    $F0..$F7: Result := 4;
+  else
+    Result := 1;
+  end;
 end;
 {$ENDIF UNICODE}
 
@@ -1136,10 +1164,12 @@ begin
   InsertText(Token.EndIndex + 1, Text);
 end;
 
+{$IFDEF UNICODE}
 procedure TDelphiLexer.InsertTextAfter(Token: TToken; const Text: string);
 begin
   InsertText(Token.EndIndex + 1, Text);
 end;
+{$ENDIF UNICODE}
 
 procedure TDelphiLexer.ReplaceToken(Token: TToken; const Text: UTF8String);
 var
@@ -1150,10 +1180,12 @@ begin
   InsertText(Index, Text);
 end;
 
+{$IFDEF UNICODE}
 procedure TDelphiLexer.ReplaceToken(Token: TToken; const Text: string);
 begin
   ReplaceToken(Token, UTF8Encode(Text));
 end;
+{$ENDIF UNICODE}
 
 procedure TDelphiLexer.DiscardTokens(StartIndex: Integer);
 var
@@ -1223,10 +1255,12 @@ begin
   end;
 end;
 
+{$IFDEF UNICODE}
 procedure TDelphiLexer.InsertText(StartIndex: Integer; const Text: string);
 begin
   InsertText(StartIndex, UTF8Encode(Text));
 end;
+{$ENDIF UNICODE}
 
 procedure TDelphiLexer.ReplaceText(StartIndex, Len: Integer; const Text: UTF8String);
 begin
@@ -1244,10 +1278,12 @@ begin
   end;
 end;
 
+{$IFDEF UNICODE}
 procedure TDelphiLexer.ReplaceText(StartIndex, Len: Integer; const Text: string);
 begin
   ReplaceText(StartIndex, Len, UTF8Encode(Text));
 end;
+{$ENDIF UNICODE}
 
 procedure TDelphiLexer.RestartLexer;
 begin

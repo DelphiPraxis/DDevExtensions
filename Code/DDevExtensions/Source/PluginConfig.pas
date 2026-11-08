@@ -193,7 +193,11 @@ begin
         case PropList[i].PropType^.Kind of
           tkInteger:
             TConfiguration.GetNode(Node, PropName).Attributes['Value'] := GetOrdProp(Self, PropList[i]);
-          tkString, tkUString, tkLString:
+          tkString,
+          {$IF Declared( tkUString )}
+          tkUString,
+          {$IFEND}
+          tkLString:
             TConfiguration.GetNode(Node, PropName).NodeValue := GetStrProp(Self, PropList[i]);
           tkWString:
             TConfiguration.GetNode(Node, PropName).NodeValue := GetWideStrProp(Self, PropList[i]);
@@ -246,12 +250,12 @@ begin
              (AnsiCompareText(PropName, 'Name') <> 0) then
           begin
             Xml := Node.ChildNodes.FindNode(PropName);
-            if (Xml <> nil) and ((PropList[i].PropType^.Kind in [tkString, tkUString, tkLString, tkWString, tkVariant]) or (Xml.Attributes['Value'] <> Null)) then
+            if (Xml <> nil) and ((PropList[i].PropType^.Kind in [tkString, {$IF Declared( tkUString )}tkUString,{$IFEND} tkLString, tkWString, tkVariant]) or (Xml.Attributes['Value'] <> Null)) then
             begin
               case PropList[i].PropType^.Kind of
                 tkInteger:
                   SetOrdProp(Self, PropList[i], Xml.Attributes['Value']);
-                tkString, tkLString, tkUString:
+                tkString, {$IF Declared( tkUString )}tkUString,{$IFEND} tkLString:
                   SetStrProp(Self, PropList[i], VarToStr(Xml.NodeValue));
                 tkWString:
                   SetWideStrProp(Self, PropList[i], VarToWideStr(Xml.NodeValue));

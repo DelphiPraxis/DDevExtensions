@@ -35,6 +35,16 @@ type
 
   TInspectFileMode = (ifmOpen, ifmCreate);
 
+  IAnsiString = interface
+    ['{3B33C7A5-63F4-4700-A6D5-4072D707536B}']
+    function GetValue: PAnsiChar;
+    procedure SetValue(P: PAnsiChar);
+    procedure SetString(P: PAnsiChar; Len: Integer);
+    function GetLength: Integer;
+
+    property Value: PAnsiChar read GetValue write SetValue;
+  end;
+
   IUnicodeString = interface
     ['{3B33C7A5-63F4-4700-A6D5-4072D707536C}']
     function GetValue: PWideChar;
@@ -69,23 +79,23 @@ type
         and AlterFile is not called.
         Requires CIO_VIRTUALFILE
         If the interface supports ICompileInterceptor20 this method isn't called. }
-    function GetVirtualFile(Filename: PWideChar): IVirtualStream; stdcall; // deprecated 'implement OpenVirtualFile'
+    function GetVirtualFile(Filename: PChar{PWideChar}): IVirtualStream; stdcall; // deprecated 'implement OpenVirtualFile'
 
       { AlterFile() is called when the file is no virtual file and CIO_ALTERFILE
         is set. FileDate is obsolete and always 0. }
-    function AlterFile(Filename: PWideChar; Content: PByte; FileDate, FileSize: Integer): IVirtualStream; stdcall;
+    function AlterFile(Filename: PChar{PWideChar}; Content: PByte; FileDate, FileSize: Integer): IVirtualStream; stdcall;
 
       { InspectFilename() is called when a file is opened or created and
         CIO_INSPECTFILENAMES is set. }
-    procedure InspectFilename(Filename: PWideChar; FileMode: TInspectFileMode); stdcall;
+    procedure InspectFilename(Filename: PChar{PWideChar}; FileMode: TInspectFileMode); stdcall;
 
        { AlterMessage() is called when the compiler wants to display a message.
          The method must return True if it has changed one of the parameters. }
     function AlterMessage(IsCompilerMessage: Boolean; var MsgKind: TMsgKind; var Code: Integer;
-      const Filename: IUnicodeString; var Line, Column: Integer; const Msg: IUnicodeString): Boolean; stdcall;
+      const Filename: {$IFDEF UNICODE}IUnicodeString{$ELSE}IAnsiString{$ENDIF}; var Line, Column: Integer; const Msg: {$IFDEF UNICODE}IUnicodeString{$ELSE}IAnsiString{$ENDIF}): Boolean; stdcall;
 
       { CompileProject is called before a project is compiled. }
-    procedure CompileProject(ProjectFilename, UnitPaths, SourcePaths, DcuOutputDir: PWideChar;
+    procedure CompileProject(ProjectFilename, UnitPaths, SourcePaths, DcuOutputDir: PChar{PWideChar};
       IsCodeInsight: Boolean; var Cancel: Boolean); stdcall;
   end;
 
@@ -96,7 +106,7 @@ type
         If the method returns False the file will be created with the default file creation
         function. If Stream is not nil and the method returns True, instead of creating a file
         the compiler writes the output into the stream. }
-    function CreateVirtualFile(Filename: PWideChar; out Stream: IVirtualOutStream): Boolean; stdcall;
+    function CreateVirtualFile(Filename: PChar{PWideChar}; out Stream: IVirtualOutStream): Boolean; stdcall;
 
       { OpenVirtualFile() is called when the compiler wants to open a file. If
         the returned value is True, the compiler will use the virtual stream and AlterFile isn't
@@ -104,11 +114,11 @@ type
         will fail with "file not found". If the method returns False the next handler is called and
         if that one also returns False, AlterFile is called (if CIO_ALTERFILE is set).
         Requires CIO_VIRTUALFILE. }
-    function OpenVirtualFile(Filename: PWideChar; out Stream: IVirtualStream): Boolean; stdcall;
+    function OpenVirtualFile(Filename: PChar{PWideChar}; out Stream: IVirtualStream): Boolean; stdcall;
 
       { FileNameDate() is called when the compiler wants to retrieve the file age of a file.
         The method returns True if it has handled the call. Requires CIO_FILENAMEDATES. }
-    function FileNameDate(Filename: PWideChar; out AFileDate: Integer): Boolean; stdcall;
+    function FileNameDate(Filename: PChar{PWideChar}; out AFileDate: Integer): Boolean; stdcall;
   end;
 
   ICompileInterceptorServices = interface
@@ -121,12 +131,25 @@ type
 
       { Returns the file content. The editor content is returned if the file is
         opened in the editor. }
-    function GetFileContent(Filename: PWideChar): IVirtualStream; stdcall;
+    function GetFileContent(Filename: PChar{PWideChar}): IVirtualStream; stdcall;
+  end;
+
+  TAnsiStringAdapter = class(TInterfacedObject, IAnsiString)
+  private
+    FValue: AnsiString;
+  protected
+    { IAnsiString }
+    function GetLength: Integer;
+    function GetValue: PAnsiChar;
+    procedure SetString(P: PAnsiChar; Len: Integer);
+    procedure SetValue(P: PAnsiChar);
+  public
+    constructor Create(const AValue: AnsiString);
   end;
 
   TUnicodeStringAdapter = class(TInterfacedObject, IUnicodeString)
   private
-    FValue: string;
+    FValue: WideString;
   protected
     { IUnicodeString }
     function GetLength: Integer;
@@ -134,7 +157,7 @@ type
     procedure SetString(P: PWideChar; Len: Integer);
     procedure SetValue(P: PWideChar);
   public
-    constructor Create(const AValue: string);
+    constructor Create(const AValue: WideString);
   end;
 
   TWideStringAdapter = TUnicodeStringAdapter;
@@ -142,18 +165,48 @@ type
   TGetCompileInterceptorServices = function: ICompileInterceptorServices; stdcall;
     { external 'CompileInterceptorW.dll' name 'GetCompileInterceptorServices'; }
 
+//{$IFNDEF UNICODE}
 //const
 //  CompileInterceptorEntryPoint = 'CompileInterceptorEntry';
 //
 //type
 //  TDoneProc = procedure; stdcall;
 //  TCompileInterceptorEntryPoint = procedure(const CompileInterceptorServices: ICompileInterceptorServices; var DoneProc: TDoneProc); stdcall;
+//{$ENDIF}
 
 implementation
 
+{ TAnsiStringAdapter }
+
+constructor TAnsiStringAdapter.Create(const AValue: AnsiString);
+begin
+  inherited Create;
+  FValue := AValue;
+end;
+
+function TAnsiStringAdapter.GetLength: Integer;
+begin
+  Result := Length(FValue);
+end;
+
+function TAnsiStringAdapter.GetValue: PAnsiChar;
+begin
+  Result := PAnsiChar(FValue);
+end;
+
+procedure TAnsiStringAdapter.SetString(P: PAnsiChar; Len: Integer);
+begin
+  System.SetString(FValue, P, Len);
+end;
+
+procedure TAnsiStringAdapter.SetValue(P: PAnsiChar);
+begin
+  FValue := P;
+end;
+
 { TUnicodeStringAdapter }
 
-constructor TUnicodeStringAdapter.Create(const AValue: string);
+constructor TUnicodeStringAdapter.Create(const AValue: WideString);
 begin
   inherited Create;
   FValue := AValue;

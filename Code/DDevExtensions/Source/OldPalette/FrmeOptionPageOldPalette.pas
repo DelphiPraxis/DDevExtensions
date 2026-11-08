@@ -12,6 +12,12 @@ unit FrmeOptionPageOldPalette;
 
 interface
 
+{$IF CompilerVersion < 18.0} // OldPalette targets 2006+ IDEs; no-op stub for older versions
+
+procedure InitPlugin(Unload: Boolean);
+
+{$ELSE}
+
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, FrmTreePages, PluginConfig, ExtCtrls, ComCtrls,
@@ -75,7 +81,17 @@ type
 
 procedure InitPlugin(Unload: Boolean);
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion < 18.0}
+
+procedure InitPlugin(Unload: Boolean);
+begin
+end;
+
+{$ELSE}
 
 uses
   OldPalette, Main, ToolsAPIHelpers;
@@ -244,6 +260,8 @@ begin
       FrameOldPalette.RebuildPaletteMenu;
   end;
 end;
+
+{$IFEND}
 
 end.
 

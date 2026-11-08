@@ -20,7 +20,11 @@ implementation
 
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Hooking, Controls, Forms, Dialogs,
-  IDEHooks, ToolsAPI, IDEUtils, AppConsts, ImportHooking, PsAPI, DesignEditors, TypInfo;
+  IDEHooks, ToolsAPI, IDEUtils, AppConsts, ImportHooking, PsAPI,
+  {$IF CompilerVersion >= 20.0} // D7 installs lack Proxies.dcu needed to compile DesignEditors
+  DesignEditors,
+  {$IFEND}
+  TypInfo;
 
 {-----------------------------------------------------------------------------}
 { Close all and Kill IDE                                                      }
@@ -36,7 +40,7 @@ const
   // English
   sConfirmCloseAllAndKillException_Eng = 'An exception occured while quitting. Do you want to kill Delphi/BCB now?';
   // German
-  sConfirmCloseAllAndKillException_Ger = 'Es trat eine Exception während des Beendens auf. Soll der Prozess Delphi/BCB trotzdem beendet werden?';
+  sConfirmCloseAllAndKillException_Ger = 'Es trat eine Exception wï¿½hrend des Beendens auf. Soll der Prozess Delphi/BCB trotzdem beendet werden?';
   (* PrY - French Translation by Pierre Y. / pierre@levosgien.net *)
   sConfirmCloseAllAndKillException_Fre = 'Une erreur s''est produite pendant la fermeture de Delphi/BCB. Voulez-vous terminer le processus?';
   (* /PrY *)
@@ -109,6 +113,7 @@ end;
 {------------------------------------------------------------------------------------}
 { Property Editor for Methods show "(nil)" if explicitly set to nil in derived class }
 {------------------------------------------------------------------------------------}
+{$IF CompilerVersion >= 20.0} // needs DesignEditors, see uses
 type
   TMethodPropertyEx = class(TMethodProperty)
   public
@@ -179,7 +184,7 @@ begin
 
     if Ancestor <> nil then
     begin
-      AncestorPropInfo := TypInfo.GetPropInfo(Ancestor, UTF8ToString(Self.GetPropInfo.Name), [tkMethod]);
+      AncestorPropInfo := TypInfo.GetPropInfo(Ancestor, {$IFDEF UNICODE}UTF8ToString{$ENDIF}(Self.GetPropInfo.Name), [tkMethod]);
       if AncestorPropInfo <> nil then
       begin
         if TypInfo.GetMethodProp(Ancestor, AncestorPropInfo).Code <> nil then
@@ -193,11 +198,13 @@ function TMethodProperty_NewInstance(AClass: TClass): TObject;
 begin
   Result := TMethodPropertyEx.NewInstance;
 end;
+{$IFEND}
 
 {-----------------------------------------------------------------------------}
 { Package Loading changes mouse Cursor to crAppWait                           }
 {-----------------------------------------------------------------------------}
 
+{$IF CompilerVersion >= 20.0} // hook symbol below is 2009+ (UnicodeString mangling); D7 also lacks TValidatePackageProc
 function HookedLoadPackageEx(const Name: string; AValidatePackage: TValidatePackageProc): HMODULE;
 var
   LastCursor: TCursor;
@@ -228,6 +235,7 @@ begin
       Screen.Cursor := LastCursor;
   end;
 end;
+{$IFEND}
 
 {-----------------------------------------------------------------------------}
 { DisablePackageCache                                                         }
@@ -235,13 +243,13 @@ end;
 
 procedure PreInit;
 const
-  {$IFDEF CPUX86}
+  {$IFNDEF CPUX64}
   sLoadPackageCache = '@Pascpppakmgr@TProfileData@LoadPackageCache$qqr' + _xp_ + System_Inifiles_TCustomIniFile;
   sSavePackageCache = '@Pascpppakmgr@TProfileData@SavePackageCache$qqr' + _xp_ + System_Inifiles_TCustomIniFile + 'o';
 
   sPaletteItemDelegateSaveData = '@Comppalmgr@TComponentPalettePageItemDelegate@SaveData$qqr' + _xp_ + System_Inifiles_TCustomIniFile;
   sPaletteItemDelegateLoadData = '@Comppalmgr@TComponentPalettePageItemDelegate@LoadData$qqr' + _xp_ + System_Inifiles_TCustomIniFile;
-  {$ENDIF CPUX86}
+  {$ENDIF ~CPUX64}
   {$IFDEF CPUX64}
   sLoadPackageCache = '_ZN12Pascpppakmgr12TProfileData16LoadPackageCacheEPN6System8Inifiles14TCustomIniFileE';
   sSavePackageCache = '_ZN12Pascpppakmgr12TProfileData16SavePackageCacheEPN6System8Inifiles14TCustomIniFileEb';
@@ -271,25 +279,29 @@ end;
 {-----------------------------------------------------------------------------}
 
 procedure InitPlugin(Unload: Boolean);
+{$IF CompilerVersion >= 20.0}
 const
-  {$IFDEF CPUX86}
+  {$IFNDEF CPUX64}
   sLoadPackageEx = Unit_System_SysUtils + '@LoadPackage$qqrx20System@UnicodeStringpqqrui$o';
-  {$ENDIF CPUX86}
+  {$ENDIF ~CPUX64}
   {$IFDEF CPUX64}
   sLoadPackageEx = '_ZN6System8Sysutils11LoadPackageENS_13UnicodeStringEPFbyE';
   {$ENDIF CPUX64}
 var
   LibCoreide, LibRtl: THandle;
+{$IFEND}
 begin
   if not Unload then
   begin
     CodeRedirect(@TCustomForm.Close, @HookedTCustomFormClose, HookTCustomFormClose);
 
+    {$IF CompilerVersion >= 20.0}
     LibCoreide := GetModuleHandle(coreide_bpl);
     LibRtl := GetModuleHandle(rtl_bpl);
 
     APIHookList := TJclPeMapImgHooks.Create;
     APIHookList.ReplaceImport(Pointer(LibCoreide), rtl_bpl, DbgStrictGetProcAddress(LibRtl, PAnsiChar(sLoadPackageEx)), @HookedLoadPackageEx);
+    {$IFEND}
 
     //ReplaceVmtField(TMethodProperty, @TMethodProperty.NewInstance, @TMethodProperty_NewInstance);
   end

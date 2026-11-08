@@ -12,6 +12,11 @@ library CompileInterceptorW;
 
 {$I CompileInterceptor.inc}
 
+{$IFDEF CPUX64}
+// Win64 output is CompileInterceptorW64.dll so both bitnesses can ship in the same directory
+{$LIBSUFFIX '64'}
+{$ENDIF}
+
 {$IF CompilerVersion >= 21.0}
 {$WEAKLINKRTTI ON}
 {$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}

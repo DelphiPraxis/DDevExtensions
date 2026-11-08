@@ -222,8 +222,10 @@ begin
   Group := GetActiveProjectGroup;
   FActionSetVersionInfo.Enabled := (Group <> nil) and (Group.ProjectCount > 0)
     and (GetActiveProject <> nil)
+    {$IF CompilerVersion >= 17.0} // 2005+; pre-Galileo IDEs have no personalities
     and ((GetActiveProject.GetPersonality = sDelphiPersonality) or
-         (GetActiveProject.GetPersonality = sCBuilderPersonality));
+         (GetActiveProject.GetPersonality = sCBuilderPersonality))
+    {$IFEND};
 end;
 
 procedure TVersionInfoHandler.DoSetVersionInfo(Sender: TObject);
@@ -506,10 +508,10 @@ begin
   pbxMainIcon.Canvas.Brush.Style := bsClear;
   pbxMainIcon.Canvas.Pen.Color := $FF9933;
   pbxMainIcon.Canvas.Pen.Width := 2;
-  pbxMainIcon.Canvas.RoundRect(R, 8, 8);
+  pbxMainIcon.Canvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, 8, 8);
   pbxMainIcon.Canvas.Pen.Width := 1;
   InflateRect(R, -1, -1);
-  pbxMainIcon.Canvas.RoundRect(R, 7, 7);
+  pbxMainIcon.Canvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, 7, 7);
 end;
 
 procedure TFormProjectSettingsSetVersioninfo.pgcPagesChange(Sender: TObject);
@@ -574,6 +576,7 @@ var
   P: PString;
   Project: IOTAProject;
   Projects: IOTAProjectArray;
+  I: Integer;
 begin
   EditName := 'edt' + Copy((Sender as TComponent).Name, Length('btnApply') + 1, MaxInt);
   Edit := FindComponent(EditName) as TEdit;
@@ -584,15 +587,19 @@ begin
   begin
     Project := GetSelectedApplyProject();
     if Project <> nil then
-      Projects := IOTAProjectArray.Create(Project)
+    begin
+      SetLength(Projects, 1);
+      Projects[0] := Project;
+    end
     else
       Projects := nil;
   end
   else
     Projects := GetValidApplyProjects();
 
-  for Project in Projects do
+  for I := 0 to Length(Projects) - 1 do
   begin
+    Project := Projects[I];
     Version := GetProjectVersion(Project);
     if Version.Valid then
     begin
@@ -626,9 +633,13 @@ procedure TFormProjectSettingsSetVersioninfo.btnApplyFileVersionClick(Sender: TO
 var
   Project: IOTAProject;
   Version: TProjectVersion;
+  Projects: IOTAProjectArray;
+  I: Integer;
 begin
-  for Project in GetValidApplyProjects() do
+  Projects := GetValidApplyProjects();
+  for I := 0 to Length(Projects) - 1 do
   begin
+    Project := Projects[I];
     Version := GetProjectVersion(Project);
     if Version.Valid and
       ((udMajor.Position <> SmallInt(Version.FileVersion.Major)) or
@@ -648,10 +659,12 @@ end;
 
 procedure TFormProjectSettingsSetVersioninfo.btnApplyMainIconClick(Sender: TObject);
 var
-  Project: IOTAProject;
+  Projects: IOTAProjectArray;
+  I: Integer;
 begin
-  for Project in GetValidApplyProjects() do
-    FIcon.SaveToProjectResource(Project);
+  Projects := GetValidApplyProjects();
+  for I := 0 to Length(Projects) - 1 do
+    FIcon.SaveToProjectResource(Projects[I]);
   ApplyFinished('Main Icons replaced.');
 end;
 
@@ -660,13 +673,26 @@ var
   Project: IOTAProject;
   Version: TProjectVersion;
   Value: string;
+  Projects: IOTAProjectArray;
+  I: Integer;
 begin
-  for Project in GetValidApplyProjects() do
+  Projects := GetValidApplyProjects();
+  for I := 0 to Length(Projects) - 1 do
   begin
+    Project := Projects[I];
     Version := GetProjectVersion(Project);
     if Version.Valid then
     begin
+      {$IF CompilerVersion >= 17.0} // 2005+
       Value := ExtractFileName(Project.ProjectOptions.TargetName);
+      {$ELSE} // D7's IOTAProjectOptions has no TargetName
+      try
+        Value := ExtractFileName(ChangeFileExt(Project.FileName,
+          '.' + string(Project.ProjectOptions.Values['OutputExt'])));
+      except
+        Value := ExtractFileName(ChangeFileExt(Project.FileName, '.exe'));
+      end;
+      {$IFEND}
       if Value <> Version.OriginalFilename then
       begin
         Version.OriginalFilename := Value;
@@ -688,10 +714,14 @@ var
   Project: IOTAProject;
   Version: TProjectVersion;
   Value: Integer;
+  Projects: IOTAProjectArray;
+  I: Integer;
 begin
   Value := udBuild.Position;
-  for Project in GetValidApplyProjects() do
+  Projects := GetValidApplyProjects();
+  for I := 0 to Length(Projects) - 1 do
   begin
+    Project := Projects[I];
     Version := GetProjectVersion(Project);
     if Version.Valid and (SmallInt(Version.FileVersion.Build) <> Value) then
     begin
@@ -805,7 +835,7 @@ begin
 end;
 
 procedure TFormProjectSettingsSetVersioninfo.FormCreate(Sender: TObject);
-begin
+begin 
   FIcon := TIconResource.Create;
   dtpStartDay.Date := Date;
   pgcPages.ActivePageIndex := 0;
@@ -841,9 +871,13 @@ procedure TFormProjectSettingsSetVersioninfo.btnExecuteIncrementClick(Sender: TO
 var
   Project: IOTAProject;
   Version: TProjectVersion;
+  Projects: IOTAProjectArray;
+  I: Integer;
 begin
-  for Project in GetValidApplyProjects() do
+  Projects := GetValidApplyProjects();
+  for I := 0 to Length(Projects) - 1 do
   begin
+    Project := Projects[I];
     Version := GetProjectVersion(Project);
     if Version.Valid then
     begin

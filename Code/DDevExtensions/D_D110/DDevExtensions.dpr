@@ -37,7 +37,6 @@ uses
   FrmeOptionPageCompilerProgress in '..\Source\CompileProgress\FrmeOptionPageCompilerProgress.pas' {FrameOptionPageCompilerProgress: TFrame},
   CtrlUtils in '..\Source\CtrlUtils.pas',
   FrmExcelExport in '..\Source\ExcelExport\FrmExcelExport.pas' {FormExcelExport},
-  FrmeOptionPageUnitSelector in '..\Source\UnitSelector\FrmeOptionPageUnitSelector.pas' {FrameOptionPageUnitSelector: TFrame},
   FrmeOptionPageKeybindings in '..\Source\Keybindings\FrmeOptionPageKeybindings.pas' {FrameOptionPageKeybindings: TFrame},
   PluginConfig in '..\Source\PluginConfig.pas',
   FrmeOptionPageFileCleaner in '..\Source\FileCleaner\FrmeOptionPageFileCleaner.pas' {FrameOptionPageFileCleaner: TFrame},
@@ -48,7 +47,6 @@ uses
   FrmeBase in '..\Source\FrmeBase.pas' {FrameBase: TFrame},
   FrmFileSelector in '..\Source\FileSelector\FrmFileSelector.pas' {FormFileSelector},
   RemoveExplicitProperty in '..\Source\FormDesignerHelpers\RemoveExplicitProperty.pas',
-  RemoveTextHeightProperty in '..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas',
   DSUFeatures in '..\Source\DSUFeatures\DSUFeatures.pas',
   FrmeOptionPageDSUFeatures in '..\Source\DSUFeatures\FrmeOptionPageDSUFeatures.pas' {FrameOptionPageDSUFeatures: TFrame},
   ComponentSelector in '..\Source\ComponentSelector\ComponentSelector.pas',
@@ -93,8 +91,21 @@ uses
   FrmReloadFiles in '..\Source\Editor\FrmReloadFiles.pas' {FormReloadFiles},
   DocModuleHandler in '..\Source\Editor\DocModuleHandler.pas',
   CodeInsightHandling in '..\Source\Editor\CodeInsightHandling.pas',
+  NormalizeLineEndings in '..\Source\Editor\NormalizeLineEndings.pas',
   DisableAlphaSortClassCompletion in '..\Source\DSUFeatures\DisableAlphaSortClassCompletion.pas',
-  RemovePixelsPerInchProperty in '..\Source\FormDesignerHelpers\RemovePixelsPerInchProperty.pas';
+  F12HotKeySupport in '..\Source\DSUFeatures\F12HotKeySupport.pas',
+  DisableWelcomePageFeed in '..\Source\DSUFeatures\DisableWelcomePageFeed.pas',
+  DisableDebugHeap in '..\Source\DSUFeatures\DisableDebugHeap.pas',
+  CondExprEval in '..\Source\DSUFeatures\CondExprEval.pas',
+  FixIfDirectiveParsing in '..\Source\DSUFeatures\FixIfDirectiveParsing.pas',
+  VclAtomSweep in '..\Source\DSUFeatures\VclAtomSweep.pas',
+  CleanupDebuggeeAtoms in '..\Source\DSUFeatures\CleanupDebuggeeAtoms.pas',
+  RemoveTextHeightProperty in '..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas',
+  RemovePixelsPerInchProperty in '..\Source\FormDesignerHelpers\RemovePixelsPerInchProperty.pas',
+  FixAlphaControlsPNG in '..\Source\FormDesignerHelpers\FixAlphaControlsPNG.pas',
+  FileFormatsListHack in '..\Source\FormDesignerHelpers\FileFormatsListHack.pas',
+  PreferProperPNG in '..\Source\FormDesignerHelpers\PreferProperPNG.pas',
+  FrmeOptionPageCompilerEnhancements in '..\Source\CompilerEnhancements\FrmeOptionPageCompilerEnhancements.pas' {FrameOptionPageCompilerEnhancements: TFrame};
 
 var
   AboutBoxServices: IOTAAboutBoxServices = nil;

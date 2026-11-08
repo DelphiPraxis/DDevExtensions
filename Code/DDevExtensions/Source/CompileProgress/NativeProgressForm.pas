@@ -23,6 +23,12 @@ type
     FCachedAutoClose: Boolean;
     FLastPercentage: Integer;
     FProgressBar: TProgressBar;
+    FAutoCloseCheckBox: TCheckBox;
+    FAutoCloseFallback: Boolean;
+    {$IF CompilerVersion < 20.0}
+    FAutoCloseTimer: TTimer;
+    {$IFEND}
+    FOnAutoCloseFallbackChanged: TNotifyEvent;
     FTaskbarList: ITaskbarList;
     FTaskbarList3: ITaskbarList3;
     function GetCurrFile: string;
@@ -46,6 +52,7 @@ type
     procedure SetFilesCompiled(const Value: Integer);
     procedure SetMaxFiles(const Value: Integer);
     procedure SetProjectFilesCompiled(const Value: Integer);
+    procedure SetAutoCloseFallback(const Value: Boolean);
   protected
     function GetTaskbarFormHandle: HWND;
     procedure UpdateTaskbarProgress;
@@ -62,6 +69,10 @@ type
     function GetLongWord(const Name: string): LongWord;
 
     procedure DoAutoCloseClick(Sender: TObject);
+    {$IF CompilerVersion < 20.0}
+    procedure AutoCloseTimerTick(Sender: TObject);
+    {$IFEND}
+    procedure CreateAutoCloseCheckBox(Form: TCustomForm);
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create; reintroduce;
@@ -69,6 +80,11 @@ type
     procedure UpdateForm;
     procedure Cancel;
     procedure ShowProgressBar(AShow: Boolean);
+
+    { Backing store for the auto-close checkbox on IDEs without the
+      AutoCloseProgressDlg environment option (pre-2009). }
+    property AutoCloseFallback: Boolean read FAutoCloseFallback write SetAutoCloseFallback;
+    property OnAutoCloseFallbackChanged: TNotifyEvent read FOnAutoCloseFallbackChanged write FOnAutoCloseFallbackChanged;
 
     property Form: TCustomForm read GetForm;
     property StatusOverwrite: string write SetStatusOverwrite;
@@ -92,7 +108,7 @@ var
 implementation
 
 uses
-  Themes, AppConsts, Hooking, IDEHooks;
+  Variants, Menus, ToolsAPI, Themes, AppConsts, Hooking, IDEHooks;
 
 const
   {$IF CompilerVersion >= 21.0} // Delphi 2010+
@@ -101,7 +117,7 @@ const
   sCurrFileLabelName = 'CurrFile';
   {$IFEND}
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure ProgressFormPtr;
   external coreide_bpl name '@Comprgrs@ProgressForm';
 {$ENDIF}
@@ -162,6 +178,8 @@ begin
       FProgressBar := nil;
       UpdateTaskbarProgress;
     end;
+    if AComponent = FAutoCloseCheckBox then
+      FAutoCloseCheckBox := nil;
   end;
 end;
 
@@ -469,6 +487,8 @@ begin
     Exit;
   end;
 
+  CreateAutoCloseCheckBox(Form);
+
   if FMaxFiles = 0 then
     NewPercentage := 0
   else
@@ -489,20 +509,27 @@ begin
     FProgressBar.Position := NewPercentage;
     {$IF CompilerVersion >= 33.0}
     // New Progress-Dialog
-    // AllocConsole;
-    // for I := 0 to Form.ComponentCount - 1 do
-    //   WriteLn(Form.Components[I].Name + ': ' + Form.Components[I].ClassName);
-    // Since Delphi 11.1 the ProgressBar must be placed below the "Hints" panel:
-    {$IF RTLVersion >= 36} // Delphi 12 RTL
+
+//    AllocConsole;
+//    for I := 0 to Form.ComponentCount - 1 do
+//      WriteLn(Form.Components[I].Name + ': ' + Form.Components[I].ClassName);
+
+    // In Delphi 11.1+ the ProgressBar must be placed below the "Hints" panel:
+    {$IF CompilerVersion >= 36} // 12+
     pnErrors := Form.FindComponent('pnHints') as TControl;
-    {$ELSE}
-    pnErrors := Form.FindComponent('pnErrors') as TControl;
+    
+    {$ELSEIF CompilerVersion = 35} // 11
+    pnErrors := Form.FindComponent('pnErrors') as TControl;    
     {$IF declared(RTLVersion111)}
-    {$IF RTLVersion111} // Delphi 11.1 RTL
-    pnErrors := Form.FindComponent('pnHints') as TControl;
+      {$IF RTLVersion111}
+      pnErrors := Form.FindComponent('pnHints') as TControl;
+      {$IFEND}
+    {$IFEND} 
+    
+    {$ELSE} // <11
+    pnErrors := Form.FindComponent('pnErrors') as TControl;
     {$IFEND}
-    {$IFEND}
-    {$IFEND}
+    
     TotalLines := GetLabel('TotalLines');
     if (pnErrors is TPanel) and (TotalLines <> nil) then
     begin
@@ -545,10 +572,14 @@ end;
 
 function TNativeProgressForm.GetTaskbarFormHandle: HWND;
 begin
+  {$IF CompilerVersion >= 21.0} // 2010+ (MainFormOnTaskBar is 2007+, MainFormHandle is 2010+)
   if Application.MainFormOnTaskBar then
     Result := Application.MainFormHandle
   else
     Result := Application.Handle;
+  {$ELSE}
+  Result := Application.Handle;
+  {$IFEND}
 end;
 
 procedure TNativeProgressForm.UpdateTaskbarProgress;
@@ -579,9 +610,119 @@ begin
   end;
 end;
 
+procedure TNativeProgressForm.SetAutoCloseFallback(const Value: Boolean);
+begin
+  FAutoCloseFallback := Value;
+  {$IF CompilerVersion < 20.0}
+  FCachedAutoClose := Value;
+  if (FAutoCloseCheckBox <> nil) and (FAutoCloseCheckBox.Checked <> Value) then
+  begin
+    FAutoCloseCheckBox.OnClick := nil; // Checked fires OnClick
+    FAutoCloseCheckBox.Checked := Value;
+    FAutoCloseCheckBox.OnClick := DoAutoCloseClick;
+  end;
+  {$IFEND}
+end;
+
+{$IF CompilerVersion < 20.0}
+procedure TNativeProgressForm.AutoCloseTimerTick(Sender: TObject);
+var
+  Form: TCustomForm;
+  Btn: TButton;
+begin
+  { Pre-2009 IDEs run the wait-for-OK loop inside TProgressForm.StartCompile,
+    so any code after the hooked call runs too late to touch the dialog. This
+    timer fires from that loop's message pump instead: the compile is done
+    once the Cancel button has turned into "OK". }
+  Form := GetForm;
+  if (Form = nil) or not Form.Visible then
+    Exit;
+  Btn := TButton(Form.FindComponent('CancelButton'));
+  if not (TComponent(Btn) is TButton) or (StripHotkey(Btn.Caption) <> 'OK') then
+    Exit; // still compiling
+  if ErrorCount <> 0 then
+    Exit;
+  // upstream bug: if there was nothing to (re)compile the progress bar sticks
+  // at 0% while the dialog waits for OK - snap it to 100% (via the property
+  // so FLastPercentage stays consistent for the next compile)
+  if FProjectFilesCompiled < FMaxFiles then
+    ProjectFilesCompiled := FMaxFiles;
+  if FCachedAutoClose then
+    Btn.Click;
+end;
+{$IFEND}
+
 procedure TNativeProgressForm.DoAutoCloseClick(Sender: TObject);
 begin
   FCachedAutoClose := TCheckBox(Sender).Checked;
+  {$IF CompilerVersion >= 20.0}
+  try
+    (BorlandIDEServices as IOTAServices).GetEnvironmentOptions.Values['AutoCloseProgressDlg'] := FCachedAutoClose;
+  except
+    // option not supported by this IDE version - checkbox stays cosmetic
+  end;
+  {$ELSE}
+  FAutoCloseFallback := FCachedAutoClose;
+  if Assigned(FOnAutoCloseFallbackChanged) then
+    FOnAutoCloseFallbackChanged(Self); // CompileProgress persists the setting
+  {$IFEND}
+end;
+
+procedure TNativeProgressForm.CreateAutoCloseCheckBox(Form: TCustomForm);
+{$IF CompilerVersion < 20.0}
+var
+  Btn: TButton;
+{$IFEND}
+begin
+  { Injects an "Automatically close on successful compile" checkbox into the
+    IDE's compile progress dialog (bottom left, same row as the progress bar).
+    Pre-2009 IDEs have no AutoCloseProgressDlg option (the dialog always waits
+    for OK), so DDevExtensions persists the setting itself and closes the dialog
+    in HookedStartCompile after a successful compile. }
+  if (FAutoCloseCheckBox <> nil) or (Form = nil) then
+    Exit;
+  {$IF CompilerVersion >= 20.0}
+  // 2009+ IDEs already offer this themselves: they have the AutoCloseProgressDlg
+  // environment option and their own native "close on successful compile"
+  // checkbox in the compile dialog (confirmed on 2009 and on the redesigned
+  // 10.3 Rio+ dialog), so injecting ours only produces a second, redundant
+  // checkbox. The option stays reachable natively and via Tools > Options.
+  Exit;
+  {$ELSE}
+  FCachedAutoClose := FAutoCloseFallback;
+
+  FAutoCloseCheckBox := TCheckBox.Create(Form);
+  FAutoCloseCheckBox.FreeNotification(Self);
+  FAutoCloseCheckBox.Name := 'DDevExtensions_AutoClose';
+  FAutoCloseCheckBox.Caption := sAutoCloseCaption;
+  // half width + two lines so it does not overlap the OK button, vertically
+  // centered on the button row
+  {$IF CompilerVersion >= 18.0}
+  FAutoCloseCheckBox.WordWrap := True;
+  {$IFEND}
+  Btn := TButton(Form.FindComponent('CancelButton'));
+  if TComponent(Btn) is TButton then
+    FAutoCloseCheckBox.SetBounds(8, Btn.Top + (Btn.Height - 34) div 2,
+      (Form.ClientWidth - {$IFDEF IDE50_UP}120{$ELSE}80{$ENDIF} - 24) div 2, 34)
+  else
+    FAutoCloseCheckBox.SetBounds(8, Form.ClientHeight - 4 - 34 - 25 {$IFDEF COMPILER10_UP}- 20{$ENDIF},
+      (Form.ClientWidth - {$IFDEF IDE50_UP}120{$ELSE}80{$ENDIF} - 24) div 2, 34);
+  FAutoCloseCheckBox.Checked := FCachedAutoClose;
+  FAutoCloseCheckBox.OnClick := DoAutoCloseClick;
+  FAutoCloseCheckBox.Parent := Form;
+  {$IF CompilerVersion < 18.0}
+  // D7's TCheckBox has no WordWrap property - apply the multiline style directly
+  SetWindowLong(FAutoCloseCheckBox.Handle, GWL_STYLE,
+    GetWindowLong(FAutoCloseCheckBox.Handle, GWL_STYLE) or BS_MULTILINE);
+  {$IFEND}
+
+  if FAutoCloseTimer = nil then
+  begin
+    FAutoCloseTimer := TTimer.Create(Self);
+    FAutoCloseTimer.Interval := 100;
+    FAutoCloseTimer.OnTimer := AutoCloseTimerTick;
+  end;
+  {$IFEND}
 end;
 
 

@@ -70,7 +70,7 @@ type
   public
     constructor Create(const AName: string; const ALocation: TLocation);
 
-    function ToString: string; override;
+    function ToString: string; {$IFDEF UNICODE}override;{$ELSE}virtual;{$ENDIF} // pre-2009: TObject has no ToString
 
     property Name: string read FName;
     { Location returns the location of the symbol's name. }
@@ -1100,13 +1100,13 @@ begin
     Op := Trim(Copy(Op, 2, Length(Op) - 2))
   else
     Op := Trim(Copy(Op, 3, Length(Op) - 4));
-  if StartsText('$R', Op) and (PChar(Op)[2] <= ' ') then
+  if AnsiStartsText('$R', Op) and (PChar(Op)[2] <= ' ') then
   begin
     // resource inclusion
     Op := AnsiDequotedStr(Trim(Copy(Op, 4, MaxInt)), '''');
-    if EndsText('*.dfm', Op) or EndsText('*.fmx', Op) or
-       EndsText('*.nfm', Op) or EndsText('*.xfm', Op) or
-       EndsText('*.lfm', Op) then
+    if AnsiEndsText('*.dfm', Op) or AnsiEndsText('*.fmx', Op) or
+       AnsiEndsText('*.nfm', Op) or AnsiEndsText('*.xfm', Op) or
+       AnsiEndsText('*.lfm', Op) then
       FFormResource := Op;
     FResources.Add(Op);
   end;
@@ -2344,7 +2344,7 @@ begin
   begin
     Kind := tkFloat;
     Str(CompilerVersion:1:1, S);
-    Value := UTF8ToString(S);
+    Value := {$IFDEF UNICODE}UTF8ToString{$ENDIF}(S);
   end;
 end;
 

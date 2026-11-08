@@ -16,9 +16,19 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms,
   Dialogs, ComCtrls, Menus, ExtCtrls, ActnList, ImgList, StdCtrls, ToolWin,
   CtrlUtils, CommCtrl, ToolsAPI, IDEUtils, SimpleXmlImport, SimpleXmlIntf,
-  ToolsAPIHelpers, FrmBase, DelphiDesignerParser;
+  ToolsAPIHelpers, FrmBase, DelphiDesignerParser
+  {$IF CompilerVersion > 30}
+  ,System.Actions
+  ,Vcl.Themes
+  ,Vcl.Styles
+  {$IFEND}   
+  ;
 
 type
+  {$IFNDEF UNICODE}
+  TWMNotifyLV = TWMNotify; // pre-2009 ComCtrls has no TWMNotifyLV
+  {$ENDIF}
+
   { Fix Clear() in OwnerData Mode. We don't need to get every item (OnData) if we delete them all. }
   TListView = class(ComCtrls.TListView)
   protected
@@ -156,6 +166,9 @@ type
     FResourceTypeThread: TResourceTypeThread;
     FEditor: IOTASourceEditor;
     FParser: TDesignerParser;
+    {$IF CompilerVersion > 30}
+    FStyleDark: Boolean;
+    {$IFEND}
 
     procedure FilerEditWndProc(var Msg: TMessage);
     procedure RemoveUsesUnits(Writer: IOTAEditWriter; StopIndex: Integer; DeleteUsesList: TList;
@@ -206,6 +219,16 @@ var
 type
   TOpenEdit = class(TEdit);
 
+{$IFNDEF UNICODE} // pre-2009 compatibility
+const
+  FILE_ATTRIBUTE_DEVICE = $00000040;
+
+function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
+begin
+  Result := C in CharSet;
+end;
+{$ENDIF UNICODE}
+
 { TListView }
 
 procedure TListView.CNNotify(var Message: TWMNotifyLV);
@@ -254,7 +277,10 @@ var
 begin
   for I := 1 to Length(S) do
     if (S[I] = '*') or (S[I] = '?') then
-      Exit(True);
+    begin
+      Result := True;
+      Exit;
+    end;
   Result := False;
 end;
 
@@ -522,10 +548,17 @@ begin
           if (FileName <> '') and not IsBinaryFile(FileName) then
           begin
             Module := (BorlandIDEServices as IOTAModuleServices).FindModule(FileName);
+            {$IF CompilerVersion >= 17.0} // 2005+ (D7's IOTAModule has no Show)
             if Module <> nil then
               Module.Show
             else
               ActionServices.OpenFile(FileName);
+            {$ELSE}
+            if (Module <> nil) and (Module.GetModuleFileEditor(0) <> nil) then
+              Module.GetModuleFileEditor(0).Show
+            else
+              ActionServices.OpenFile(FileName);
+            {$IFEND}
           end;
         end;
       end;
@@ -773,9 +806,17 @@ begin
 end;
 
 procedure TFormFileSelector.FormCreate(Sender: TObject);
+{$IF (CompilerVersion >= 32.0) and (CompilerVersion < 34.0)} // 10.2.2/10.3: no TControl.StyleName yet
+var
+  ThemingServices: IOTAIDEThemingServices;
+{$IFEND}
 begin
+  inherited;
+
   FormFileSelector := Self;
+  {$IF CompilerVersion >= 20.0} // 2009+ (no TToolBar.DrawingStyle before)
   ToolBar.DrawingStyle := ComCtrls.dsGradient;
+  {$IFEND}
   ListView.DoubleBuffered := True;
   ToolBar.Flat := True; // BDS 2006's default is True => Flat is not stored in the DFM
 
@@ -787,6 +828,16 @@ begin
 
   FAllData := TInfoList.Create;
   FCurrentData := TInfoList.Create(False);
+  
+  {$IF CompilerVersion >= 34.0} // 10.4+: TControl.StyleName does not exist earlier
+  FStyleDark := StyleName.Contains('Dark');
+  {$ELSE}
+  {$IF CompilerVersion >= 32.0} // 10.2.2/10.3: ask the IDE for its active theme instead
+  if Supports(BorlandIDEServices, IOTAIDEThemingServices, ThemingServices) and
+     ThemingServices.IDEThemingEnabled then
+    FStyleDark := ThemingServices.ActiveTheme.Contains('Dark');
+  {$IFEND}
+  {$IFEND}
 end;
 
 procedure TFormFileSelector.FormDestroy(Sender: TObject);
@@ -835,9 +886,29 @@ var
 begin
   DefaultDraw := True;
 
+  if Item.Index mod 2 = 0 then
+    begin
+    {$IF CompilerVersion > 30}
+    if FStyleDark then
+      begin
+      Sender.Canvas.Brush.Color := $383737; //about 12.5% brighter than default line color
+      Sender.Canvas.Font.Color  := clWhite; //above line changes font color to black, set it to white
+      end
+    else
+    {$IFEND}
+      Sender.Canvas.Brush.Color := $FAFAFA;
+    end;
+
   Info := Item.Data;
   if Info.Opened then
-    Sender.Canvas.Font.Color := clBlue;
+    begin    
+    {$IF CompilerVersion > 30}
+    if FStyleDark then
+      Sender.Canvas.Font.Color := $FFAAAA //lightblue (clBlue would be too dark)
+    else
+    {$IFEND}    
+      Sender.Canvas.Font.Color := clBlue;
+    end;
 
   if FParser <> nil then
   begin
@@ -846,9 +917,6 @@ begin
     else if (FParser.ImplUses.FindUses(Info.Name) <> nil) then
       Sender.Canvas.Font.Style := [fsBold, fsUnderline];
   end;
-
-  if Item.Index mod 2 = 0 then
-    Sender.Canvas.Brush.Color := $FAFAFA;
 end;
 
 procedure TFormFileSelector.ListViewData(Sender: TObject; Item: TListItem);
@@ -1032,15 +1100,17 @@ procedure TFormFileSelector.GetFilenames;
     Ext, UpName: string;
     Index: Integer;
     IsSource: Boolean;
-    {$IFNDEF COMPILER12_UP}
+    {$IF (CompilerVersion >= 17.0) and (CompilerVersion < 20.0)} // 2005-2007 (.NET personalities)
     PersStr: string;
-    {$ENDIF ~COMPILER12_UP}
+    {$IFEND}
   begin
     // "PrjFiles" is nil if "Files" points to the "SourceFiles".
 
+    {$IF CompilerVersion >= 20.0} // 2009+ (D7's Windows.pas declares FindFirstFileEx with a wrong result type)
     if CheckWin32Version(6, 1) then // we don't need the "AlternativeName", but want speed
       SearchHandle := FindFirstFileEx(PChar(Dir + PathDelim + '*.*'), FindExInfoBasic, @FindData, FindExSearchNameMatch, nil, FIND_FIRST_EX_LARGE_FETCH)
     else
+    {$IFEND}
       SearchHandle := FindFirstFile(PChar(Dir + PathDelim + '*.*'), FindData);
 
     if SearchHandle <> INVALID_HANDLE_VALUE then
@@ -1054,7 +1124,7 @@ procedure TFormFileSelector.GetFilenames;
           if IsSource or
             (not SourceOnly and (SameText(Ext, '.dcu') {$IFNDEF COMPILER12_UP}or SameText(Ext, '.dcuil'){$ENDIF})) then
           begin
-            {$IFNDEF COMPILER12_UP}
+            {$IF (CompilerVersion >= 17.0) and (CompilerVersion < 20.0)} // 2005-2007 (.NET personalities)
             if not IsSource and (Project <> nil) then
             begin
               PersStr := Project.Personality;
@@ -1064,7 +1134,7 @@ procedure TFormFileSelector.GetFilenames;
               if (PersStr = sDelphiDotNetPersonality) and SameText(Ext, '.dcu') then
                 Continue;
             end;
-            {$ENDIF ~COMPILER12_UP}
+            {$IFEND}
             UpName := AnsiUpperCase(ChangeFileExt(FileName, ''));
             { Only add files that aren't already found in a more prioritized
               directory. }
@@ -1313,7 +1383,11 @@ begin
         if Group <> nil then
           for I := 0 to Group.ProjectCount - 1 do
             if Group.Projects[I] <> Project then
+              {$IF CompilerVersion >= 17.0} // 2005+
               if Group.Projects[I].ProjectType = sPackage then
+              {$ELSE} // D7's IOTAProject has no ProjectType
+              if SameText(ExtractFileExt(Group.Projects[I].FileName), '.dpk') then
+              {$IFEND}
                 AddProjectSource(Group.Projects[I], nil, Sources, SourcesHash);
 
         CachedSources.Assign(Sources);

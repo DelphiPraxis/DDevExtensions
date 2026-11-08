@@ -1,14 +1,10 @@
 inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
   Width = 385
-  Height = 366
+  Height = 509
   TabStop = True
-  ExplicitWidth = 385
-  ExplicitHeight = 366
   inherited pnlClient: TPanel
     Width = 385
-    Height = 317
-    ExplicitWidth = 385
-    ExplicitHeight = 317
+    Height = 460
     object lblEditorTabDblClickAction: TLabel
       Left = 8
       Top = 216
@@ -39,6 +35,7 @@ inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
       Width = 140
       Height = 21
       Style = csDropDownList
+      ItemHeight = 13
       TabOrder = 11
       Items.Strings = (
         'Disabled'
@@ -156,18 +153,107 @@ inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
       ShowHint = True
       TabOrder = 10
     end
+    object chkAutoCloseCompileDlg: TCheckBox
+      Left = 8
+      Top = 299
+      Width = 360
+      Height = 17
+      Caption = 'Auto-close compile progress dialog on successful compile'
+      TabOrder = 13
+    end
+    object chkF12HotKeySupport: TCheckBox
+      Left = 8
+      Top = 320
+      Width = 369
+      Height = 17
+      Caption = 'Restore F12 debug hotkey (pause the running program)'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 14
+    end
+    object chkNormalizeLineEndings: TCheckBox
+      Left = 8
+      Top = 343
+      Width = 369
+      Height = 17
+      Caption = 'Normalize line endings to CRLF when a file is opened'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 15
+    end
+    object chkDisableWelcomePageFeed: TCheckBox
+      Left = 8
+      Top = 366
+      Width = 369
+      Height = 17
+      Hint = 
+        'The welcome page fetches a news feed on startup. If that fetch fa' +
+        'ils - blocked'#13#10'by a firewall, or a feed URL that has gone dead - ' +
+        'the fetcher crashes with an'#13#10'access violation on every IDE start.' +
+        ' This keeps the IDE from loading the'#13#10'package at all; the welcome' +
+        ' page itself stays, only the feed card is gone.'
+      Caption = 'Don'#39't load the Welcome Page feed package (needs IDE restart)'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 16
+    end
+    object chkDisableDebugHeap: TCheckBox
+      Left = 8
+      Top = 389
+      Width = 369
+      Height = 17
+      Hint = 
+        'Windows turns on heap validation for a process it debugs, which mak' +
+        'es'#13#10'allocation-heavy code an order of magnitude slower - a first Open' +
+        ' dialog'#13#10'can freeze for seconds. This passes _NO_DEBUG_HEAP=1 to the d' +
+        'ebugged'#13#10'process, the same switch Visual Studio offers. Note that it a' +
+        'lso gives up'#13#10'the heap misuse detection the debug heap provides.'
+      Caption = 'Disable the Windows debug heap for debugged processes'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 17
+    end
+    object chkEvaluateIfDirectives: TCheckBox
+      Left = 8
+      Top = 412
+      Width = 369
+      Height = 17
+      Hint = 
+        'The IDE cannot evaluate {$IF} expressions and skips such blocks.'#13#10 +
+        'Units in them get added to the uses clause again on every save'#13#10 +
+        '(E2004 Identifier redeclared). This makes the IDE'#39's parser'#13#10 +
+        'evaluate CompilerVersion, RTLVersion and Defined() expressions.'
+      Caption = 'Evaluate {$IF} expressions in the IDE'#39's source parser'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 18
+    end
+    object chkCleanupDebuggeeAtoms: TCheckBox
+      Left = 8
+      Top = 435
+      Width = 369
+      Height = 17
+      Hint = 
+        'A VCL program registers global atoms (Delphi<pid>, ControlOfs...,'#13#10 +
+        'WndProcPtr...) and deletes them only when it ends normally. After'#13#10 +
+        '"Program Reset" they stay until you log off; a full atom table'#13#10 +
+        '(16384 entries) breaks the clipboard and UAC prompts for the whole'#13#10 +
+        'session. This deletes the atoms of ended processes and threads after'#13#10 +
+        'each debug session and when the IDE starts.'
+      Caption = 'Delete the global atoms a terminated program left behind'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 19
+    end
   end
   inherited pnlDescription: TPanel
     Width = 385
-    ExplicitWidth = 385
     inherited bvlSplitter: TBevel
       Width = 385
-      ExplicitWidth = 385
     end
     inherited lblDescription: TLabel
       Width = 157
       Caption = 'Configure extended IDE settings'
-      ExplicitWidth = 157
     end
   end
 end

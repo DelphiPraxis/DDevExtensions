@@ -2,13 +2,9 @@ inherited FrameOptionPageCompilerEnhancements: TFrameOptionPageCompilerEnhanceme
   Width = 385
   Height = 235
   TabStop = True
-  ExplicitWidth = 385
-  ExplicitHeight = 235
   inherited pnlClient: TPanel
     Width = 385
     Height = 186
-    ExplicitWidth = 385
-    ExplicitHeight = 186
     object lblExceptWarningsCaption: TLabel
       Left = 40
       Top = 54
@@ -46,15 +42,12 @@ inherited FrameOptionPageCompilerEnhancements: TFrameOptionPageCompilerEnhanceme
   end
   inherited pnlDescription: TPanel
     Width = 385
-    ExplicitWidth = 385
     inherited bvlSplitter: TBevel
       Width = 385
-      ExplicitWidth = 385
     end
     inherited lblDescription: TLabel
       Width = 164
       Caption = 'Treat compiler warnings as errors.'
-      ExplicitWidth = 164
     end
   end
 end

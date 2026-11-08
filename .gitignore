@@ -72,3 +72,13 @@ modules/
 # Newer Delphi Versions create the *.res files in the build script
 *.res
 *.zip
+
+# Transient madExcept crash reports
+bugreport*.txt
+
+# Explorer backup copies
+*\ - Kopie/
+CompileInterceptor - Kopie/
+
+# build output
+Code/DDevExtensions/Release/

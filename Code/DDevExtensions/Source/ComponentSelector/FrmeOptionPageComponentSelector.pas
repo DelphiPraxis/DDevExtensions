@@ -12,6 +12,8 @@ unit FrmeOptionPageComponentSelector;
 
 interface
 
+{$IF CompilerVersion >= 18.0} // options page for the 2006+ ComponentSelector; empty unit for older versions
+
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ComponentSelector, FrmTreePages, ComCtrls, FrmeBase, ExtCtrls;
@@ -36,7 +38,11 @@ type
     procedure Unselected;
   end;
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 18.0}
 
 {$R *.dfm}
 
@@ -81,5 +87,7 @@ begin
   lblHotkey.Enabled := cbxActive.Checked;
   HotKey.Enabled := cbxActive.Checked;
 end;
+
+{$IFEND}
 
 end.

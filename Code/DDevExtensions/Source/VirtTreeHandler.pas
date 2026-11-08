@@ -2,6 +2,8 @@ unit VirtTreeHandler;
 
 interface
 
+{$IF CompilerVersion >= 21.0} // Delphi 2010+ (extended RTTI); empty stub for older versions
+
 {$RTTI EXPLICIT METHODS([vcPrivate, vcProtected, vcPublic, vcPublished])
                 PROPERTIES([vcPrivate, vcProtected, vcPublic, vcPublished])
                 FIELDS([vcPrivate, vcProtected, vcPublic, vcPublished])}
@@ -19,7 +21,6 @@ type
 
   TVSTGetTextEvent = procedure(Sender: TObject; Node: PVirtualNode; Column: Integer;
     TextType: TVSTTextType; var CellText: WideString) of object;
-
 
   TreeMethod = class(TCustomAttribute)
   end;
@@ -112,7 +113,11 @@ type
     property Images: TCustomImageList read GetImages;
   end;
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 21.0}
 
 uses
   TypInfo;
@@ -168,7 +173,7 @@ end;
 constructor TreeImport.Create(const AX86Signature, AX64Signature: AnsiString);
 begin
   inherited Create;
-  {$IFDEF CPUX86}
+  {$IFNDEF CPUX64}
   FSignature := AX86Signature;
   {$ENDIF}
   {$IFDEF CPUX64}
@@ -358,6 +363,7 @@ begin
 
 end;
 
+{$IFEND}
 
 end.
 

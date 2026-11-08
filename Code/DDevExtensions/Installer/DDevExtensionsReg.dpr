@@ -11,6 +11,10 @@ program DDevExtensionsReg;
 
 uses
   Forms,
+  {$IF CompilerVersion > 30}
+  Vcl.Themes,
+  Vcl.Styles,
+  {$IFEND}     
   Main in 'Main.pas' {FormMain},
   AppConsts in '..\Source\AppConsts.pas';
 
@@ -18,6 +22,9 @@ uses
 
 begin
   Application.Initialize;
+  {$IF CompilerVersion > 30}
+  TStyleManager.TrySetStyle('Windows10');
+  {$IFEND}       
   Application.Title := 'DDevExtensions Installer';
   Application.CreateForm(TFormMain, FormMain);
   Application.Run;

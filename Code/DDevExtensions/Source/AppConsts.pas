@@ -1,4 +1,4 @@
-Ôªø{******************************************************************************}
+{******************************************************************************}
 {*                                                                            *}
 {* DDevExtensions                                                             *}
 {*                                                                            *}
@@ -14,8 +14,8 @@ const
   {$I Version.inc}
 
   sPluginVersion = VersionNumber;
-  sPluginName = 'DDevExtensions ' + sPluginVersion;
-  sPluginSmallCopyright = '(C) 2006-2020 Andreas Hausladen';
+  sPluginName = 'DDevExtensions ' + sPluginVersion + ' [' + VersionBuildStamp + ']';
+  sPluginSmallCopyright = '(C) 2006-2026 Andreas Hausladen';
   sPluginCopyright = 'Copyright ' + sPluginSmallCopyright;
 
 resourcestring
@@ -66,19 +66,19 @@ const
   // German
   sSearchComponent_Ger = '(Komponente suchen)';
   sFilesCompiled_Ger = '%d Dateien compiliert';
-  sAutoCloseCaption_Ger = '&Nach erfolgreicher Compilierung automatisch schlie√üen';
+  sAutoCloseCaption_Ger = '&Nach erfolgreicher Compilierung automatisch schlieﬂen';
   sMenuItemManageProjectSettings_Ger = 'Einstellungen...';
   sMenuItemProjectSettings_Ger = 'Projekt Konfigurationen';
   sMenuItemSetVersionInfo_Ger = 'Versionsinfo setzen...';
   sMenuItemDDevExtensionsOptions_Ger = 'DDevExtensions Optionen...';
   sMenuItemDDevExtensionsFileSelector_Ger = 'Unit-Datei suchen...';
-  sParseErrorUsesLocationNotFound_Ger = 'Parser Fehler: Position zum Einf√ºgen des "uses" konnte nicht ermittelt werden';
+  sParseErrorUsesLocationNotFound_Ger = 'Parser Fehler: Position zum Einf¸gen des "uses" konnte nicht ermittelt werden';
 
   sCapSwitchToModuleProject_Ger = 'Compilieren/Erzeugen - Aktives Projekt wechseln';
-  sLblSwitchCurrentModuleProject_Ger = 'Die Datei geh√∂rt weder zum aktiven Projekt noch zu einem direkt oder indirekt abh√§ngigen Projekt.';
+  sLblSwitchCurrentModuleProject_Ger = 'Die Datei gehˆrt weder zum aktiven Projekt noch zu einem direkt oder indirekt abh‰ngigen Projekt.';
   sLblSwitchToModuleProjectQuestion_Ger = '&Soll zum Projekt der Datei gewechselt werden?';
   sLblDontShowAgain_Ger = '&Nicht mehr anzeigen';
-  sLblTemporarySwitch_Ger = '&Tempor√§r wechseln [Umschalt-Taste]';
+  sLblTemporarySwitch_Ger = '&Tempor‰r wechseln [Umschalt-Taste]';
   sLblActiveProject_Ger = 'Aktives Projekt:';
   sLblActiveModule_Ger = 'Aktive Datei:';
 
@@ -89,30 +89,30 @@ const
   sLVGroup_UnitFiles_Ger = 'Units/Dateien';
   sLVGroup_Forms_Ger = 'Formulare/Frames/Datenmodule';
   sReloadButton_Ger = '&Neuladen';
-  sReloadChangedFilesCaption_Ger = 'Ver√§nderte Dateien neuladen';
+  sReloadChangedFilesCaption_Ger = 'Ver‰nderte Dateien neuladen';
   sLVColumn_File_Ger = 'Datei';
   sLVColumn_Path_Ger = 'Pfad';
 
-  sReloadSelectOnlyUnmodifiedField_Ger = 'Unver√§nderte Puffer ausw√§hlen';
-  sReloadSelectOnlyModifiedFiles_Ger = '&Ver√§nderte Puffer ausw√§hlen';
-  sReloadSelectAll_Ger = '&Alle ausw√§hlen';
+  sReloadSelectOnlyUnmodifiedField_Ger = 'Unver‰nderte Puffer ausw‰hlen';
+  sReloadSelectOnlyModifiedFiles_Ger = '&Ver‰nderte Puffer ausw‰hlen';
+  sReloadSelectAll_Ger = '&Alle ausw‰hlen';
   sReloadDeselectAll_Ger = 'A&uswahl aufheben';
   sReloadInvertSelection_Ger = 'Auswahl um&kehren';
   sReloadShowInExplorer_Ger = 'Im &Explorer anzeigen';
 
   // French
   sSearchComponent_Fra = '(chercher un composant)';
-  sFilesCompiled_Fra = '%d fichiers compil√©s';
-  sAutoCloseCaption_Fra = 'Fermer &Automatiquement √† la r√©ussite de la compilation';
-  sMenuItemManageProjectSettings_Fra = 'G√©rer les configurations...';
+  sFilesCompiled_Fra = '%d fichiers compilÈs';
+  sAutoCloseCaption_Fra = 'Fermer &Automatiquement ‡ la rÈussite de la compilation';
+  sMenuItemManageProjectSettings_Fra = 'GÈrer les configurations...';
   sMenuItemProjectSettings_Fra = 'Configurations du projet';
   sMenuItemSetVersionInfo_Fra = 'Affecter les infos de version...';
   sMenuItemDDevExtensionsOptions_Fra = 'Options DDevExtensions...';
-  sMenuItemDDevExtensionsFileSelector_Fra = 'Trouver le fichier unit√©...';
+  sMenuItemDDevExtensionsFileSelector_Fra = 'Trouver le fichier unitÈ...';
   sParseErrorUsesLocationNotFound_Fra = 'Erreur du Parser : Impossible de trouver la position de "uses"';
 
   sCapSwitchToModuleProject_Fra = 'Compiler/Construire - Changer de projet actif';
-  sLblSwitchCurrentModuleProject_Fra = 'Le module ne fait partie ni du projet actif ni d''un projet d√©pendant directement ou indirectement';
+  sLblSwitchCurrentModuleProject_Fra = 'Le module ne fait partie ni du projet actif ni d''un projet dÈpendant directement ou indirectement';
   sLblSwitchToModuleProjectQuestion_Fra = 'Voulez-vous pa&sser sur le projet de ce module?';
   sLblDontShowAgain_Fra = '&Ne plus afficher';
   sLblTemporarySwitch_Fra = 'Changer &temporairement [Touche Maj]';

@@ -3,7 +3,8 @@ Homepage: https://www.idefixpack.de/ddev
 
 DDevExtensions adds new features to RAD Studio.
 
-Supported Delphi Versions 10.2, 10.3, 10.4, 11.x, 12.x, 13.x
+Supported Delphi Versions 7, 2009, 2010, 10.0 - 10.4, 11.x, 12.x, 13.x
+(12.x and 13.x: 32-bit and 64-bit IDE)
 
 ## Releases Delphi 2009-10.4
 
@@ -47,7 +48,7 @@ Start the InstallDDevExtensions.exe and press the <Uninstall> button.
 - Increment Build Number only when building the project (default: on) [2010 only]
 - Set TLabel.Margins.Bottom to zero (default: on)
 - Remove Explicit* properties (default: off)
-- Remove TDataModule.PixelsPerInch property (default: off) [Delphi 11]
+- Remove TDataModule.PixelsPerInch property (default: off) [Delphi 11+]
 - Component Selector (default: off, no hotkey)
 - Disable “Source has been modified. Rebuild?” (default: on)
 - Auto-save editor files after successful compile (default: off)
@@ -73,3 +74,8 @@ Start the InstallDDevExtensions.exe and press the <Uninstall> button.
 - Improved reload changed files dialog
 - Local Start Parameters (default: off) [2009-XE]
 - Project Start Parameters (default: off)
+- Replace TPNGGraphic (Alpha Controls acPNG) with TPngImage
+- Auto-close compile progress dialog on successful compile [<2009]
+- Treat warnings as errors
+- Evaluate {$IF} expressions in the IDE's source parser (default: on) [2009+]
+- Delete the global atoms a terminated program left behind (default: on)

@@ -12,6 +12,8 @@ unit OldPalette;
 
 interface
 
+{$IF CompilerVersion >= 18.0} // recreates the pre-Galileo palette in 2006+ IDEs; empty unit for older versions
+
 uses
   Windows, Messages, SysUtils, Contnrs, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, ComponentPanel,
@@ -132,7 +134,11 @@ type
 var
   FrameOldPalette: TFrameOldPalette;
 
+{$IFEND}
+
 implementation
+
+{$IF CompilerVersion >= 18.0}
 
 uses
   IDEUtils, HtHint, Hooking, IDEHooks, ComponentManager, StrUtils;
@@ -142,7 +148,7 @@ uses
 var
   HookTToolForm_LoadPalette: TRedirectCode;
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure TToolForm_LoadPalette(Instance: TForm);
   external coreide_bpl name '@Toolfrm@TToolForm@LoadPalette$qqrv';
 {$ENDIF}
@@ -866,6 +872,8 @@ begin
     Config.Save;
   end;
 end;
+
+{$IFEND}
 
 end.
 

@@ -1,15 +1,12 @@
 inherited FormReloadFiles: TFormReloadFiles
+  Width = 693
+  Height = 360
   ActiveControl = ListViewModules
   BorderIcons = [biSystemMenu]
   Caption = 'Reload changed files'
-  ClientHeight = 321
-  ClientWidth = 677
   Constraints.MinHeight = 150
   Constraints.MinWidth = 538
   Position = poScreenCenter
-  OnCreate = FormCreate
-  ExplicitWidth = 693
-  ExplicitHeight = 360
   PixelsPerInch = 96
   TextHeight = 13
   object PanelButtons: TPanel
@@ -63,6 +60,7 @@ inherited FormReloadFiles: TFormReloadFiles
       Width = 265
       Height = 21
       Style = csDropDownList
+      ItemHeight = 13
       TabOrder = 0
       Visible = False
     end

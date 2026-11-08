@@ -18,17 +18,23 @@ implementation
 
 uses
   SysUtils, Classes, Main,
-  {$IF CompilerVersion < 21.0} // Delphi 2009
+  {$IF CompilerVersion < 21.0} // pre-2010 only (PM was rebuilt in RAD Studio 2010)
   ProjectMgrShortCuts,
+  {$IFEND}
+  {$IF CompilerVersion < 16.0} // Delphi 7: shield against BDS-written .dsk files
+  SkipForeignDsk,
   {$IFEND}
   FrmeOptionPageFormDesigner,
   FrmProjectSettingsSetVersioninfo, FocusEditor, CompileProgress,
   IDEMenuHandler, FrmeOptionPageKeybindings,
   FrmeOptionPageFileCleaner, FrmeOptionPageCompileBackup,
+  {$IFDEF INCLUDE_COMPILERENHANCEMENTS}
+  FrmeOptionPageCompilerEnhancements,
+  {$ENDIF INCLUDE_COMPILERENHANCEMENTS}
   {$IFDEF INCLUDE_STARTPARAMETERTEAM}
   FrmeOptionPageStartParameterTeam, // XE2 made the parameter configuration-aware
   {$ENDIF INCLUDE_STARTPARAMETERTEAM}
-  FrmeOptionPageUnitSelector, FrmeOptionPageDSUFeatures, ComponentSelector, StrucViewSearch,
+  FrmeOptionPageDSUFeatures, ComponentSelector, StrucViewSearch,
   {$IF CompilerVersion <= 32.0} // 10.2 Tokyo-
   FrmeOptionPageOldPalette,
   {$IFEND}
@@ -49,6 +55,13 @@ begin
   try
     if DisabledPlugins.IndexOf('DSUFeatures') = -1 then
       RegisterLateLoader(FrmeOptionPageDSUFeatures.InitPlugin);
+
+    {$IF CompilerVersion < 16.0} // Delphi 7: a .dsk written by a newer IDE hangs the
+    // project open, which happens BEFORE the late loaders run (splash) - so this
+    // must go through the early expert loader
+    if DisabledPlugins.IndexOf('SkipForeignDsk') = -1 then
+      RegisterExpertLoader(SkipForeignDsk.InitPlugin);
+    {$IFEND}
 
     {$IFDEF INCLUDE_FOCUSEDITOR}
     if DisabledPlugins.IndexOf('FocusEditor') = -1 then
@@ -83,11 +96,13 @@ begin
       RegisterLateLoader(CompileProgress.InitPlugin);
     {$ENDIF}
 
-    {$IFDEF INCLUDE_UNITSELECTOR}
-    if DisabledPlugins.IndexOf('UnitSelector') = -1 then
-      RegisterLateLoader(FrmeOptionPageUnitSelector.InitPlugin);
+    {$IFDEF INCLUDE_COMPILERENHANCEMENTS}
+    if DisabledPlugins.IndexOf('CompilerEnhancements') = -1 then
+      RegisterLateLoader(FrmeOptionPageCompilerEnhancements.InitPlugin);
     {$ENDIF}
 
+    // UnitSelector removed 2026-07: FrmUnitSelector never made it into this
+    // source line and CnWizards covers the feature
     {$IFDEF INCLUDE_FILECLEANER}
     if DisabledPlugins.IndexOf('FileCleaner') = -1 then
       RegisterLateLoader(FrmeOptionPageFileCleaner.InitPlugin);
@@ -125,7 +140,7 @@ begin
       RegisterLateLoader(StrucViewSearch.InitPlugin);
     {$ENDIF}
 
-    {$IF CompilerVersion < 21.0}
+    {$IF CompilerVersion < 21.0} // pre-2010: PM build-order shortcuts (no-op unit otherwise)
     if DisabledPlugins.IndexOf('ProjectMgrShortCuts') = -1 then
       RegisterLateLoader(ProjectMgrShortCuts.InitPlugin);
     {$IFEND}

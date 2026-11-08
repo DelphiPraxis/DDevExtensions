@@ -238,8 +238,10 @@ var
   BufferPool: TBufferPool;
 
 function ReadBOM(Stream: TStream; out BOMLen: Integer; var BOM: TBOMArray): TBOMType;
-function ReadAllFileUcs2(Stream: TStream; BOMType: TBOMType; ExtraData: string): string;
+{$IFDEF COMPILER10_UP} // implementations are 2006+ only
+function ReadAllFileUcs2(Stream: TStream; BOMType: TBOMType; ExtraData: UnicodeString): UnicodeString;
 function ReadAllFileUcs4(Stream: TStream; BOMType: TBOMType): UCS4String;
+{$ENDIF}
 
 implementation
 
@@ -1191,9 +1193,14 @@ begin
 end;
 
 function TBufferedReadStream.GetEof: Boolean;
+var
+  Size64: TInt64; // local record: D7 cannot assign through PInt64(@FSize).Lo
 begin
   if FSize = -1 then
-    PInt64(@FSize).Lo := GetFileSize(FHandle, @TInt64(FSize).Hi);
+  begin
+    Size64.Lo := GetFileSize(FHandle, @Size64.Hi);
+    FSize := (Int64(Size64.Hi) shl 32) or Size64.Lo;
+  end;
   Result := FPosition >= FSize;
 end;
 
