@@ -1,10 +1,10 @@
 inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
   Width = 385
-  Height = 486
+  Height = 509
   TabStop = True
   inherited pnlClient: TPanel
     Width = 385
-    Height = 437
+    Height = 460
     object lblEditorTabDblClickAction: TLabel
       Left = 8
       Top = 216
@@ -227,6 +227,23 @@ inherited FrameOptionPageDSUFeatures: TFrameOptionPageDSUFeatures
       ParentShowHint = False
       ShowHint = True
       TabOrder = 18
+    end
+    object chkCleanupDebuggeeAtoms: TCheckBox
+      Left = 8
+      Top = 435
+      Width = 369
+      Height = 17
+      Hint = 
+        'A VCL program registers global atoms (Delphi<pid>, ControlOfs...,'#13#10 +
+        'WndProcPtr...) and deletes them only when it ends normally. After'#13#10 +
+        '"Program Reset" they stay until you log off; a full atom table'#13#10 +
+        '(16384 entries) breaks the clipboard and UAC prompts for the whole'#13#10 +
+        'session. This deletes the atoms of ended processes and threads after'#13#10 +
+        'each debug session and when the IDE starts.'
+      Caption = 'Delete the global atoms a terminated program left behind'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 19
     end
   end
   inherited pnlDescription: TPanel

@@ -57,6 +57,7 @@ type
     FDisableWelcomePageFeed: Boolean;
     FDisableDebugHeap: Boolean;
     FEvaluateIfDirectives: Boolean;
+    FCleanupDebuggeeAtoms: Boolean;
 
     procedure SetDisablePackageCache(Value: Boolean);
     procedure SetEditorDblClickAction(Value: TEditorDblClickAction);
@@ -83,6 +84,7 @@ type
     procedure SetDisableWelcomePageFeed(const Value: Boolean);
     procedure SetDisableDebugHeap(const Value: Boolean);
     procedure SetEvaluateIfDirectives(const Value: Boolean);
+    procedure SetCleanupDebuggeeAtoms(const Value: Boolean);
   protected
     FTimerStructureView: TTimer;
     FLastParsingDots: Integer;
@@ -135,6 +137,7 @@ type
     property DisableWelcomePageFeed: Boolean read FDisableWelcomePageFeed write SetDisableWelcomePageFeed;
     property DisableDebugHeap: Boolean read FDisableDebugHeap write SetDisableDebugHeap;
     property EvaluateIfDirectives: Boolean read FEvaluateIfDirectives write SetEvaluateIfDirectives;
+    property CleanupDebuggeeAtoms: Boolean read FCleanupDebuggeeAtoms write SetCleanupDebuggeeAtoms;
   end;
 
   TFrameOptionPageDSUFeatures = class(TFrameBase, ITreePageComponent)
@@ -159,6 +162,7 @@ type
     chkDisableWelcomePageFeed: TCheckBox;
     chkDisableDebugHeap: TCheckBox;
     chkEvaluateIfDirectives: TCheckBox;
+    chkCleanupDebuggeeAtoms: TCheckBox;
   private
     { Private-Deklarationen }
     FDSUFeatures: TDSUFeaturesConfig;
@@ -181,7 +185,7 @@ implementation
 uses
   Main, DSUFeatures, StrUtils, IDEHooks, Hooking, IDEUtils, StrucViewSearch, ToolsAPIHelpers,
   AppConsts, DisableAlphaSortClassCompletion, F12HotKeySupport, NormalizeLineEndings, CompileProgress,
-  DisableWelcomePageFeed, DisableDebugHeap, FixIfDirectiveParsing;
+  DisableWelcomePageFeed, DisableDebugHeap, FixIfDirectiveParsing, CleanupDebuggeeAtoms;
 
 {$R *.dfm}
 
@@ -257,6 +261,7 @@ begin
   chkDisableWelcomePageFeed.Checked := FDSUFeatures.DisableWelcomePageFeed;
   chkDisableDebugHeap.Checked := FDSUFeatures.DisableDebugHeap;
   chkEvaluateIfDirectives.Checked := FDSUFeatures.EvaluateIfDirectives;
+  chkCleanupDebuggeeAtoms.Checked := FDSUFeatures.CleanupDebuggeeAtoms;
   {$IF CompilerVersion < 35.0} // pre-Delphi 11: no separate feed package, the whole start page goes
   chkDisableWelcomePageFeed.Caption := 'Don''t load the Start Page package (needs IDE restart)';
   {$IFEND}
@@ -322,6 +327,7 @@ begin
   FDSUFeatures.DisableWelcomePageFeed := chkDisableWelcomePageFeed.Checked;
   FDSUFeatures.DisableDebugHeap := chkDisableDebugHeap.Checked;
   FDSUFeatures.EvaluateIfDirectives := chkEvaluateIfDirectives.Checked;
+  FDSUFeatures.CleanupDebuggeeAtoms := chkCleanupDebuggeeAtoms.Checked;
   FDSUFeatures.Save;
 
   {$IF CompilerVersion < 20.0}
@@ -757,6 +763,7 @@ begin
   FKillDExplore := True;
   ConfirmDlgOnDebugCtrlF1 := True;
   EvaluateIfDirectives := True;
+  CleanupDebuggeeAtoms := True;
 
   LoadFromRegistry;
 end;
@@ -1631,6 +1638,15 @@ begin
   begin
     FEvaluateIfDirectives := Value;
     InstallFixIfDirectiveParsing(FEvaluateIfDirectives);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetCleanupDebuggeeAtoms(const Value: Boolean);
+begin
+  if Value <> FCleanupDebuggeeAtoms then
+  begin
+    FCleanupDebuggeeAtoms := Value;
+    InstallCleanupDebuggeeAtoms(FCleanupDebuggeeAtoms);
   end;
 end;
 

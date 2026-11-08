@@ -9,6 +9,7 @@ Version: 2.92
 - Added: "Provide PNG support in the IDE" - registers the bundled pngimage on pre-2009 IDEs that have no PNG package installed
 - Added: Normalize line endings to CRLF when a file is opened (optional; LF-only files confuse parts of the IDE)
 - Added: The IDE's source parser evaluates {$IF} expressions. It skipped such blocks, so the form designer added the units listed in them to the uses clause again on every save (Delphi 2009 and newer)
+- Added: Delete the global atoms (Delphi<pid>, ControlOfs..., WndProcPtr...) a VCL program leaves behind when it is terminated with "Program Reset" instead of closed; a full atom table breaks the clipboard and UAC prompts for the whole Windows session
 - Added: "Automatically close on successful compile" checkbox in the compile progress dialog (pre-2009 IDEs only; 2009 and newer already have one)
 - Added: Compiler Enhancements: "Treat warnings as errors" with exception list (revived from the pre-2009 versions)
 - Added: Compile progress covers the whole project group instead of restarting per project (Delphi 2010 and newer)

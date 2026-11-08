@@ -3,7 +3,7 @@ inherited FormTreePages: TFormTreePages
   Top = 292
   BorderStyle = bsDialog
   Caption = 'TreePages'
-  ClientHeight = 533
+  ClientHeight = 556
   ClientWidth = 701
   OldCreateOrder = True
   Position = poScreenCenter

@@ -110,6 +110,8 @@ uses
   DisableDebugHeap in '..\Source\DSUFeatures\DisableDebugHeap.pas',
   CondExprEval in '..\Source\DSUFeatures\CondExprEval.pas',
   FixIfDirectiveParsing in '..\Source\DSUFeatures\FixIfDirectiveParsing.pas',
+  VclAtomSweep in '..\Source\DSUFeatures\VclAtomSweep.pas',
+  CleanupDebuggeeAtoms in '..\Source\DSUFeatures\CleanupDebuggeeAtoms.pas',
   RemoveTextHeightProperty in '..\Source\FormDesignerHelpers\RemoveTextHeightProperty.pas',
   RemovePixelsPerInchProperty in '..\Source\FormDesignerHelpers\RemovePixelsPerInchProperty.pas',
   FixAlphaControlsPNG in '..\Source\FormDesignerHelpers\FixAlphaControlsPNG.pas',

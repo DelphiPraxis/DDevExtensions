@@ -78,3 +78,4 @@ Start the InstallDDevExtensions.exe and press the <Uninstall> button.
 - Auto-close compile progress dialog on successful compile [<2009]
 - Treat warnings as errors
 - Evaluate {$IF} expressions in the IDE's source parser (default: on) [2009+]
+- Delete the global atoms a terminated program left behind (default: on)
