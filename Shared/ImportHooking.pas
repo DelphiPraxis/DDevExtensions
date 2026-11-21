@@ -407,6 +407,7 @@ begin
     Result := (PUSH = $68) and (JMP = $E9);
 end;}
 
+{$IFNDEF CPUX64}
 function IsWin9xDebugThunk(AnAddr: Pointer): Boolean;
 { -> EAX: AnAddr }
 asm
@@ -423,6 +424,13 @@ asm
   XOR EAX, EAX
 @@exit:
 end;
+{$ELSE}
+function IsWin9xDebugThunk(AnAddr: Pointer): Boolean;
+begin
+  // Win9x cannot host a 64-bit process, so a Win9x debug thunk never occurs on x64.
+  Result := False;
+end;
+{$ENDIF}
 
 class function TJclPeMapImgHooks.ReplaceImport(Base: Pointer; const ModuleName: string;
   FromProc, ToProc: Pointer): Boolean;

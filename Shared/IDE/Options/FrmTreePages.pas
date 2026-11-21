@@ -121,6 +121,13 @@ uses
 
 {$R *.dfm}
 
+{$IF CompilerVersion < 18.5}
+// Pre-Delphi 2007 (e.g. Delphi 7) has no USER_DEFAULT_SCREEN_DPI. It is always 96
+// and there is no HiDPI on those versions, so MulDiv(..., PixelsPerInch, 96) is a no-op.
+const
+  USER_DEFAULT_SCREEN_DPI = 96;
+{$IFEND}
+
 resourcestring
   RsTreePageError = 'TreePage does not support the ITreePageComponent interface.';
 
@@ -269,7 +276,10 @@ procedure TFormTreePages.PopulateTreeNodes;
       );
     end;
   end;
-
+{$IF NOT Declared( USER_DEFAULT_SCREEN_DPI )}
+const
+  USER_DEFAULT_SCREEN_DPI = 96;
+{$IFEND}
 var
   i: Integer;
   LHeight : Integer;
@@ -277,8 +287,8 @@ begin
   TreeView.Items.BeginUpdate;
   try
     if TreeView.HandleAllocated then
-    begin
-      LHeight := MulDiv(22, Self.CurrentPPI, USER_DEFAULT_SCREEN_DPI);
+    begin 
+      LHeight := MulDiv(22, {$IF CompilerVersion > 32}Self.CurrentPPI{$ELSE}Screen.PixelsPerInch{$IFEND}, USER_DEFAULT_SCREEN_DPI);
       TreeView.Perform(TVM_SETITEMHEIGHT, LHeight, 0);
     end;
 
@@ -346,6 +356,11 @@ begin
         end;
         if Assigned(Intf) then
           Intf.LoadData;
+        {$IF CompilerVersion >= 32.0}
+        // page frames are created after the dialog's ApplyIDETheme ran
+        if Comp is TWinControl then
+          ThemeFixupControls(TWinControl(Comp));
+        {$IFEND}
       end
       else
       begin

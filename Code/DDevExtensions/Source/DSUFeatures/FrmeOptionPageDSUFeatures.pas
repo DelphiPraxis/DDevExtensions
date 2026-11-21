@@ -18,7 +18,10 @@ uses
   {$IF CompilerVersion >= 23.0}
   PlatformAPI,
   {$IFEND}
-  DCCStrs, FrmTreePages, PluginConfig, StdCtrls,
+  {$IF CompilerVersion >= 20.0} // 2009+ (DCCStrs/IOTAProjectOptionsConfigurations)
+  DCCStrs,
+  {$IFEND}
+  FrmTreePages, PluginConfig, StdCtrls,
   ModuleData, FrmeBase, ExtCtrls, ActnList, Menus, VirtTreeHandler, ComCtrls;
 
 type
@@ -27,7 +30,6 @@ type
   TDSUFeaturesConfig = class(TPluginConfig)
   private
     FDisablePackageCache: Boolean;
-    //FDisableEditorClearType: Boolean;
     FEditorDblClickAction: TEditorDblClickAction;
     FZoomModeOffset: Integer;
     {$IF CompilerVersion = 21.0} // Delphi 2010
@@ -38,6 +40,8 @@ type
     FFormatSourceOrgShortCut: TShortCut;
     {$ELSE}
     FDisableCodeFolding: Boolean;
+    {$IFEND}
+    {$IF (CompilerVersion < 21.0) or (CompilerVersion >= 37.0)} // pre-2010 + Delphi 13 (string-based ProcessAddCommand)
     FReplacePackageAddContain: Boolean;
     {$IFEND}
     FShowFileProjectInPrjMgr: Boolean;
@@ -48,6 +52,12 @@ type
     FKillDExplore: Boolean;
     FConfirmDlgOnDebugCtrlF1: Boolean;
     FDisableAlphaSortClassCompletion: Boolean;
+    FF12HotKeySupport: Boolean;
+    FNormalizeLineEndings: Boolean;
+    FDisableWelcomePageFeed: Boolean;
+    FDisableDebugHeap: Boolean;
+    FEvaluateIfDirectives: Boolean;
+    FCleanupDebuggeeAtoms: Boolean;
 
     procedure SetDisablePackageCache(Value: Boolean);
     procedure SetEditorDblClickAction(Value: TEditorDblClickAction);
@@ -58,6 +68,8 @@ type
     procedure SetDisableSourceFormatterHotkey(Value: Boolean);
     {$ELSE}
     procedure SetDisableCodeFolding(const Value: Boolean);
+    {$IFEND}
+    {$IF (CompilerVersion < 21.0) or (CompilerVersion >= 37.0)} // pre-2010 + Delphi 13
     procedure SetReplacePackageAddContain(const Value: Boolean);
     {$IFEND}
     procedure SetShowFileProjectInPrjMgr(const Value: Boolean);
@@ -66,17 +78,24 @@ type
     procedure SetShowAllFrames(const Value: Boolean);
     procedure SetDontBreakOnSpawnedProcesses(const Value: Boolean);
     procedure SetConfirmDlgOnDebugCtrlF1(const Value: Boolean);
-    //procedure SetDisableEditorClearType(Value: Boolean);
     procedure SetDisableAlphaSortClassCompletion(const Value: Boolean);
+    procedure SetF12HotKeySupport(const Value: Boolean);
+    procedure SetNormalizeLineEndings(const Value: Boolean);
+    procedure SetDisableWelcomePageFeed(const Value: Boolean);
+    procedure SetDisableDebugHeap(const Value: Boolean);
+    procedure SetEvaluateIfDirectives(const Value: Boolean);
+    procedure SetCleanupDebuggeeAtoms(const Value: Boolean);
   protected
     FTimerStructureView: TTimer;
     FLastParsingDots: Integer;
     FParseThread: TThread;
+    {$IF CompilerVersion >= 21.0} // Rtti-based VirtTreeHandler (2010+)
     FPrjMgrTree: TIDEVirtualTreeHandler;
     FOrgPMGetTextEvent: TVSTGetTextEvent;
 
     procedure PMGetText(Sender: TObject; Node: PVirtualNode; Column: Integer;
       TextType: TVSTTextType; var CellText: WideString);
+    {$IFEND}
 
     procedure SetRegValue(var Value: Boolean; NewValue: Boolean; const ValueName: string);
     function GetOptionPages: TTreePage; override;
@@ -102,16 +121,23 @@ type
     property DisableSourceFormatterHotkey: Boolean read FDisableSourceFormatterHotkey write SetDisableSourceFormatterHotkey;
     {$ELSE}
     property DisableCodeFolding: Boolean read FDisableCodeFolding write SetDisableCodeFolding;
+    {$IFEND}
+    {$IF (CompilerVersion < 21.0) or (CompilerVersion >= 37.0)} // pre-2010 + Delphi 13
     property ReplacePackageAddContain: Boolean read FReplacePackageAddContain write SetReplacePackageAddContain;
     {$IFEND}
     property ShowFileProjectInPrjMgr: Boolean read FShowFileProjectInPrjMgr write SetShowFileProjectInPrjMgr;
     property EditorDblClickAction: TEditorDblClickAction read FEditorDblClickAction write SetEditorDblClickAction;
-    //property DisableEditorClearType: Boolean read FDisableEditorClearType write SetDisableEditorClearType;
     property StructureViewSearchHotKey: TShortCut read FStructureViewSearchHotKey write SetStructureViewSearchHotKey;
     property DontBreakOnSpawnedProcesses: Boolean read FDontBreakOnSpawnedProcesses write SetDontBreakOnSpawnedProcesses;
     property KillDExplore: Boolean read FKillDExplore write FKillDExplore;
     property ConfirmDlgOnDebugCtrlF1: Boolean read FConfirmDlgOnDebugCtrlF1 write SetConfirmDlgOnDebugCtrlF1;
     property DisableAlphaSortClassCompletion: Boolean read FDisableAlphaSortClassCompletion write SetDisableAlphaSortClassCompletion;
+    property F12HotKeySupport: Boolean read FF12HotKeySupport write SetF12HotKeySupport;
+    property NormalizeLineEndings: Boolean read FNormalizeLineEndings write SetNormalizeLineEndings;
+    property DisableWelcomePageFeed: Boolean read FDisableWelcomePageFeed write SetDisableWelcomePageFeed;
+    property DisableDebugHeap: Boolean read FDisableDebugHeap write SetDisableDebugHeap;
+    property EvaluateIfDirectives: Boolean read FEvaluateIfDirectives write SetEvaluateIfDirectives;
+    property CleanupDebuggeeAtoms: Boolean read FCleanupDebuggeeAtoms write SetCleanupDebuggeeAtoms;
   end;
 
   TFrameOptionPageDSUFeatures = class(TFrameBase, ITreePageComponent)
@@ -130,6 +156,13 @@ type
     chkKillDExplore: TCheckBox;
     chkConfirmDlgOnDebugCtrlF1: TCheckBox;
     chkDisableAlphaSortClassCompletion: TCheckBox;
+    chkAutoCloseCompileDlg: TCheckBox;
+    chkF12HotKeySupport: TCheckBox;
+    chkNormalizeLineEndings: TCheckBox;
+    chkDisableWelcomePageFeed: TCheckBox;
+    chkDisableDebugHeap: TCheckBox;
+    chkEvaluateIfDirectives: TCheckBox;
+    chkCleanupDebuggeeAtoms: TCheckBox;
   private
     { Private-Deklarationen }
     FDSUFeatures: TDSUFeaturesConfig;
@@ -151,7 +184,8 @@ implementation
 
 uses
   Main, DSUFeatures, StrUtils, IDEHooks, Hooking, IDEUtils, StrucViewSearch, ToolsAPIHelpers,
-  AppConsts, DisableAlphaSortClassCompletion;
+  AppConsts, DisableAlphaSortClassCompletion, F12HotKeySupport, NormalizeLineEndings, CompileProgress,
+  DisableWelcomePageFeed, DisableDebugHeap, FixIfDirectiveParsing, CleanupDebuggeeAtoms;
 
 {$R *.dfm}
 
@@ -165,6 +199,14 @@ var
   TPascalProjectUpdater_AddProjectModule: procedure(Instance: TObject);
   TPascalPackageCodeUpdater_AddProjectModule: procedure(Instance: TObject);
   TStdPackageProjectContainer_ProcessAddCommand: procedure(Instance: TObject; Command: Integer);
+  TStdProjectContainer_AddToProject: procedure(Instance: TObject);
+  {$IFEND}
+  {$IF CompilerVersion >= 37.0} // Delphi 13+: ReplacePackageAddContain (string-based ProcessAddCommand)
+  ProcessAddCommandHook: TRedirectCode;
+  Package_AddProjectModuleHook: TRedirectCode;
+  TPascalProjectUpdater_AddProjectModule: procedure(Instance: TObject);
+  TPascalPackageCodeUpdater_AddProjectModule: procedure(Instance: TObject);
+  TStdPackageProjectContainer_ProcessAddCommand: procedure(Instance: TObject; const Command: UnicodeString);
   TStdProjectContainer_AddToProject: procedure(Instance: TObject);
   {$IFEND}
 
@@ -202,7 +244,8 @@ begin
   chkDisableCodeFolding.Checked := FDSUFeatures.DisableCodeFolding;
 
   chkDisableSourceFormatterHotkey.Free;
-  chkIncBuildNumOnBuildOnly.Free;
+  // (chkIncBuildNumOnBuildOnly is already freed above - freeing it again corrupted the heap
+  //  and caused random AVs when closing the options dialog)
   {$IFEND}
   chkShowFileProjectInPrjMgr.Checked := FDSUFeatures.ShowFileProjectInPrjMgr;
   cbxEditorTabDblClickAction.ItemIndex := Ord(FDSUFeatures.EditorDblClickAction);
@@ -213,6 +256,49 @@ begin
   chkKillDExplore.Checked := FDSUFeatures.KillDExplore;
   chkConfirmDlgOnDebugCtrlF1.Checked := FDSUFeatures.ConfirmDlgOnDebugCtrlF1;
   chkDisableAlphaSortClassCompletion.Checked := FDSUFeatures.DisableAlphaSortClassCompletion;
+  chkF12HotKeySupport.Checked := FDSUFeatures.F12HotKeySupport;
+  chkNormalizeLineEndings.Checked := FDSUFeatures.NormalizeLineEndings;
+  chkDisableWelcomePageFeed.Checked := FDSUFeatures.DisableWelcomePageFeed;
+  chkDisableDebugHeap.Checked := FDSUFeatures.DisableDebugHeap;
+  chkEvaluateIfDirectives.Checked := FDSUFeatures.EvaluateIfDirectives;
+  chkCleanupDebuggeeAtoms.Checked := FDSUFeatures.CleanupDebuggeeAtoms;
+  {$IF CompilerVersion < 35.0} // pre-Delphi 11: no separate feed package, the whole start page goes
+  chkDisableWelcomePageFeed.Caption := 'Don''t load the Start Page package (needs IDE restart)';
+  {$IFEND}
+
+  {$IF CompilerVersion < 20.0}
+  // mirror of the checkbox injected into the compile progress dialog - with
+  // auto-close active and a fast build there is no chance to uncheck it there
+  chkAutoCloseCompileDlg.Checked := (CompileProgressConfig <> nil) and
+    CompileProgressConfig.AutoCloseProgressDialog;
+  {$ELSE}
+  chkAutoCloseCompileDlg.Free; // 2009+: the IDE has its own AutoCloseProgressDlg option
+  {$IFEND}
+
+  { Disable options whose IDE hooks do not exist in this IDE version
+    (disabled instead of hidden - the gaps looked odd) }
+  {$IF CompilerVersion < 20.0} // pre-2009
+  chkDisableAlphaSortClassCompletion.Enabled := False;
+  chkDontBreakOnSpawnedProcesses.Enabled := False;
+  chkShowAllFrames.Enabled := False;
+  chkReplaceOpenFileAtCursor.Enabled := False;
+  chkDisableCodeFolding.Enabled := False; // code folding itself is 2005+, the hook 2009-only
+  chkDisableWelcomePageFeed.Enabled := False; // Delphi 7 registers no start page package at all
+  chkEvaluateIfDirectives.Enabled := False; // the scanner hook is 2009+
+  {$IFEND}
+  {$IF CompilerVersion < 21.0} // pre-2010: Rtti-based VirtTreeHandler/StructureViewAPI stubs
+  chkShowFileProjectInPrjMgr.Enabled := False;
+  HotKeyStructureViewSearch.Enabled := False;
+  LabelStructureViewSearchHotkey.Enabled := False;
+  {$IFEND}
+  {$IFDEF COMPILER7} // Delphi 7 has no native editor-tab double-click zoom (TEditWindow.TabControlDblClick
+                     // does not exist until Delphi 2005), so there is no zoom-mode field for us to set
+  cbxEditorTabDblClickAction.Enabled := False;
+  lblEditorTabDblClickAction.Enabled := False;
+  // DisablePackageCache patches Pascpppakmgr/Comppalmgr in delphicoreide - Galileo (2005+)
+  // units that do not exist in Delphi 7, so the InjectCode calls resolve to nil and no-op
+  chkDisablePackageCache.Enabled := False;
+  {$ENDIF}
 end;
 
 procedure TFrameOptionPageDSUFeatures.SaveData;
@@ -236,7 +322,21 @@ begin
   FDSUFeatures.KillDExplore := chkKillDExplore.Checked;
   FDSUFeatures.ConfirmDlgOnDebugCtrlF1 := chkConfirmDlgOnDebugCtrlF1.Checked;
   FDSUFeatures.DisableAlphaSortClassCompletion := chkDisableAlphaSortClassCompletion.Checked;
+  FDSUFeatures.F12HotKeySupport := chkF12HotKeySupport.Checked;
+  FDSUFeatures.NormalizeLineEndings := chkNormalizeLineEndings.Checked;
+  FDSUFeatures.DisableWelcomePageFeed := chkDisableWelcomePageFeed.Checked;
+  FDSUFeatures.DisableDebugHeap := chkDisableDebugHeap.Checked;
+  FDSUFeatures.EvaluateIfDirectives := chkEvaluateIfDirectives.Checked;
+  FDSUFeatures.CleanupDebuggeeAtoms := chkCleanupDebuggeeAtoms.Checked;
   FDSUFeatures.Save;
+
+  {$IF CompilerVersion < 20.0}
+  if CompileProgressConfig <> nil then
+  begin
+    CompileProgressConfig.AutoCloseProgressDialog := chkAutoCloseCompileDlg.Checked;
+    CompileProgressConfig.Save;
+  end;
+  {$IFEND}
 end;
 
 procedure TFrameOptionPageDSUFeatures.Selected;
@@ -252,7 +352,7 @@ end;
 type
   TOpenControl = class(TControl);
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure OrgLoadRuntimeDesktop(Instance: TObject);
   external coreide_bpl name '@Desktop@TDesktopStates@LoadRuntimeDesktop$qqrv';
 {$ENDIF}
@@ -359,7 +459,7 @@ begin
     if LibHandle <> 0 then
     begin
       DblClick := DbgStrictGetProcAddress(LibHandle,
-        {$IFDEF CPUX86}'@Editorform@TEditWindow@TabControlDblClick$qqrp14System@TObject'{$ENDIF}
+        {$IFNDEF CPUX64}'@Editorform@TEditWindow@TabControlDblClick$qqrp14System@TObject'{$ENDIF}
         {$IFDEF CPUX64}'_ZN10Editorform11TEditWindow18TabControlDblClickEPN6System7TObjectE'{$ENDIF});
       if DblClick <> nil then
       begin
@@ -384,7 +484,7 @@ begin
   begin
     EditWindow := FindForm('EditWindow_0', 'TEditWindow');
     if EditWindow <> nil then
-      PByte(PByte(EditWindow) + FZoomModeOffset)^ := ZoomModes[FEditorDblClickAction];
+      PByte(PAnsiChar(Pointer(EditWindow)) + FZoomModeOffset)^ := ZoomModes[FEditorDblClickAction];
   end;
 end;
 
@@ -506,7 +606,7 @@ begin
   begin
     FIncBuildNumOnBuildOnly := Value;
 
-    {$IFDEF CPUX86}
+    {$IFNDEF CPUX64}
     // IncBuildNumOnBuildOnly uses x86 byte-pattern patching - not supported on x64
     Patch(delphicoreide_bpl, '@Pasmgr@TPascalPackageCodeUpdater@AfterCompile$qqr21Compintf@TCompileModeroo',
       FIncBuildNumOnBuildOnly, PascalPackageCodeUpdaterBytes, PascalPackageCodeUpdaterBytesIdx);
@@ -520,7 +620,89 @@ begin
       Patch(bcbide_bpl, '@Cppmgr@TCppPackageProjectUpdater@AfterCompile$qqr21Compintf@TCompileModeroo',
         FIncBuildNumOnBuildOnly, CppPackageProjectUpdaterBytes, CppPackageProjectUpdaterBytesIdx);
     end;
-    {$ENDIF CPUX86}
+    {$ENDIF ~CPUX64}
+  end;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 37.0} // Delphi 13+
+{ Delphi 13 changed TStdPackageProjectContainer.ProcessAddCommand from the
+  TLocalCommand enum (the old Delphi 2009 hook replaced Command = 4) to a
+  command string; a diagnostic hook confirmed the "add contains" command is
+  the string 'Add'. Same replacement as the 2009 feature: use the standard
+  "Add to project" dialog instead of the package "Add" dialog, and let the
+  package code updater use the plain project updater's AddProjectModule. }
+
+procedure HookedProcessAddCommand(Instance: TObject; const Command: UnicodeString);
+begin
+  CodeRestore(ProcessAddCommandHook);
+  try
+    if Command = 'Add' then
+      TStdProjectContainer_AddToProject(Instance)
+    else
+      TStdPackageProjectContainer_ProcessAddCommand(Instance, Command);
+  finally
+    CodeRedirect(@TStdPackageProjectContainer_ProcessAddCommand, @HookedProcessAddCommand, ProcessAddCommandHook);
+  end;
+end;
+
+procedure HookedPackage_AddProjectModule(Instance: TObject);
+begin
+  TPascalProjectUpdater_AddProjectModule(Instance);
+end;
+
+procedure TDSUFeaturesConfig.SetReplacePackageAddContain(const Value: Boolean);
+const
+  {$IFNDEF CPUX64}
+  sAddProjectModule = '@Pasmgr@TPascalProjectUpdater@AddProjectModule$qqrv';
+  sPackage_AddProjectModule = '@Pasmgr@TPascalPackageCodeUpdater@AddProjectModule$qqrv';
+  sProcessAddCommand = '@Pkgcontainers@TStdPackageProjectContainer@ProcessAddCommand$qqrx20System@UnicodeString';
+  sAddToProject = '@Containers@TStdProjectContainer@AddToProject$qqrv';
+  {$ENDIF}
+  {$IFDEF CPUX64}
+  sAddProjectModule = '_ZN6Pasmgr21TPascalProjectUpdater16AddProjectModuleEv';
+  sPackage_AddProjectModule = '_ZN6Pasmgr25TPascalPackageCodeUpdater16AddProjectModuleEv';
+  sProcessAddCommand = '_ZN13Pkgcontainers27TStdPackageProjectContainer17ProcessAddCommandEN6System13UnicodeStringE';
+  sAddToProject = '_ZN10Containers20TStdProjectContainer12AddToProjectEv';
+  {$ENDIF}
+var
+  Lib: THandle;
+begin
+  if Value <> FReplacePackageAddContain then
+  begin
+    FReplacePackageAddContain := Value;
+
+    if not Assigned(TStdPackageProjectContainer_ProcessAddCommand) then
+    begin
+      Lib := GetModuleHandle(delphicoreide_bpl);
+      if Lib <> 0 then
+      begin
+        TStdPackageProjectContainer_ProcessAddCommand := DbgStrictGetProcAddress(Lib, PAnsiChar(sProcessAddCommand));
+        TPascalProjectUpdater_AddProjectModule := DbgStrictGetProcAddress(Lib, PAnsiChar(sAddProjectModule));
+        TPascalPackageCodeUpdater_AddProjectModule := DbgStrictGetProcAddress(Lib, PAnsiChar(sPackage_AddProjectModule));
+      end;
+    end;
+    if not Assigned(TStdProjectContainer_AddToProject) then
+    begin
+      Lib := GetModuleHandle(coreide_bpl);
+      if Lib <> 0 then
+        TStdProjectContainer_AddToProject := DbgStrictGetProcAddress(Lib, PAnsiChar(sAddToProject));
+    end;
+
+    if Assigned(TStdPackageProjectContainer_ProcessAddCommand) and Assigned(TStdProjectContainer_AddToProject) and
+       Assigned(TPascalPackageCodeUpdater_AddProjectModule) and Assigned(TPascalProjectUpdater_AddProjectModule) then
+    begin
+      if FReplacePackageAddContain then
+      begin
+        CodeRedirect(@TStdPackageProjectContainer_ProcessAddCommand, @HookedProcessAddCommand, ProcessAddCommandHook);
+        CodeRedirect(@TPascalPackageCodeUpdater_AddProjectModule, @HookedPackage_AddProjectModule, Package_AddProjectModuleHook);
+      end
+      else
+      begin
+        CodeRestore(ProcessAddCommandHook);
+        CodeRestore(Package_AddProjectModuleHook);
+      end;
+    end;
   end;
 end;
 {$IFEND}
@@ -543,8 +725,12 @@ end;
 
 destructor TDSUFeaturesConfig.Destroy;
 begin
-  {$IF CompilerVersion < 21.0} // Delphi 2009
+  {$IF (CompilerVersion >= 20.0) and (CompilerVersion < 21.0)} // Delphi 2009
   UnhookFunction(DisabledGetRegionsHook);
+  CodeRestore(ProcessAddCommandHook);
+  CodeRestore(Package_AddProjectModuleHook);
+  {$IFEND}
+  {$IF CompilerVersion >= 37.0} // Delphi 13+
   CodeRestore(ProcessAddCommandHook);
   CodeRestore(Package_AddProjectModuleHook);
   {$IFEND}
@@ -569,11 +755,15 @@ begin
   {$IF CompilerVersion >= 21.0} // Delphi 2010+
   {$ELSE}
   FDisableCodeFolding := False;
+  {$IFEND}
+  {$IF (CompilerVersion < 21.0) or (CompilerVersion >= 37.0)} // pre-2010 + Delphi 13
   ReplacePackageAddContain := True;
   {$IFEND}
 
   FKillDExplore := True;
   ConfirmDlgOnDebugCtrlF1 := True;
+  EvaluateIfDirectives := True;
+  CleanupDebuggeeAtoms := True;
 
   LoadFromRegistry;
 end;
@@ -581,6 +771,11 @@ end;
 procedure TDSUFeaturesConfig.Loaded;
 begin
   inherited Loaded;
+  // Installing an IDE update (or a new IDE build) writes the package list anew
+  // and brings the feed package back. The XML still says it was switched off,
+  // so take it out again - effective from the next IDE start.
+  if FDisableWelcomePageFeed and WelcomePageFeedRegistered then
+    SetWelcomePageFeedDisabled(True);
   LoadFromRegistry; // overwrite the XML settings
 end;
 
@@ -594,8 +789,9 @@ begin
   if GlobalBaseRegKey <> '' then
   begin
     FDisablePackageCache := RegReadBoolDef(HKEY_CURRENT_USER, GlobalBaseRegKey, 'DDevExDisablePackageCache', False);
-    //FDisableEditorClearType := RegReadBoolDef(HKEY_CURRENT_USER, GlobalBaseRegKey, 'DDevExDisableEditorClearType', False);
   end;
+  // the package list is the state - the XML copy is only there for the options dialog
+  FDisableWelcomePageFeed := WelcomePageFeedDisabled;
 end;
 
 procedure TDSUFeaturesConfig.SetRegValue(var Value: Boolean; NewValue: Boolean; const ValueName: string);
@@ -622,7 +818,14 @@ end;
 var
   TProcess_stopOnFirstAddrHook: TRedirectCode;
 
-{$IFDEF CPUX86}
+{$IF CompilerVersion < 20.0} // pre-2009: debugger BPL import below not available
+procedure TDSUFeaturesConfig.SetDontBreakOnSpawnedProcesses(const Value: Boolean);
+begin
+  FDontBreakOnSpawnedProcesses := Value;
+end;
+{$ELSE}
+
+{$IFNDEF CPUX64}
 const
   {$IF CompilerVersion >= 28.0} // XE7+
   _IDbkThread_ = '41System@%DelphiInterface$14Dbk@IDbkThread%'; // XE7+
@@ -632,7 +835,7 @@ const
 
 function TProcess_stopOnFirstAddr(Process: TObject; Addr: Pointer; const Intf: IInterface; var ShouldStop: LongWord): HRESULT; stdcall;
   external dbkdebugide_bpl name '@Debug@TProcess@stopOnFirstAddr$qqs' + _xp_ + '17Dbk@DbkProcAddr_tx' + _IDbkThread_ + 'rui';
-{$ENDIF CPUX86}
+{$ENDIF ~CPUX64}
 {$IFDEF CPUX64}
 function TProcess_stopOnFirstAddr(Process: TObject; Addr: Pointer; const Intf: IInterface; var ShouldStop: LongWord): HRESULT;
   external dbkdebugide_bpl name '_ZN5Debug8TProcess15stopOnFirstAddrEPN3Dbk13DbkProcAddr_tEN6System15DelphiInterfaceINS1_10IDbkThreadEEERj';
@@ -658,6 +861,7 @@ begin
       CodeRedirect(@TProcess_stopOnFirstAddr, @DbgStopOnFirstAddr, TProcess_stopOnFirstAddrHook);
   end;
 end;
+{$IFEND}
 
 {$IF CompilerVersion >= 21.0} // Delphi 2010+
 procedure TDSUFeaturesConfig.SetDisableSourceFormatterHotkey(Value: Boolean);
@@ -693,7 +897,19 @@ begin
 end;
 {$IFEND}
 
-{$IF CompilerVersion < 21.0} // Delphi 2009
+{$IF CompilerVersion < 20.0} // pre-2009: the IDE has no code folding; hook symbols below are 2009+
+procedure TDSUFeaturesConfig.SetDisableCodeFolding(const Value: Boolean);
+begin
+  FDisableCodeFolding := Value;
+end;
+
+procedure TDSUFeaturesConfig.SetReplacePackageAddContain(const Value: Boolean);
+begin
+  FReplacePackageAddContain := Value;
+end;
+{$IFEND}
+
+{$IF (CompilerVersion >= 20.0) and (CompilerVersion < 21.0)} // Delphi 2009
 function DisabledGetRegions(Instance: TObject): TOTARegions;
 begin
   Result := nil;
@@ -735,7 +951,7 @@ end;
 
 procedure TDSUFeaturesConfig.SetReplacePackageAddContain(const Value: Boolean);
 const
-  {$IFDEF CPUX86}
+  {$IFNDEF CPUX64}
   sAddProjectModule = '@Pasmgr@TPascalProjectUpdater@AddProjectModule$qqrv';
   sPackage_AddProjectModule = '@Pasmgr@TPascalPackageCodeUpdater@AddProjectModule$qqrv';
   sProcessAddCommand = '@Pkgcontainers@TStdPackageProjectContainer@ProcessAddCommand$qqrx27Containerintf@TLocalCommand';
@@ -808,7 +1024,8 @@ type
 var
   OrgCallOpenModuleFile: procedure(const ModuleName, EditorFileName: string);
 
-{$IFDEF CPUX86}
+{$IF CompilerVersion >= 20.0} // 2009+: pre-2009 coreide has no Commonpasreg.OpenModuleFile hook point
+{$IFNDEF CPUX64}
 procedure OpenModuleFile(const ModuleName, EditorFileName: string);
   external delphicoreide_bpl name '@Commonpasreg@OpenModuleFile$qqrx20System@UnicodeStringt1';
 {$ENDIF}
@@ -816,22 +1033,23 @@ procedure OpenModuleFile(const ModuleName, EditorFileName: string);
 procedure OpenModuleFile(const ModuleName, EditorFileName: string);
   external delphicoreide_bpl name '_ZN12Commonpasreg14OpenModuleFileEN6System13UnicodeStringES1_';
 {$ENDIF}
+{$IFEND}
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 {$IF CompilerVersion >= 22.0} // Delphi XE+
 function ExpandRootMacro(const InString: string; const AdditionalVars: TObject = nil): string;
   external coreide_bpl name '@Uiutils@ExpandRootMacro$qqrx20System@UnicodeString' + _xp_ + '22Codemgr@TNameValueHash';
 {$ELSE}
 function ExpandRootMacro(const Name: string): string;
-  external coreide_bpl name '@Uiutils@ExpandRootMacro$qqrx20System@UnicodeString';
+  external coreide_bpl name '@Uiutils@ExpandRootMacro$qqrx' + {$IF CompilerVersion >= 20.0}'20System@UnicodeString'{$ELSE}'17System@AnsiString'{$IFEND};
 {$IFEND}
-{$ENDIF CPUX86}
+{$ENDIF ~CPUX64}
 {$IFDEF CPUX64}
 function ExpandRootMacro(const InString: string; const AdditionalVars: TObject = nil): string;
   external coreide_bpl name '_ZN7Uiutils15ExpandRootMacroEN6System13UnicodeStringEPN7Codemgr14TNameValueHashE';
 {$ENDIF CPUX64}
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure VarBorlandIDE;
   external coreide_bpl name '@Ideintf@BorlandIDE';
 {$ENDIF}
@@ -862,7 +1080,7 @@ const
   begin
     Result := GetActiveProject();
     if Result <> nil then
-      if Result.FindModuleInfo(FileName) <> nil then
+      if FindModuleInfo(Result, FileName) <> nil then // ToolsAPIHelpers (D7's IOTAProject has no FindModuleInfo)
         Exit;
 
     Group := GetActiveProjectGroup();
@@ -871,7 +1089,7 @@ const
       for ProjectIndex := 0 to Group.ProjectCount - 1 do
       begin
         Result := Group.Projects[ProjectIndex];
-        if AnsiSameText(FileName, Result.FileName) or (Result.FindModuleInfo(FileName) <> nil) then
+        if AnsiSameText(FileName, Result.FileName) or (FindModuleInfo(Result, FileName) <> nil) then
           Exit;
         for I := 0 to Result.ModuleFileCount - 1 do
           if AnsiSameText(FileName, Result.ModuleFileEditors[I].FileName) then
@@ -921,8 +1139,10 @@ const
 
   procedure AppendProjectSearchDirs(var SearchPaths: string; const Project: IOTAProject);
   var
+    {$IF CompilerVersion >= 20.0} // 2009+
     OptionConfig: IOTAProjectOptionsConfigurations;
     BuildConfig: IOTABuildConfiguration;
+    {$IFEND}
     Dirs: TStrings;
     CurDir: string;
     I: Integer;
@@ -931,6 +1151,7 @@ const
 
     Dirs := TStringList.Create;
     try
+      {$IF CompilerVersion >= 20.0} // 2009+
       if Supports(Project.ProjectOptions, IOTAProjectOptionsConfigurations, OptionConfig) then
       begin
         BuildConfig := OptionConfig.ActiveConfiguration;
@@ -941,6 +1162,7 @@ const
           BuildConfig.GetValues(DCCStrs.sUnitSearchPath, Dirs);
       end
       else
+      {$IFEND}
         SplitPaths(Dirs, VarToStrDef(Project.ProjectOptions.Values['UnitDir'], ''));
 
       CurDir := GetCurrentDir;
@@ -1055,7 +1277,12 @@ begin
       Module := ModuleInfo.OpenModule;
       if Module <> nil then
       begin
+        {$IF CompilerVersion >= 17.0} // 2005+
         Module.ShowFilename(ModuleInfo.FileName);
+        {$ELSE} // D7's IOTAModule has no ShowFilename; show the module's main editor
+        if Module.GetModuleFileCount > 0 then
+          Module.GetModuleFileEditor(0).Show;
+        {$IFEND}
         Exit;
       end;
     end;
@@ -1202,6 +1429,7 @@ end;
 
 procedure TDSUFeaturesConfig.SetReplaceOpenFileAtCursor(const Value: Boolean);
 begin
+  {$IF CompilerVersion >= 20.0}
   if Value <> FReplaceOpenFileAtCursor then
   begin
     FReplaceOpenFileAtCursor := Value;
@@ -1210,6 +1438,9 @@ begin
     else
       RestoreOrgCall(@OpenModuleFile, @OrgCallOpenModuleFile);
   end;
+  {$ELSE} // pre-2009: no OpenModuleFile hook point
+  FReplaceOpenFileAtCursor := Value;
+  {$IFEND}
 end;
 
 {----------------------------------------------------------------------------------}
@@ -1218,7 +1449,14 @@ var
   TDelphiProjectModuleHandler_GetFormListHook: TRedirectCode;
   TDelphiProjectModuleHandler_GetFormList: procedure(Instance: TObject; List: TStrings);
 
-{$IFDEF CPUX86}
+{$IF CompilerVersion < 20.0} // pre-2009: load-time imports below use 2009+ mangled names
+procedure TDSUFeaturesConfig.SetShowAllFrames(const Value: Boolean);
+begin
+  FShowAllFrames := Value;
+end;
+{$ELSE}
+
+{$IFNDEF CPUX64}
 procedure TPascalProjectUpdaterClass;
   external delphicoreide_bpl name '@Pasmgr@TPascalProjectUpdater@';
 {$ENDIF}
@@ -1226,7 +1464,7 @@ procedure TPascalProjectUpdaterClass;
 procedure TPascalProjectUpdaterClass;
   external delphicoreide_bpl name '_ZTVN6Pasmgr21TPascalProjectUpdaterE';
 {$ENDIF}
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure TPascalProjectUpdater_GetFormList(Instance: TObject; List: TStrings);
   external delphicoreide_bpl name
     '@Pasmgr@TPascalProjectUpdater@GetFormList$qqrp' + System_Classes_TStrings;
@@ -1276,7 +1514,7 @@ end;
 
 procedure TDSUFeaturesConfig.SetShowAllFrames(const Value: Boolean);
 const
-  {$IFDEF CPUX86}
+  {$IFNDEF CPUX64}
   sGetFormList = '@Basedelphiproject@TDelphiProjectModuleHandler@GetFormList$qqrp' + System_Classes_TStrings;
   {$ENDIF}
   {$IFDEF CPUX64}
@@ -1298,12 +1536,13 @@ begin
     end;
   end;
 end;
+{$IFEND}
 
 {----------------------------------------------------------------------------------}
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure TCustomEditControl_HelpKeyword(Editor: TControl);
-  external coreide_bpl name '@Editorcontrol@TCustomEditControl@HelpKeyword$qqrv';
+  external coreide_bpl name {$IF CompilerVersion >= 20.0}'@Editorcontrol@TCustomEditControl@HelpKeyword$qqrv'{$ELSE}'@Editors@TCustomEditControl@HelpKeyword$qqrv'{$IFEND}; // D7: unit is "Editors"
 {$ENDIF}
 {$IFDEF CPUX64}
 procedure TCustomEditControl_HelpKeyword(Editor: TControl);
@@ -1355,13 +1594,65 @@ begin
   end;
 end;
 
+procedure TDSUFeaturesConfig.SetF12HotKeySupport(const Value: Boolean);
+begin
+  if Value <> FF12HotKeySupport then
+  begin
+    FF12HotKeySupport := Value;
+    InstallF12HotKeySupport(FF12HotKeySupport);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetNormalizeLineEndings(const Value: Boolean);
+begin
+  if Value <> FNormalizeLineEndings then
+  begin
+    FNormalizeLineEndings := Value;
+    InstallNormalizeLineEndings(FNormalizeLineEndings);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetDisableWelcomePageFeed(const Value: Boolean);
+begin
+  if Value <> FDisableWelcomePageFeed then
+  begin
+    FDisableWelcomePageFeed := Value;
+    // not while loading: Loaded reads the live package list back over the XML
+    if not Loading then
+      SetWelcomePageFeedDisabled(Value);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetDisableDebugHeap(const Value: Boolean);
+begin
+  if Value <> FDisableDebugHeap then
+  begin
+    FDisableDebugHeap := Value;
+    InstallDisableDebugHeap(FDisableDebugHeap);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetEvaluateIfDirectives(const Value: Boolean);
+begin
+  if Value <> FEvaluateIfDirectives then
+  begin
+    FEvaluateIfDirectives := Value;
+    InstallFixIfDirectiveParsing(FEvaluateIfDirectives);
+  end;
+end;
+
+procedure TDSUFeaturesConfig.SetCleanupDebuggeeAtoms(const Value: Boolean);
+begin
+  if Value <> FCleanupDebuggeeAtoms then
+  begin
+    FCleanupDebuggeeAtoms := Value;
+    InstallCleanupDebuggeeAtoms(FCleanupDebuggeeAtoms);
+  end;
+end;
+
 {----------------------------------------------------------------------------------}
 
-{procedure TDSUFeaturesConfig.SetDisableEditorClearType(Value: Boolean);
-begin
-  SetRegValue(FDisableEditorClearType, Value, 'DDevExDisableEditorClearType');
-end;}
-
+{$IF CompilerVersion >= 21.0} // Rtti-based VirtTreeHandler (2010+)
 procedure TDSUFeaturesConfig.PMGetText(Sender: TObject; Node: PVirtualNode; Column: Integer;
   TextType: TVSTTextType; var CellText: WideString);
 type
@@ -1409,6 +1700,14 @@ begin
   end;
 end;
 
+{$ELSE}
+procedure TDSUFeaturesConfig.SetShowFileProjectInPrjMgr(const Value: Boolean);
+begin
+  FShowFileProjectInPrjMgr := Value;
+end;
+{$IFEND}
+
+{$IF CompilerVersion >= 21.0}
 procedure TDSUFeaturesConfig.SetShowFileProjectInPrjMgr(const Value: Boolean);
 var
   ProjectManagerForm: TCustomForm;
@@ -1443,6 +1742,7 @@ begin
     FPrjMgrTree.Invalidate;
   end;
 end;
+{$IFEND}
 
 procedure TDSUFeaturesConfig.SetStructureViewSearchHotKey(const Value: TShortCut);
 begin
@@ -1483,7 +1783,7 @@ begin
     if FParseThread = nil then
     begin
       FParseThread := DbgStrictGetProcAddress(GetModuleHandle(coreide_bpl),
-        {$IFDEF CPUX86}'@Parserthread@ParseThread'{$ENDIF}
+        {$IFNDEF CPUX64}'@Parserthread@ParseThread'{$ENDIF}
         {$IFDEF CPUX64}'_ZN12Parserthread11ParseThreadE'{$ENDIF});
       if FParseThread <> nil then
         FParseThread := TThread(Pointer(FParseThread)^);

@@ -4,6 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, StdCtrls, ToolsAPI,
+  Forms, // D7 declares TCMHintShow in Forms (Controls in newer versions)
   StartParameterClasses, Menus;
 
 type
@@ -77,8 +78,8 @@ type
     procedure UpdateStartParameters(const ADestroyingProject: IOTAProject);
     procedure Reload;
 
-    class function GetActiveParams(var Params: string; AllowReload: Boolean): Boolean; static;
-    class function IsDefaultParams: Boolean; static;
+    class function GetActiveParams(var Params: string; AllowReload: Boolean): Boolean; {$IF CompilerVersion >= 17.0}static;{$IFEND} // "static" is 2005+
+    class function IsDefaultParams: Boolean; {$IF CompilerVersion >= 17.0}static;{$IFEND}
   published
     property Enabled;
     property Visible;
@@ -92,7 +93,7 @@ type
 implementation
 
 uses
-  Forms, Clipbrd;
+  Clipbrd;
 
 const
   sLocalIncludeParamFileName = '$(ParamFileName).local';
@@ -247,7 +248,13 @@ begin
     GlobalStartParameterControl := nil;
 
   if FNotifier <> -1 then
-    (BorlandIDEServices as IOTAServices).RemoveNotifier(FNotifier);
+    try
+      // guarded against a late-shutdown teardown where BorlandIDEServices is
+      // already nil ("as" on nil yields nil - the call would read address 0)
+      if Assigned(BorlandIDEServices) then
+        (BorlandIDEServices as IOTAServices).RemoveNotifier(FNotifier);
+    except
+    end;
   FreeAndNil(FProjectParams);
   inherited Destroy;
 end;
@@ -402,7 +409,7 @@ begin
       end;
       Lines.Add('</StartParameters>');
 
-      Lines.SaveToFile(FileName, TEncoding.UTF8);
+      Lines.SaveToFile(FileName{$IF CompilerVersion >= 20.0}, TEncoding.UTF8{$IFEND});
     finally
       Lines.Free;
     end;
@@ -531,6 +538,10 @@ var
   Index: Integer;
   Param: TStartParam;
   DropDownWidth, W: Integer;
+  {$IF CompilerVersion < 18.0} // no for-in loop before 2006
+  Enumeration: TStartParamListEnumeration;
+  Enumerator: TStartParamListEnumerator;
+  {$IFEND}
   {$IF CompilerVersion >= 33.0} // 10.3 Rio+
   cbPlatforms: TCustomComboBox;
   {$IFEND}
@@ -566,8 +577,26 @@ begin
           FActiveParams.Load;
         end;
 
+        {$IF CompilerVersion >= 18.0}
         for Param in FActiveParams.Parameters.AvailableParams do
           Items.AddObject(Param.Name, Param);
+        {$ELSE}
+        Enumeration := FActiveParams.Parameters.AvailableParams;
+        try
+          Enumerator := Enumeration.GetEnumerator;
+          try
+            while Enumerator.MoveNext do
+            begin
+              Param := Enumerator.GetCurrent;
+              Items.AddObject(Param.Name, Param);
+            end;
+          finally
+            Enumerator.Free;
+          end;
+        finally
+          Enumeration.Free;
+        end;
+        {$IFEND}
 
         Index := Items.IndexOf(FActiveParams.LocalParameters.ActiveParamName);
         if Index = -1 then

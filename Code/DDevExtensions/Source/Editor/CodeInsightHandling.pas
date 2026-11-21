@@ -12,10 +12,18 @@ procedure InitPlugin(Unload: Boolean);
 
 implementation
 
+{$IF CompilerVersion < 20.0} // "IDE Version: 2009+" (no TIDEPopupListBox before); no-op stub
+
+procedure InitPlugin(Unload: Boolean);
+begin
+end;
+
+{$ELSE}
+
 uses
   Windows, Hooking, IDEHooks;
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure TIDEPopupListBox_EditorKey(Instance: TObject; Sender: TObject; var Key: Char);
   external coreide_bpl name '@Idepopuplistbox@TIDEPopupListBox@EditorKey$qqrp14System@TObjectrb';
 {$ENDIF}
@@ -48,5 +56,6 @@ begin
     RestoreOrgCall(@TIDEPopupListBox_EditorKey, @OrgIDEPopupListBox_EditorKey);
 end;
 
+{$IFEND}
 
 end.

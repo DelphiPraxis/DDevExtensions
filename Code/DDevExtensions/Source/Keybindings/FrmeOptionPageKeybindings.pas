@@ -116,12 +116,12 @@ var
 
 {$IF CompilerVersion <= 20.0}
 procedure TCustomEditControl_RepeatSearch(AEditControl: TWinControl);
-  external coreide_bpl name '@Editorcontrol@TCustomEditControl@RepeatSearch$qqrv';
+  external coreide_bpl name {$IF CompilerVersion >= 20.0}'@Editorcontrol@TCustomEditControl@RepeatSearch$qqrv'{$ELSE}'@Editors@TCustomEditControl@RepeatSearch$qqrv'{$IFEND}; // D7: unit is "Editors"
 procedure EnvironmentOptionsAddr;
   external coreide_bpl name '@Envoptions@EnvironmentOptions';
 {$IFEND}
 
-{$IFDEF CPUX86}
+{$IFNDEF CPUX64}
 procedure EditorActionListsPtr;
   external coreide_bpl name '@Editoractions@EditorActionLists';
 {$ENDIF}
@@ -309,7 +309,7 @@ var
       Ch := #0;
   end;
 
-  function IsWhiteSpace(Ch: Char): Boolean; inline;
+  function IsWhiteSpace(Ch: Char): Boolean; {$IFDEF SUPPORTS_INLINE}inline;{$ENDIF}
   begin
     Result := (Ch = ' ') or (Ch = #9);
   end;
@@ -855,7 +855,9 @@ var
   EditBuffer: IOTAEditBuffer;
   EditBlock: IOTAEditBlock;
   Column: Integer;
+  EndCol: Integer;
   BindingRec: TKeyBindingRec;
+  Deferred: Boolean;
   {$IF CompilerVersion <= 20.0}
   SearchForwardEnvProp: TPropField;
   OldSearchForwardValue: Boolean;
@@ -900,7 +902,12 @@ begin
             { First jump to the first non-whitespace and then to the BOL }
             Column := EditPosition.Column;
             EditPosition.MoveBOL;
-            while (EditPosition.Character in [#9, ' ']) and EditPosition.MoveRelative(0, 1) do
+            EndCol := GetEndColumn(EditPosition);
+            // Bound by EndCol so Character is never read at/past EOL (on an
+            // all-whitespace line this loop reaches EOL; reading Character there
+            // raises on Delphi 13). This matches the safe idiom used elsewhere.
+            while (EditPosition.Column < EndCol) and (EditPosition.Character in [#9, ' ']) and
+                  EditPosition.MoveRelative(0, 1) do
               ;
             if EditPosition.Column = Column then
               EditPosition.MoveBOL;
@@ -911,7 +918,9 @@ begin
             { First jump to the BOL and then to the first non-whitespace }
             if EditPosition.Column = 1 then
             begin
-              while (EditPosition.Character in [#9, ' ']) and EditPosition.MoveRelative(0, 1) do
+              EndCol := GetEndColumn(EditPosition);
+              while (EditPosition.Column < EndCol) and (EditPosition.Character in [#9, ' ']) and
+                    EditPosition.MoveRelative(0, 1) do
                 ;
               BindingResult := krHandled;
             end;
@@ -984,7 +993,21 @@ begin
 
     if BindingResult = krUnhandled then
     begin
-      if Context.GetKeyBindingRec(BindingRec) and Context.KeyboardServices.GetNextBindingRec(BindingRec) then
+      Deferred := False;
+      try
+        Deferred := Context.GetKeyBindingRec(BindingRec) and
+          Context.KeyboardServices.GetNextBindingRec(BindingRec);
+      except
+        // Delphi 13 x64: TKeyboardServices.FillBindingRec (called by
+        // GetNextBindingRec) raises EStringListError via
+        // TStrings.GetValueFromIndex when our binding sits at the end of the
+        // binding chain. Treat that as "no next binding" and emulate the
+        // default key behavior below instead of letting the exception escape
+        // into the IDE's key dispatcher (visible as an error dialog on every
+        // Home press at column > 1).
+        Deferred := False;
+      end;
+      if Deferred then
       begin
         { Let the next proc struggle with the IDE }
         BindingResult := krNextProc;

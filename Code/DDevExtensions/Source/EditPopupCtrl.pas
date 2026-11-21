@@ -100,6 +100,11 @@ implementation
 uses
   CommCtrl, Themes;
 
+{$IF not Declared(ILS_NORMAL)} // missing in older CommCtrl versions (e.g. D7)
+const
+  ILS_NORMAL = $00000000;
+{$IFEND}
+
 { TPopupPanel }
 
 constructor TPopupPanel.Create(AOwner: TComponent);

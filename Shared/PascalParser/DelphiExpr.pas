@@ -35,6 +35,9 @@ type
 
   TExprNode = class(TInterfacedObject, IExprNode)
   public
+    {$IFNDEF UNICODE} // pre-2009: TObject has no ToString
+    function ToString: string; virtual; abstract;
+    {$ENDIF}
     function GetValue(out Value: TExprNodeValueRec): Boolean; virtual; abstract;
   end;
 
@@ -85,6 +88,9 @@ type
 
   TBoolNode = class(TInterfacedObject, IBoolNode)
   public
+    {$IFNDEF UNICODE} // pre-2009: TObject has no ToString
+    function ToString: string; virtual; abstract;
+    {$ENDIF}
     function GetValue(var Error: string): Boolean; virtual; abstract;
   end;
 
@@ -799,7 +805,7 @@ begin
 end;
 
 (*
-	<expression>  ::=  [ "+" | "-" | "not" | € ] <term> { [ "+" | "-" | "or" | "xor" ] <term> }*
+	<expression>  ::=  [ "+" | "-" | "not" | ï¿½ ] <term> { [ "+" | "-" | "or" | "xor" ] <term> }*
 
   <term>  ::=  <factor> { [ "*" | "/" | "mod" | "and" ] <factor> }*
 
@@ -901,7 +907,7 @@ end;
 
   <B-term>  ::=  <B-not-factor> { "and" <B-not-factor> }*
 
-  <B-not-factor>  ::=  [ "not" | € ] <B-factor>
+  <B-not-factor>  ::=  [ "not" | ï¿½ ] <B-factor>
 
   <relop>  ::=  "<" | "<=" | ">" | ">=" | "=" | "<>"
 

@@ -7,13 +7,10 @@
    {$DEFINE VER180}
    {$DEFINE COMPILER10}
   {$ENDIF VER185}
-
+  
   {$IF CompilerVersion >= 18.5}
    {$DEFINE COMPILER105_UP}
    {$DEFINE DELPHI2007_UP}
-  {$IFEND}
-  {$IF CompilerVersion >= 35}
-  {$DEFINE COMPILER110_UP}
   {$IFEND}
 {$ENDIF}
 
@@ -43,8 +40,8 @@
 {------------------------------------------------------------------------------}
 {$DEFINE INCLUDE_PROJECTSETTINGS}
 {$DEFINE INCLUDE_COMPILEPROGRESS}
+{$DEFINE INCLUDE_COMPILERENHANCEMENTS} // Treat warnings as errors (revived from the pre-2009 branch)
 {$DEFINE INCLUDE_IDEMENUHANDLER} // BDS IDE bugfix: Alt+F12 key bugfix
-{$DEFINE INCLUDE_UNITSELECTOR}
 {$DEFINE INCLUDE_KEYBINDINGS}
 {$DEFINE INCLUDE_FILECLEANER}
 {$DEFINE INCLUDE_COMPILEBACKUP}
@@ -55,6 +52,7 @@
 {$DEFINE INCLUDE_STRUCVIEWSEARCH} // 2.0
 {$DEFINE INCLUDE_COMPONENTSELECTOR}
 {$DEFINE INCLUDE_OLDPALETTE}
+{$DEFINE INCLUDE_ACPNGFIX}
 
 {------------------------------------------------------------------------------}
 // dependencies

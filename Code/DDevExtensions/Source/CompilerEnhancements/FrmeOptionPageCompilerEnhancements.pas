@@ -34,14 +34,17 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function AlterFile(Filename: PAnsiChar; Content: PAnsiChar;
-      FileDate: Integer; FileSize: Integer): IVirtualStream; stdcall;
-    function AlterMessage(IsCompilerMessage: Boolean; var MsgKind: TMsgKind;
-      var Code: Integer; var Filename: string; Line: Integer; Column: Integer;
-      var Msg: string): Boolean; stdcall;
+    { ICompileInterceptor }
     function GetOptions: TCompileInterceptOptions; stdcall;
-    function GetVirtualFile(Filename: PAnsiChar): IVirtualStream; stdcall;
-    procedure InspectFilename(Filename: PAnsiChar; FileMode: TInspectFileMode); stdcall;
+    function GetVirtualFile(Filename: PChar{PWideChar}): IVirtualStream; stdcall;
+    function AlterFile(Filename: PChar{PWideChar}; Content: PByte; FileDate, FileSize: Integer): IVirtualStream; stdcall;
+    procedure InspectFilename(Filename: PChar{PWideChar}; FileMode: TInspectFileMode); stdcall;
+    function AlterMessage(IsCompilerMessage: Boolean; var MsgKind: TMsgKind;
+      var Code: Integer; const Filename: {$IFDEF UNICODE}IWideString{$ELSE}IAnsiString{$ENDIF}; var Line, Column: Integer;
+      const Msg: {$IFDEF UNICODE}IWideString{$ELSE}IAnsiString{$ENDIF}): Boolean; stdcall;
+    procedure CompileProject(ProjectFilename: PChar{PWideChar}; UnitPaths: PChar;
+      SourcePaths: PChar; DcuOutputDir: PChar; IsCodeInsight: Boolean;
+      var Cancel: Boolean); stdcall;
   published
     property Active: Boolean read FActive write SetActive;
     property TreatWarningsAsErrors: Boolean read FTreatWarningsAsErrors write FTreatWarningsAsErrors;
@@ -72,7 +75,7 @@ procedure InitPlugin(Unload: Boolean);
 implementation
 
 uses
-  Main, Utils, InterceptLoader;
+  Main, IDEUtils, InterceptLoader;
 
 {$R *.dfm}
 
@@ -175,14 +178,19 @@ begin
   Result := CIO_ALTERMESSAGES;
 end;
 
-function TCompilerEnhancements.AlterFile(Filename, Content: PAnsiChar; FileDate,
+function TCompilerEnhancements.AlterFile(Filename: PChar; Content: PByte; FileDate,
   FileSize: Integer): IVirtualStream;
 begin
   Result := nil;
 end;
 
-procedure TCompilerEnhancements.InspectFilename(Filename: PAnsiChar;
+procedure TCompilerEnhancements.InspectFilename(Filename: PChar;
   FileMode: TInspectFileMode);
+begin
+end;
+
+procedure TCompilerEnhancements.CompileProject(ProjectFilename, UnitPaths, SourcePaths,
+  DcuOutputDir: PChar; IsCodeInsight: Boolean; var Cancel: Boolean);
 begin
 end;
 
@@ -214,20 +222,21 @@ begin
   TStringList(ExceptWarnings).Sorted := True;
 end;
 
-function TCompilerEnhancements.GetVirtualFile(Filename: PAnsiChar): IVirtualStream;
+function TCompilerEnhancements.GetVirtualFile(Filename: PChar): IVirtualStream;
 begin
   Result := nil;
 end;
 
 function TCompilerEnhancements.AlterMessage(IsCompilerMessage: Boolean;
-  var MsgKind: TMsgKind; var Code: Integer; var Filename: string; Line,
-  Column: Integer; var Msg: string): Boolean;
+  var MsgKind: TMsgKind; var Code: Integer; const Filename: {$IFDEF UNICODE}IWideString{$ELSE}IAnsiString{$ENDIF};
+  var Line, Column: Integer; const Msg: {$IFDEF UNICODE}IWideString{$ELSE}IAnsiString{$ENDIF}): Boolean;
 begin
   Result := False;
   if TreatWarningsAsErrors then
   begin
+    // Turn warnings into errors unless the warning id is on the exception list
     if (MsgKind = mkWarning) and
-       ((ExceptWarnings.Count = 0) or (ExceptWarnings.IndexOf('W' + IntToStr(Code)) <> -1)) then
+       (ExceptWarnings.IndexOf('W' + IntToStr(Code)) = -1) then
     begin
       MsgKind := mkError;
       Result := True;

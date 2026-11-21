@@ -12,18 +12,18 @@ unit RemoveTextHeightProperty;
 
 interface
 
-{$IFDEF DELPHI28_UP}
+{$IFDEF COMPILER28_UP}
 
 uses
   SysUtils, Classes, Forms, Controls, IDEHooks, Hooking;
 
 procedure SetRemoveTextHeightPropertyActive(Active: Boolean);
 
-{$ENDIF DELPHI28_UP}
+{$ENDIF COMPILER28_UP}
 
 implementation
 
-{$IFDEF DELPHI28_UP}
+{$IFDEF COMPILER28_UP}
 
 uses
   IDEUtils;
@@ -62,14 +62,14 @@ type
 
 procedure TFormEx.DefineProperties(Filer: TFiler);
 begin
-{$IF True}
+{$IF CompilerVersion >= 33.0} // Delphi 10.3+ (inline variables)
   var DefinePropertiesProc: TDefinePropertiesProc;
   TMethod(DefinePropertiesProc).Code := @TScrollingWinControl.DefineProperties;
   TMethod(DefinePropertiesProc).Data := Self;
   DefinePropertiesProc(Filer);
 {$ELSE}
   inherited DefineProperties(Filer);
-{$ENDIF}
+{$IFEND}
 
   Filer.DefineProperty('TextHeight', IgnoreInteger, nil, False);
   Filer.DefineProperty('IgnoreFontProperty', ReadIgnoreFontProperty, nil, False);
@@ -91,6 +91,6 @@ begin
   end;
 end;
 
-{$ENDIF DELPHI28_UP}
+{$ENDIF COMPILER28_UP}
 
 end.

@@ -39,7 +39,7 @@ type
     { ICompileInterceptorServices }
     function RegisterInterceptor(Interceptor: ICompileInterceptor): Integer; stdcall;
     procedure UnregisterInterceptor(Id: Integer); stdcall;
-    function GetFileContent(Filename: PWideChar): IVirtualStream; stdcall;
+    function GetFileContent(Filename: PChar{PWideChar}): IVirtualStream; stdcall;
   public
     function OpenVirtualFile(Filename: PAnsiChar; out Stream: IVirtualStream): Boolean;
     function CreateVirtualFile(Filename: PAnsiChar; out Stream: IVirtualOutStream): Boolean;
@@ -222,7 +222,7 @@ begin
   Result := FItems.Count;
 end;
 
-function TCompileInterceptorServices.GetFileContent(Filename: PWideChar): IVirtualStream;
+function TCompileInterceptorServices.GetFileContent(Filename: PChar{PWideChar}): IVirtualStream;
 var
   Stream: TStream;
 begin
@@ -247,7 +247,7 @@ var
   UniFilename: string;
   Intf: ICompileInterceptor20;
 begin
-  UniFilename := UTF8ToString(Filename);
+  UniFilename := {$IFDEF UNICODE}UTF8ToString{$ENDIF}(Filename);
   Result := False;
   for I := Count - 1 downto 0 do // last item is the first
   begin
@@ -255,10 +255,10 @@ begin
     begin
       try
         if Supports(Items[I], ICompileInterceptor20, Intf) then
-          Result := Intf.OpenVirtualFile(PWideChar(UniFilename), {out} Stream)
+          Result := Intf.OpenVirtualFile(PChar{PWideChar}(UniFilename), {out} Stream)
         else
         begin
-          Stream := Items[I].GetVirtualFile(PWideChar(UniFilename));
+          Stream := Items[I].GetVirtualFile(PChar{PWideChar}(UniFilename));
           Result := Stream <> nil;
         end;
       except
@@ -276,14 +276,14 @@ var
   UniFilename: string;
   Intf: ICompileInterceptor20;
 begin
-  UniFilename := UTF8ToString(Filename);
+  UniFilename := {$IFDEF UNICODE}UTF8ToString{$ENDIF}(Filename);
   Result := False;
   for I := Count - 1 downto 0 do // last item is the first
   begin
     if (Options[I] and CIO_VIRTUALOUTFILES <> 0) and Supports(Items[I], ICompileInterceptor20, Intf) then
     begin
       try
-        Result := Intf.CreateVirtualFile(PWideChar(UniFilename), {out} Stream);
+        Result := Intf.CreateVirtualFile(PChar{PWideChar}(UniFilename), {out} Stream);
       except
         FItems.Delete(I); // remove broken handler
       end;
@@ -301,7 +301,7 @@ var
   Buf: array of Byte;
   UniFilename: string;
 begin
-  UniFilename := UTF8ToString(Filename);
+  UniFilename := {$IFDEF UNICODE}UTF8ToString{$ENDIF}(Filename);
   Result := nil;
   Stream := nil;
   for I := Count - 1 downto 0 do // last item is the first
@@ -324,7 +324,7 @@ begin
         end;
       end;
       try
-        Stream := Items[I].AlterFile(PWideChar(UniFilename), Content, FileDate, FileSize);
+        Stream := Items[I].AlterFile(PChar{PWideChar}(UniFilename), Content, FileDate, FileSize);
       except
         FItems.Delete(I); // remove broken handler
       end;
@@ -339,13 +339,13 @@ var
   I: Integer;
   UniFilename: string;
 begin
-  UniFilename := UTF8ToString(Filename);
+  UniFilename := {$IFDEF UNICODE}UTF8ToString{$ENDIF}(Filename);
   for I := Count - 1 downto 0 do // last item is the first
   begin
     if Options[I] and CIO_INSPECTFILENAMES <> 0 then
     begin
       try
-        Items[I].InspectFilename(PWideChar(UniFilename), FileMode);
+        Items[I].InspectFilename(PChar{PWideChar}(UniFilename), FileMode);
       except
         FItems.Delete(I); // remove broken handler
       end;
@@ -358,12 +358,17 @@ function TCompileInterceptorServices.AlterMessage(IsCompilerMessage: Boolean;
   Column: Integer; var Msg: UTF8String): Boolean;
 var
   I: Integer;
-  FilenameStr, MsgStr: IWideString;
+  FilenameStr, MsgStr: {$IFDEF UNICODE}IWideString{$ELSE}IAnsiString{$ENDIF};
 begin
   Result := False;
 
+  {$IFDEF UNICODE}
   FilenameStr := TWideStringAdapter.Create(UTF8ToString(Filename));
-  MsgStr := TWideStringAdapter.Create(UTF8ToString(Msg));
+  MsgStr := TWideStringAdapter.Create(UTF8ToString(Msg));  
+  {$ELSE}
+  FilenameStr := TAnsiStringAdapter.Create(Filename);
+  MsgStr := TAnsiStringAdapter.Create(Msg);  
+  {$ENDIF}
 
   for I := Count - 1 downto 0 do // last item is the first
   begin
@@ -380,8 +385,13 @@ begin
 
   if Result then
   begin
+    {$IFDEF UNICODE}
     Filename := UTF8Encode(FilenameStr.Value);
-    Msg := UTF8Encode(FilenameStr.Value);
+    Msg := UTF8Encode(MsgStr.Value);
+    {$ELSE}
+    Filename := FilenameStr.Value;
+    Msg := MsgStr.Value;
+    {$ENDIF}
   end;
 end;
 
@@ -395,10 +405,10 @@ begin
     if Options[I] and CIO_COMPILEPROJECTS <> 0 then
     begin
       try
-        Items[I].CompileProject(PWideChar(ProjectFilename),
-                                PWideChar(UnitPaths),
-                                PWideChar(SourcePaths),
-                                PWideChar(DcuOutputDir),
+        Items[I].CompileProject(PChar{PWideChar}(ProjectFilename),
+                                PChar{PWideChar}(UnitPaths),
+                                PChar{PWideChar}(SourcePaths),
+                                PChar{PWideChar}(DcuOutputDir),
                                 IsCodeInsight, Cancel);
       except
         FItems.Delete(I); // remove broken handler
@@ -413,14 +423,14 @@ var
   UniFilename: string;
   Intf: ICompileInterceptor20;
 begin
-  UniFilename := UTF8ToString(Filename);
+  UniFilename := {$IFDEF UNICODE}UTF8ToString{$ENDIF}(Filename);
   Result := False;
   for I := Count - 1 downto 0 do // last item is the first
   begin
     if (Options[I] and CIO_FILENAMEDATES <> 0) and Supports(Items[I], ICompileInterceptor20, Intf) then
     begin
       try
-        Result := Intf.FileNameDate(PWideChar(UniFilename), {out} FileDate);
+        Result := Intf.FileNameDate(PChar{PWideChar}(UniFilename), {out} FileDate);
       except
         FItems.Delete(I); // remove broken handler
       end;

@@ -9,13 +9,15 @@ object FormMain: TFormMain
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  OldCreateOrder = False
   Position = poScreenCenter
   OnCanResize = FormCanResize
   OnCreate = FormCreate
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 13
   object Label1: TLabel
     Left = 8
     Top = 8
@@ -63,6 +65,7 @@ object FormMain: TFormMain
     Top = 24
     Width = 361
     Height = 110
+    ItemHeight = 13
     TabOrder = 3
   end
   object pbProgress: TProgressBar

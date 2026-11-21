@@ -65,7 +65,8 @@ end;
 procedure TFrameOptionPageCompilerProgress.chkReleaseCompilerUnitCacheClick(Sender: TObject);
 begin
   inherited;
-  chkReleaseCompilerUnitCacheHigh.Enabled := chkReleaseCompilerUnitCache.Checked;
+  chkReleaseCompilerUnitCacheHigh.Enabled := chkReleaseCompilerUnitCache.Enabled and
+    chkReleaseCompilerUnitCache.Checked;
 end;
 
 constructor TFrameOptionPageCompilerProgress.Create(AOwner: TComponent);
@@ -88,6 +89,14 @@ begin
   chkLastCompileVersionInfo.Visible := False;
   edtLastCompileVersionInfoFormat.Visible := False;
   {$IFEND}
+  {$IF CompilerVersion < 20.0} // pre-2009: the hooks behind these options are 2009+/2010-only
+  chkReleaseCompilerUnitCache.Enabled := False;
+  chkReleaseCompilerUnitCacheHigh.Enabled := False;
+  cbxDisableRebuildDlg.Enabled := False;
+  {$IFNDEF COMPILER7} // D7 implements "switch active project" via the ProjectMake hook
+  chkAskBeforeCompilingFileFromDiffernetProject.Enabled := False;
+  {$ENDIF}
+  {$IFEND}
 end;
 
 procedure TFrameOptionPageCompilerProgress.LoadData;
@@ -100,8 +109,9 @@ begin
   {$ELSE}
   chkReleaseCompilerUnitCache.Checked := FCompileProgress.ReleaseCompilerUnitCache;
   chkReleaseCompilerUnitCacheHigh.Checked := FCompileProgress.ReleaseCompilerUnitCacheHigh;
-  chkReleaseCompilerUnitCacheHigh.Enabled := chkReleaseCompilerUnitCache.Checked;
-  {$ENDIF}
+  chkReleaseCompilerUnitCacheHigh.Enabled := chkReleaseCompilerUnitCache.Enabled and
+    chkReleaseCompilerUnitCache.Checked;
+  {$IFEND}
 
   {$IF CompilerVersion < 22.0} // XE has its own option
   cbxDisableRebuildDlg.Checked := FCompileProgress.DisableRebuildDlg;
@@ -121,7 +131,7 @@ begin
   {$IF CompilerVersion < 36}
   FCompileProgress.ReleaseCompilerUnitCache := chkReleaseCompilerUnitCache.Checked;
   FCompileProgress.ReleaseCompilerUnitCacheHigh := chkReleaseCompilerUnitCacheHigh.Checked;
-  {$ENDIF}
+  {$IFEND}
   {$IF CompilerVersion < 22.0} // XE has its own option
   FCompileProgress.DisableRebuildDlg := cbxDisableRebuildDlg.Checked;
   {$IFEND}

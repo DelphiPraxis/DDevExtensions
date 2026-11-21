@@ -172,7 +172,7 @@ var
 implementation
 
 uses
-  System.Types;
+  Types;
 
 resourcestring
   RsNotSupported = 'Operation "%s" not supported';

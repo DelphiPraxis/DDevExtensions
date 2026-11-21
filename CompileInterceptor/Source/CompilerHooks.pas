@@ -31,7 +31,9 @@ procedure FiniCompileInterceptor;
 {function StrIsAscii(P: PAnsiChar): Boolean;
 function StrAnsiToUtf8(P: PAnsiChar): PUtf8Char;
 function StrUtf8ToAnsi(P: PUtf8Char): PAnsiChar;}
+{$IFDEF UNICODE}
 function UTF8Encode(US: PWideChar): RawByteString; overload;
+{$ENDIF UNICODE}
 
 function ReadFileContent(const Filename: string): TMemoryStream;
 
@@ -264,6 +266,7 @@ begin
 end;
 }
 
+{$IFDEF UNICODE}
 function UTF8Encode(US: PWideChar): RawByteString;
 var
   L: Integer;
@@ -283,6 +286,7 @@ begin
   if Result <> '' then
     SetCodePage(Result, CP_UTF8, False);
 end;
+{$ENDIF UNICODE}
 
 { TOpenFile }
 
@@ -338,7 +342,7 @@ var
   h: THandle;
   S: UTF8String;
 begin
-  S := UTF8Encode(Filename);
+  S := {$IFDEF UNICODE}UTF8Encode{$ENDIF}(Filename);
 
   h := OrgPascalComInOut.Open(PAnsiChar(S));
   if h <> INVALID_HANDLE_VALUE then
@@ -405,7 +409,7 @@ begin
   except
     on E: Exception do
     begin
-      OrgPascalComInOut.BMessage(mkWarning, 0, Filename, 0, 0, 0, PAnsiChar(UTF8Encode('CompilerInterceptor: ' + E.Message)));
+      OrgPascalComInOut.BMessage(mkWarning, 0, Filename, 0, 0, 0, PAnsiChar({$IFDEF UNICODE}UTF8Encode{$ENDIF}('CompilerInterceptor: ' + E.Message)));
 
       if (Result <> nil) and (Result <> TOpenFile(INVALID_HANDLE_VALUE)) then
         Result.Free
@@ -806,7 +810,7 @@ const
 
   // >= 15
 //  sGetCppCallbacks = '@Pascppcominout@GetCppCallbacks$qqrv';
-  {$IFDEF CPUX86}
+  {$IFNDEF CPUX64}
   sGetDccCallbacks = '@Pascppcominout@GetDccCallbacks$qqrv';
   {$ENDIF}
   {$IFDEF CPUX64}
@@ -900,15 +904,14 @@ begin
     if PascalProc <> nil then
     begin
       if DelphiVer >= 10 then
-        PascalProc := Pointer(PByte(PascalProc) + 10)
+        PascalProc := Pointer(PAnsiChar(PascalProc) + 10)
       else
-        PascalProc := Pointer(PByte(PascalProc) + 1);
+        PascalProc := Pointer(PAnsiChar(PascalProc) + 1);
       PascalComInOut := PascalProc^;
       OrgPascalComInOut := PascalComInOut^;
 
       SetPascalComInOut;
     end;
-
   end
   else
   begin
@@ -1126,7 +1129,7 @@ begin
     on E: Exception do
     begin
       if Assigned(OrgPascalComInOut.BMessage) then
-        OrgPascalComInOut.BMessage(mkWarning, 0, '', 0, 0, 0, PAnsiChar(UTF8Encode('CompilerInterceptor: ' + E.Message)));
+        OrgPascalComInOut.BMessage(mkWarning, 0, '', 0, 0, 0, PAnsiChar({$IFDEF UNICODE}UTF8Encode{$ENDIF}('CompilerInterceptor: ' + E.Message)));
     end;
   end;
 end;

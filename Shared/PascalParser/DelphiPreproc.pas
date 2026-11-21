@@ -550,7 +550,7 @@ begin
   if FIfdefStack.Skip then
     Exit;
 
-  Filename := Trim(Copy(UTF8ToString(L.Text), L.Index, MaxInt));
+  Filename := Trim(Copy({$IFDEF UNICODE}UTF8ToString{$ENDIF}(L.Text), L.Index, MaxInt));
   if Filename = '' then
     Error(RsFilenameExpected, [], Token);
   Len := Length(Filename);

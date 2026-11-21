@@ -12,5 +12,6 @@ object FormBase: TFormBase
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
+  OnCreate = FormCreate
   TextHeight = 13
 end

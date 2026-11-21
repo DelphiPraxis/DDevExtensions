@@ -1,18 +1,23 @@
-// * Copyright: ©2021 Fred Schetterer
-
 unit RemovePixelsPerInchProperty;
+
+// * Copyright: ©2021 Fred Schetterer
 
 {$I ..\DelphiExtension.inc}
 
 interface
 
+{$IFDEF COMPILER28_UP}
+
 uses
   SysUtils, Classes, Forms, Controls, IDEHooks, Hooking;
 
-
 procedure SetRemovePixelsPerInchPropertyActive(Active: Boolean);
 
+{$ENDIF COMPILER28_UP}
+
 implementation
+
+{$IFDEF COMPILER28_UP}
 
 uses
 //  CodeSiteLogging,
@@ -100,5 +105,7 @@ begin
   Check if anything changed in System.Classes.TDataModule.DefineProperties
 {$IFEND}
 end;
+
+{$ENDIF COMPILER28_UP}
 
 end.

@@ -41,9 +41,11 @@ destructor TSplashScreen.Destroy;
 begin
   LblProgress := nil;
   IDELoaded;
+  {$IF CompilerVersion >= 17.0} // 2005+ (no About-Box/Splash OTA services before)
   if Supports(BorlandIDEServices, IOTAAboutBoxServices) then
     (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(sPluginName, 'DDevExtensions - Extensions for the IDE' +
        sLineBreak + sLineBreak + sPluginSmallCopyright, 0);
+  {$IFEND}
   inherited Destroy;
 end;
 
@@ -77,11 +79,13 @@ var
   SplashScreenInit: Boolean;
 begin
   SplashScreenInit := False;
+  {$IF CompilerVersion >= 17.0} // 2005+ (no SplashScreenServices before)
   if BorlandIDEServices <> nil then
   begin
     SplashScreenServices.StatusMessage(sPluginName);
     SplashScreenServices.AddPluginBitmap(sPluginName, LoadBitmap(Hinstance, 'DDEVEXTENSIONSLOGO'));
   end;
+  {$IFEND}
 
   if InitTimerId <> -1 then
     KillTimer(0, InitTimerId);

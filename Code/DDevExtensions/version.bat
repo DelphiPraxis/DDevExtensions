@@ -1,2 +1,2 @@
 @SET majorversion=2
-@SET minorversion=91
+@SET minorversion=92

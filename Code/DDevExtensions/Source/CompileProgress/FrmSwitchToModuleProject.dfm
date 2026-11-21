@@ -7,10 +7,7 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
   Color = clWindow
   KeyPreview = True
   Position = poScreenCenter
-  OnCreate = FormCreate
   OnKeyDown = FormKeyDown
-  ExplicitWidth = 444
-  ExplicitHeight = 235
   PixelsPerInch = 96
   TextHeight = 13
   object LabelModuleCaption: TLabel
@@ -23,12 +20,13 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
   object LabelFileName: TLabel
     Left = 85
     Top = 24
-    Width = 84
+    Width = 81
     Height = 13
     Caption = 'LabelFileName'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
+    Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
     ParentShowHint = False
@@ -38,19 +36,20 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
   object LabelActiveProjectCaption: TLabel
     Left = 8
     Top = 8
-    Width = 69
+    Width = 71
     Height = 13
     Caption = 'Active Project:'
   end
   object LabelActiveProject: TLabel
     Left = 85
     Top = 8
-    Width = 108
+    Width = 107
     Height = 13
     Caption = 'LabelActiveProject'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
+    Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
     ParentShowHint = False
@@ -60,7 +59,7 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
   object LabelQuestion: TLabel
     Left = 8
     Top = 108
-    Width = 267
+    Width = 265
     Height = 13
     Anchors = [akLeft, akBottom]
     Caption = 'Do you want to &switch to the module'#39's project?'
@@ -68,6 +67,7 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
+    Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
   end
@@ -91,8 +91,6 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
     BevelOuter = bvNone
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 151
-    ExplicitWidth = 425
     DesignSize = (
       438
       35)
@@ -103,7 +101,6 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
       Height = 2
       Align = alTop
       Shape = bsTopLine
-      ExplicitWidth = 414
     end
     object ButtonYes: TButton
       Left = 183
@@ -114,7 +111,6 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
       Caption = 'ButtonYes'
       ModalResult = 6
       TabOrder = 0
-      ExplicitLeft = 170
     end
     object ButtonNo: TButton
       Left = 264
@@ -126,7 +122,6 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
       Default = True
       ModalResult = 7
       TabOrder = 1
-      ExplicitLeft = 251
     end
     object ButtonCancel: TButton
       Left = 357
@@ -138,7 +133,6 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
       Caption = 'ButtonCancel'
       ModalResult = 2
       TabOrder = 2
-      ExplicitLeft = 344
     end
     object CheckBoxDontShowAgain: TCheckBox
       Left = 8
@@ -156,6 +150,7 @@ inherited FormSwitchToModuleProject: TFormSwitchToModuleProject
     Height = 21
     Style = csDropDownList
     Anchors = [akLeft, akRight, akBottom]
+    ItemHeight = 13
     Sorted = True
     TabOrder = 0
   end

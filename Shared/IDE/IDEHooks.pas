@@ -253,7 +253,7 @@ const
   DelphiVersion = '28';
   BplVersion = '280';
 {$IFEND}
-{$IF CompilerVersion = 36.0} // Delphi 12.0
+{$IF CompilerVersion = 36.0} // Delphi 12.0 Athens
   DelphiVersion = '29';
   BplVersion = '290';
 {$IFEND}
@@ -448,13 +448,17 @@ begin
   DCCV.Release := DCCVersion.Release;
   DCCV.Build := 0;
 
+  {$IF CompilerVersion <= 20}{$RANGECHECKS OFF}{$IFEND} // RangeCheck might cause Internal-Error C1118
   V.Value := AVersion;
+  {$IF CompilerVersion <= 20}{$RANGECHECKS ON}{$IFEND} // RangeCheck might cause Internal-Error C1118
   if AIgnoreBuild then
     V.Build := 0
   else
     DCCV.Build := DCCVersion.Build;
 
+  {$IF CompilerVersion <= 20}{$RANGECHECKS OFF}{$IFEND} // RangeCheck might cause Internal-Error C1118
   Result := V.Value = DCCV.Value;
+  {$IF CompilerVersion <= 20}{$RANGECHECKS ON}{$IFEND} // RangeCheck might cause Internal-Error C1118
 end;
 
 function CheckCompilerVersion(AVersion: Int64; AIgnoreBuild: Boolean = True): Boolean;
@@ -469,13 +473,17 @@ begin
   DCCV.Release := DCCVersion.Release;
   DCCV.Build := 0;
 
+  {$IF CompilerVersion <= 20}{$RANGECHECKS OFF}{$IFEND} // RangeCheck might cause Internal-Error C1118
   V.Value := AVersion;
+  {$IF CompilerVersion <= 20}{$RANGECHECKS ON}{$IFEND} // RangeCheck might cause Internal-Error C1118
   if AIgnoreBuild then
     V.Build := 0
   else
     DCCV.Build := DCCVersion.Build;
 
+  {$IF CompilerVersion <= 20}{$RANGECHECKS OFF}{$IFEND} // RangeCheck might cause Internal-Error C1118
   Result := V.Value <= DCCV.Value;
+  {$IF CompilerVersion <= 20}{$RANGECHECKS ON}{$IFEND} // RangeCheck might cause Internal-Error C1118
 end;
 
 function CheckCompilerVersion(AMajor, AMinor, ARelease: Integer; ABuild: Integer = -1): Boolean;
@@ -506,7 +514,9 @@ begin
     end;
   end;
 
+  {$IF CompilerVersion <= 20}{$RANGECHECKS OFF}{$IFEND} // RangeCheck might cause Internal-Error C1118
   Result := V.Value <= DCCV.Value;
+  {$IF CompilerVersion <= 20}{$RANGECHECKS ON}{$IFEND} // RangeCheck might cause Internal-Error C1118  
 end;
 
 end.
